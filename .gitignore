@@ -1,10 +1,9 @@
 *.o
 *~
-/beetle*.tar.gz
+/bee*.tar.gz
 Makefile
 Makefile.in
 TAGS
-/dissertation
 /INSTALL
 /aclocal.m4
 /ar-lib

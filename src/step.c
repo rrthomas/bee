@@ -23,10 +23,10 @@
 #include "minmax.h"
 #include "verify.h"
 
-#include "beetle.h"
-#include "beetle_aux.h"
+#include "bee.h"
+#include "bee_aux.h"
 #include "private.h"
-#include "beetle_opcodes.h"
+#include "bee_opcodes.h"
 
 
 // Assumption for file functions
@@ -248,66 +248,66 @@ static CELL run_or_step(bool run)
             {
                 CELL a = POP;
                 CELL b = POP;
-                PUSH(b < a ? BEETLE_TRUE : BEETLE_FALSE);
+                PUSH(b < a ? BEE_TRUE : BEE_FALSE);
             }
             break;
         case O_GREATER:
             {
                 CELL a = POP;
                 CELL b = POP;
-                PUSH(b > a ? BEETLE_TRUE : BEETLE_FALSE);
+                PUSH(b > a ? BEE_TRUE : BEE_FALSE);
             }
             break;
         case O_EQUAL:
             {
                 CELL a = POP;
                 CELL b = POP;
-                PUSH(a == b ? BEETLE_TRUE : BEETLE_FALSE);
+                PUSH(a == b ? BEE_TRUE : BEE_FALSE);
             }
             break;
         case O_NEQUAL:
             {
                 CELL a = POP;
                 CELL b = POP;
-                PUSH(a != b ? BEETLE_TRUE : BEETLE_FALSE);
+                PUSH(a != b ? BEE_TRUE : BEE_FALSE);
             }
             break;
         case O_LESS0:
             {
                 CELL a = POP;
-                PUSH(a < 0 ? BEETLE_TRUE : BEETLE_FALSE);
+                PUSH(a < 0 ? BEE_TRUE : BEE_FALSE);
             }
             break;
         case O_GREATER0:
             {
                 CELL a = POP;
-                PUSH(a > 0 ? BEETLE_TRUE : BEETLE_FALSE);
+                PUSH(a > 0 ? BEE_TRUE : BEE_FALSE);
             }
             break;
         case O_EQUAL0:
             {
                 CELL a = POP;
-                PUSH(a == 0 ? BEETLE_TRUE : BEETLE_FALSE);
+                PUSH(a == 0 ? BEE_TRUE : BEE_FALSE);
             }
             break;
         case O_NEQUAL0:
             {
                 CELL a = POP;
-                PUSH(a != 0 ? BEETLE_TRUE : BEETLE_FALSE);
+                PUSH(a != 0 ? BEE_TRUE : BEE_FALSE);
             }
             break;
         case O_ULESS:
             {
                 UCELL a = POP;
                 UCELL b = POP;
-                PUSH(b < a ? BEETLE_TRUE : BEETLE_FALSE);
+                PUSH(b < a ? BEE_TRUE : BEE_FALSE);
             }
             break;
         case O_UGREATER:
             {
                 UCELL a = POP;
                 UCELL b = POP;
-                PUSH(b > a ? BEETLE_TRUE : BEETLE_FALSE);
+                PUSH(b > a ? BEE_TRUE : BEE_FALSE);
             }
             break;
         case O_ZERO:
@@ -583,7 +583,7 @@ static CELL run_or_step(bool run)
             goto next;
             break;
         case O_QBRANCH:
-            if (POP == BEETLE_FALSE) {
+            if (POP == BEE_FALSE) {
                 CELL addr = LOAD_CELL(EP);
                 CHECK_VALID_CELL(addr);
                 EP = addr;
@@ -592,7 +592,7 @@ static CELL run_or_step(bool run)
                 EP += CELL_W;
             break;
         case O_QBRANCHI:
-            if (POP == BEETLE_FALSE)
+            if (POP == BEE_FALSE)
                 EP += A * CELL_W;
             goto next;
             break;

@@ -29,10 +29,10 @@
 #include "xalloc.h"
 #include "xvasprintf.h"
 
-#include "beetle.h"
-#include "beetle_aux.h"
-#include "beetle_debug.h"
-#include "beetle_opcodes.h"
+#include "bee.h"
+#include "bee_aux.h"
+#include "bee_debug.h"
+#include "bee_opcodes.h"
 
 
 #define DEFAULT_MEMORY 1048576 // Default size of VM memory in cells (4Mb)
@@ -49,7 +49,7 @@ static bool debug_on_error = false;
 static _GL_ATTRIBUTE_FORMAT_PRINTF(1, 0) void verror(const char *format, va_list args)
 {
     if (!interactive)
-        fprintf(stderr, "Beetle:%lu: ", lineno);
+        fprintf(stderr, "Bee:%lu: ", lineno);
     vfprintf(stderr, format, args);
     fprintf(stderr, "\n");
 }
@@ -308,7 +308,10 @@ static int save_object(FILE *file, UCELL address, UCELL length)
     if (!IS_ALIGNED(address) || ptr == NULL)
         return -1;
 
-    if (fputs("BEETLE", file) == EOF ||
+    if (fputs("BEE", file) == EOF ||
+        putc('\0', file) == EOF ||
+        putc('\0', file) == EOF ||
+        putc('\0', file) == EOF ||
         putc('\0', file) == EOF ||
         putc((char)ENDISM, file) == EOF ||
         fwrite(&length, CELL_W, 1, file) != 1 ||
@@ -799,7 +802,7 @@ struct option longopts[] = {
   {0, 0, 0, 0}
 };
 
-#define VERSION_STRING "Beetle shell (C Beetle release "PACKAGE_VERSION")"
+#define VERSION_STRING "Bee shell (C Bee release "PACKAGE_VERSION")"
 #define COPYRIGHT_STRING "(c) Reuben Thomas 1994-2020"
 
 static void usage(void)
@@ -807,7 +810,7 @@ static void usage(void)
     char *shortopt, *buf;
     printf ("Usage: %s [OPTION...] [OBJECT-FILE ARGUMENT...]\n"
             "\n"
-            "Run Beetle.\n"
+            "Run Bee.\n"
             "\n",
             program_name);
 #define OPT(longname, shortname, arg, argstring, docstring)               \
@@ -867,10 +870,10 @@ int main(int argc, char *argv[])
                 usage();
                 exit(EXIT_SUCCESS);
             case 3:
-                printf("Beetle " VERSION "\n"
+                printf("Bee " VERSION "\n"
                        COPYRIGHT_STRING "\n"
-                       "Beetle comes with ABSOLUTELY NO WARRANTY.\n"
-                       "You may redistribute copies of Beetle\n"
+                       "Bee comes with ABSOLUTELY NO WARRANTY.\n"
+                       "You may redistribute copies of Bee\n"
                        "under the terms of the GNU General Public License.\n"
                        "For more information about these matters, see the file named COPYING.\n");
                 exit(EXIT_SUCCESS);

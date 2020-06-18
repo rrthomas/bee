@@ -16,8 +16,8 @@
 #include <string.h>
 #include <assert.h>
 
-#include "beetle.h"
-#include "beetle_aux.h"
+#include "bee.h"
+#include "bee_aux.h"
 
 
 int load_object(FILE *file, UCELL address)
@@ -25,7 +25,7 @@ int load_object(FILE *file, UCELL address)
     if (!IS_ALIGNED(address))
         return -1;
 
-    size_t len = strlen("BEETLE");
+    size_t len = strlen("BEE");
     char magic[7];
     assert(len + 1 <= sizeof(magic));
 
@@ -41,7 +41,7 @@ int load_object(FILE *file, UCELL address)
 
     if (fread(&magic[read], 1, sizeof(magic) - read, file) != sizeof(magic) - read)
         return -3;
-    if (strncmp(magic, "BEETLE", sizeof(magic)))
+    if (strncmp(magic, "BEE", sizeof(magic)))
         return -2;
 
     uint8_t endism;

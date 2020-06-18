@@ -8,8 +8,8 @@
 // THIS PROGRAM IS PROVIDED AS IS, WITH NO WARRANTY. USE IS AT THE USER‘S
 // RISK.
 
-#ifndef BEETLE_PRIVATE
-#define BEETLE_PRIVATE
+#ifndef BEE_PRIVATE
+#define BEE_PRIVATE
 
 
 #include "config.h"

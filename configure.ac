@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script
 
-AC_INIT(Beetle, 2.0.7, rrt@sc3d.org)
+AC_INIT(Bee, 1.0, rrt@sc3d.org)
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
@@ -69,8 +69,5 @@ AC_CONFIG_FILES([
         lib/Makefile
         src/Makefile
         tests/Makefile
-        doc/Makefile
-        doc/cbeetle.tex
-        doc/shell.tex
 ])
 AC_OUTPUT

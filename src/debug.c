@@ -20,10 +20,10 @@
 #include "verify.h"
 #include "xvasprintf.h"
 
-#include "beetle.h"
-#include "beetle_aux.h"
-#include "beetle_debug.h"
-#include "beetle_opcodes.h"
+#include "bee.h"
+#include "bee_aux.h"
+#include "bee_debug.h"
+#include "bee_opcodes.h"
 
 
 static int ibytes; // number of opcodes assembled in current instruction word so far
