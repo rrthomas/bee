@@ -253,28 +253,28 @@ static void disassemble(UCELL start, UCELL end)
         printf("$%08"PRIX32": ", p);
         CELL a;
         load_cell(p, &a);
-        p += CELL_W;
 
         const char *token = disass(a);
         if (strcmp(token, "") == 0)
             printf("Undefined instruction");
         else if (strcmp(token, "CALL") == 0)
-            printf("CALL $%"PRIX32, (UCELL)a);
+            printf("CALL $%"PRIX32, (UCELL)(p + a));
         else
             printf("%s", token);
 
         UCELL opcode = a >> 1;
-        if (opcode == O_BRANCH || opcode == O_QBRANCH || opcode == O_LITERAL || opcode == O_OFFSET) {
+        if (opcode == O_LITERAL || opcode == O_OFFSET) {
             CELL lit;
-            load_cell(p, &lit);
-            if (opcode != O_LITERAL)
-                printf(" $%"PRIX32, (UCELL)lit);
+            load_cell(p + CELL_W, &lit);
+            if (opcode == O_OFFSET)
+                printf(" +$%"PRIX32" ($%"PRIX32")", (UCELL)lit, p + lit);
             else
                 printf(" %"PRId32" ($%"PRIX32")", lit, (UCELL)lit);
             p += CELL_W;
         }
 
         printf("\n");
+        p += CELL_W;
     }
 }
 

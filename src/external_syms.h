@@ -33,6 +33,7 @@
 #define memory bee_memory
 #define MEMORY bee_MEMORY
 #define mem_realloc bee_mem_realloc
+#define offset bee_offset
 #define plit bee_plit
 #define POINTER_W bee_POINTER_W
 #define POP bee_POP

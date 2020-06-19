@@ -128,8 +128,8 @@ static CELL run_or_step(bool run)
 
         if ((A & 1) == 0) {
             PUSH_RETURN(EP);
-            CHECK_VALID_CELL(A);
-            EP = A;
+            CHECK_VALID_CELL(EP + A);
+            EP += A - CELL_W;
         } else
             switch (A >> 1) {
             case O_DROP:
@@ -324,18 +324,19 @@ static CELL run_or_step(bool run)
                 break;
             case O_BRANCH:
                 {
-                    CELL addr = LOAD_CELL(EP);
+                    CELL addr = POP;
                     CHECK_VALID_CELL(addr);
                     EP = addr;
                 }
                 break;
             case O_QBRANCH:
-                if (POP == BEE_FALSE) {
-                    CELL addr = LOAD_CELL(EP);
-                    CHECK_VALID_CELL(addr);
-                    EP = addr;
-                } else
-                    EP += CELL_W;
+                {
+                    CELL addr = POP;
+                    if (POP == BEE_FALSE) {
+                        CHECK_VALID_CELL(addr);
+                        EP = addr;
+                    }
+                }
                 break;
             case O_EXECUTE:
                 {
@@ -357,7 +358,7 @@ static CELL run_or_step(bool run)
                 EP += CELL_W;
                 break;
             case O_OFFSET:
-                PUSH(EP + LOAD_CELL(EP));
+                PUSH(EP - CELL_W + LOAD_CELL(EP));
                 EP += CELL_W;
                 break;
             case O_HALT:

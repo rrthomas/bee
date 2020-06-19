@@ -47,6 +47,13 @@ void lit(CELL literal)
     current += CELL_W;
 }
 
+void offset(UCELL addr)
+{
+    current = ALIGN(current);
+    store_cell(current, addr - current);
+    current += CELL_W;
+}
+
 void start_ass(UCELL addr)
 {
     current = addr;
@@ -95,7 +102,7 @@ _GL_ATTRIBUTE_CONST const char *disass(UCELL opcode)
 
     free(text);
     if ((opcode & 1) == 0)
-        text = xasprintf("CALL %"PRIX32, opcode);
+        text = xasprintf("CALL");
     else {
         opcode >>= 1;
         if (opcode > sizeof(mnemonic) / sizeof(mnemonic[0]) ||
