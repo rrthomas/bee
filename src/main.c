@@ -196,7 +196,12 @@ static long long parse_number(const char *s, char **endp)
         strtoll(s, endp, 10);
 }
 
-static long long single_arg(const char *s, int *bytes)
+static int is_byte(long long value)
+{
+    return (long long)(BYTE)value == value;
+}
+
+static long long single_arg(const char *s)
 {
     if (s == NULL)
         fatal("too few arguments");
@@ -206,9 +211,6 @@ static long long single_arg(const char *s, int *bytes)
 
     if (endp != &s[strlen(s)])
         fatal("invalid number");
-
-    if (bytes != NULL)
-        *bytes = byte_size(n);
 
     return n;
 }
@@ -231,13 +233,13 @@ static void double_arg(char *s, long long *start, long long *end, bool default_a
 
         plus = plus || (i < strlen(s) && s[i] == '+');
 
-        *start = single_arg(token, NULL);
+        *start = single_arg(token);
 
         if ((token = strtok(NULL, " +")) == NULL) {
             if (!default_args)
                 fatal("too few arguments");
         } else
-            *end = single_arg(token, NULL);
+            *end = single_arg(token);
     }
 
     if (plus)
@@ -301,14 +303,10 @@ static void do_assign(char *token)
 {
     char *number = strtok(NULL, " ");
     long long value;
-    int bytes = 4;
 
     upper(number);
     value = parse_instruction(number);
-    if (value != O_UNDEFINED)
-        bytes = 1;
-    else
-        value = single_arg(number, &bytes);
+    value = single_arg(number);
 
     int no = search(token, regist, registers);
     switch (no) {
@@ -338,15 +336,17 @@ static void do_assign(char *token)
             break;
         default:
             {
-                CELL adr = (CELL)single_arg(token, NULL);
+                CELL adr = (CELL)single_arg(token);
 
-                if (!IS_ALIGNED(adr) && bytes > 1)
+                if (!IS_ALIGNED(adr) && !is_byte(value))
                     fatal("only a byte can be assigned to an unaligned address");
-                if (bytes == 1) {
+                if (is_byte(value)) {
                     check_range(adr, adr + 1, "Address");
                     store_byte(adr, value);
                 } else {
                     check_range(adr, adr + CELL_W, "Address");
+                    if ((unsigned long long)value > (UCELL)-1)
+                        fatal("the value assigned to a cell must fit in a cell");
                     store_cell(adr, value);
                 }
             }
@@ -418,13 +418,13 @@ static void do_command(int no)
     switch (no) {
     case c_TOD:
         {
-            long long value = single_arg(strtok(NULL, " "), NULL);
+            long long value = single_arg(strtok(NULL, " "));
             PUSH(value);
         }
         break;
     case c_TOR:
         {
-            long long value = single_arg(strtok(NULL, " "), NULL);
+            long long value = single_arg(strtok(NULL, " "));
             PUSH_RETURN(value);
         }
         break;
@@ -471,7 +471,7 @@ static void do_command(int no)
         {
             char *arg = strtok(NULL, " ");
             if (arg != NULL) {
-                long adr = single_arg(arg, NULL);
+                long adr = single_arg(arg);
                 EP = adr;
             }
             CELL ret = single_step();
@@ -490,7 +490,7 @@ static void do_command(int no)
             UCELL adr = 0;
             char *arg = strtok(NULL, " ");
             if (arg != NULL)
-                adr = single_arg(arg, NULL);
+                adr = single_arg(arg);
 
             FILE *handle = fopen(globfile(file), "rb");
             if (handle == NULL)
@@ -537,7 +537,7 @@ static void do_command(int no)
             } else {
                 upper(arg);
                 if (strcmp(arg, "TO") == 0) {
-                    unsigned long long limit = single_arg(strtok(NULL, " "), NULL);
+                    unsigned long long limit = single_arg(strtok(NULL, " "));
                     check_range(limit, limit, "Address");
                     check_aligned(limit, "Address");
                     while ((unsigned long)EP != limit && ret == -257) {
@@ -548,7 +548,7 @@ static void do_command(int no)
                         printf("HALT code %"PRId32" was returned at EP = $%X\n",
                                ret, EP);
                 } else {
-                    unsigned long long limit = single_arg(arg, NULL), i;
+                    unsigned long long limit = single_arg(arg), i;
                     for (i = 0; i < limit && ret == -257; i++) {
                         ret = single_step();
                         if (no == c_TRACE) do_info();
@@ -587,17 +587,16 @@ static void do_command(int no)
     case c_BLITERAL:
     case c_LITERAL:
         {
-            int bytes;
-            long long value = single_arg(strtok(NULL, " "), &bytes);
+            long long value = single_arg(strtok(NULL, " "));
 
             switch (no) {
             case c_BLITERAL:
-                if (bytes > 1)
+                if (!is_byte(value))
                     fatal("the argument to BLITERAL must fit in a byte");
                 ass_byte((BYTE)value);
                 break;
             case c_LITERAL:
-                if (bytes > CELL_W)
+                if ((unsigned long long)value > (UCELL)-1)
                     fatal("the argument to LITERAL must fit in a cell");
                 lit(value);
                 break;
