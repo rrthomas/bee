@@ -359,7 +359,7 @@ static void do_display(size_t no, const char *format)
 
     switch (no) {
         case r_A:
-            display = xasprintf("A = $%"PRIX32, (UCELL)A);
+            display = xasprintf("A = %s", disass((UCELL)A));
             break;
         case r_ENDISM:
             display = xasprintf("ENDISM = %d", ENDISM);
