@@ -26,10 +26,7 @@
 #include "bee_opcodes.h"
 
 
-static int ibytes; // number of opcodes assembled in current instruction word so far
-static CELL icell;  // accumulator for instructions being assembled
-static UCELL current;	// where the current instruction word will be stored
-static UCELL here; // where we assemble the next instruction word or literal
+static UCELL current; // where we assemble the next instruction word or literal
 
 
 // Return number of bytes required for a CELL-sized quantity
@@ -54,49 +51,27 @@ _GL_ATTRIBUTE_CONST int byte_size(CELL v)
     return pos[(UCELL)(v * 0x07C4ACDDU) >> 27] / 8 + 1;
 }
 
-void ass(BYTE instr)
+void ass(UCELL instr)
 {
-    icell |= instr << ibytes * 8;
-    store_cell(current, icell);
-    ibytes++;
-    if (ibytes == CELL_W) {
-        current = here;  here += CELL_W;
-        icell = 0;  ibytes = 0;
-    }
+    current = ALIGN(current);
+    lit(instr << 1 | 1);
+}
+
+void ass_byte(BYTE b)
+{
+    store_byte(current++, b);
 }
 
 void lit(CELL literal)
 {
-    if (ibytes == 0) { store_cell(here - CELL_W, literal);  current += CELL_W; }
-    else { store_cell(here, literal); }
-    here += CELL_W;
-}
-
-bool ilit(CELL literal)
-{
-    if (byte_size(literal) > CELL_W - ibytes)
-        return false;
-
-    icell |= literal << ibytes * 8;
-    store_cell(current, icell);  current = here;  here += CELL_W;
-    icell = 0;  ibytes = 0;
-    return true;
-}
-
-void plit(void (*literal)(void))
-{
-    CELL_pointer address;
-    unsigned i;
-    address.pointer = literal;
-    for (i = 0; i < POINTER_W; i++) {
-        ass(O_LITERAL);
-        lit(address.cells[i]);
-    }
+    current = ALIGN(current);
+    store_cell(current, literal);
+    current += CELL_W;
 }
 
 void start_ass(UCELL addr)
 {
-    here = addr;  ibytes = 0;  icell = 0;  current = here;  here += CELL_W;
+    current = addr;
 }
 
 _GL_ATTRIBUTE_PURE UCELL ass_current(void)
@@ -105,19 +80,19 @@ _GL_ATTRIBUTE_PURE UCELL ass_current(void)
 }
 
 static const char *mnemonic[UINT8_MAX + 1] = {
-    "NEXT00", "DUP", "DROP", "SWAP", "OVER", "ROT", "-ROT", "TUCK",
-    "NIP", "PICK", "ROLL", "?DUP", ">R", "R>", "R@", "<",
-    ">", "=", "<>", "0<", "0>", "0=", "0<>", "U<",
-    "U>", "0", "1", "-1", "CELL", "-CELL", "+", "-",
-    ">-<", "1+", "1-", "CELL+", "CELL-", "*", "/", "MOD",
-    "/MOD", "U/MOD", "S/REM", "2/", "CELLS", "ABS", "NEGATE", "MAX",
-    "MIN", "INVERT", "AND", "OR", "XOR", "LSHIFT", "RSHIFT", "1LSHIFT",
-    "1RSHIFT", "@", "!", "C@", "C!", "+!", "SP@", "SP!",
-    "RP@", "RP!", "EP@", "S0@", "S0!", "R0@", "R0!", "'THROW@",
-    "'THROW!", "MEMORY@", "'BAD@", "-ADDRESS@", "BRANCH", "BRANCHI", "?BRANCH", "?BRANCHI",
-    "EXECUTE", "@EXECUTE", "CALL", "CALLI", "EXIT", "(DO)", "(LOOP)", "(LOOP)I",
-    "(+LOOP)", "(+LOOP)I", "UNLOOP", "J", "(LITERAL)", "(LITERAL)I", "THROW", "HALT",
-    "LINK", NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    "DROP", "PICK", "ROLL", ">R", "R>", "R@", "S0@", "S0!",
+    "SP@", "SP!", "R0@", "R0!", "RP@", "RP!", "MEMORY@", "CELL",
+    "@", "!", "C@", "C!", "+", "NEGATE", "*", "U/MOD",
+    "S/REM", "=", "<", "U<", "INVERT", "AND", "OR", "XOR",
+    "LSHIFT", "RSHIFT", "EXIT", "EXECUTE", "HALT", "(LITERAL)", "OFFSET", "BRANCH",
+    "?BRANCH", NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -134,12 +109,24 @@ static const char *mnemonic[UINT8_MAX + 1] = {
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, "NEXTFF" };
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, };
 
-_GL_ATTRIBUTE_CONST const char *disass(BYTE opcode)
+_GL_ATTRIBUTE_CONST const char *disass(UCELL opcode)
 {
-    if (mnemonic[opcode] == NULL) return "";
-    return mnemonic[opcode];
+    static char *text = NULL;
+
+    free(text);
+    if ((opcode & 1) == 0)
+        text = xasprintf("CALL %"PRIX32, opcode);
+    else {
+        opcode >>= 1;
+        if (opcode > sizeof(mnemonic) / sizeof(mnemonic[0]) ||
+            mnemonic[opcode] == NULL)
+            text = strdup("");
+        else
+            text = xasprintf("%s", mnemonic[opcode]);
+    }
+    return text;
 }
 
 _GL_ATTRIBUTE_PURE BYTE toass(const char *token)

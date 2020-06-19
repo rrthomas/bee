@@ -19,13 +19,12 @@
 // Address checking
 #define CHECK_ADDRESS(a, cond, code, label)     \
     if (!(cond)) {                              \
-        NOT_ADDRESS = a;                        \
         exception = code;                       \
         goto label;                             \
     }
 
 #define CHECK_ALIGNED(a)                                \
-    CHECK_ADDRESS(a, IS_ALIGNED(a), -23, badadr)
+    CHECK_ADDRESS(a, IS_ALIGNED(a), -23, exception)
 
 
 #endif

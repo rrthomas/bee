@@ -1,6 +1,6 @@
 // Allocate storage for the registers and memory.
 //
-// (c) Reuben Thomas 1994-2018
+// (c) Reuben Thomas 1994-2020
 //
 // The package is distributed under the GNU Public License version 3, or,
 // at your option, any later version.
@@ -27,18 +27,12 @@ BYTE I;
 CELL A;
 UCELL SP, RP;
 UCELL S0, R0;
-UCELL THROW;
 CELL *M0;
 UCELL MEMORY;
-UCELL BAD;
-UCELL NOT_ADDRESS;
 
 
-// Memory allocation and mapping
+// General memory access
 
-#include <stdio.h>
-#include <inttypes.h>
-#include <assert.h>
 // Return native address of a range of VM memory, or NULL if invalid
 _GL_ATTRIBUTE_PURE uint8_t *native_address_of_range(UCELL start, UCELL length)
 {
@@ -47,9 +41,6 @@ _GL_ATTRIBUTE_PURE uint8_t *native_address_of_range(UCELL start, UCELL length)
 
     return ((uint8_t *)M0) + start;
 }
-
-
-// General memory access
 
 // Macro for byte addressing
 #ifdef WORDS_BIGENDIAN
@@ -60,16 +51,12 @@ _GL_ATTRIBUTE_PURE uint8_t *native_address_of_range(UCELL start, UCELL length)
 
 int load_cell(UCELL addr, CELL *value)
 {
-    if (!IS_ALIGNED(addr)) {
-        NOT_ADDRESS = addr;
+    if (!IS_ALIGNED(addr))
         return -23;
-    }
 
     uint8_t *ptr = native_address_of_range(addr, CELL_W);
-    if (ptr == NULL || !IS_ALIGNED((size_t)ptr)) {
-        NOT_ADDRESS = addr;
+    if (ptr == NULL || !IS_ALIGNED((size_t)ptr))
         return -9;
-    }
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
@@ -81,26 +68,20 @@ int load_cell(UCELL addr, CELL *value)
 int load_byte(UCELL addr, BYTE *value)
 {
     uint8_t *ptr = native_address_of_range(FLIP(addr), 1);
-    if (ptr == NULL) {
-        NOT_ADDRESS = addr;
+    if (ptr == NULL)
         return -9;
-    }
     *value = *ptr;
     return 0;
 }
 
 int store_cell(UCELL addr, CELL value)
 {
-    if (!IS_ALIGNED(addr)) {
-        NOT_ADDRESS = addr;
+    if (!IS_ALIGNED(addr))
         return -23;
-    }
 
     uint8_t *ptr = native_address_of_range(addr, CELL_W);
-    if (ptr == NULL || !IS_ALIGNED((size_t)ptr)) {
-        NOT_ADDRESS = addr;
+    if (ptr == NULL || !IS_ALIGNED((size_t)ptr))
         return -9;
-    }
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
@@ -112,10 +93,8 @@ int store_cell(UCELL addr, CELL value)
 int store_byte(UCELL addr, BYTE value)
 {
     uint8_t *ptr = native_address_of_range(FLIP(addr), 1);
-    if (ptr == NULL) {
-        NOT_ADDRESS = addr;
+    if (ptr == NULL)
         return -9;
-    }
     *ptr = value;
     return 0;
 }
@@ -183,9 +162,6 @@ int init(CELL *buf, size_t size)
     A = 0;
     S0 = SP = MEMORY - 0x100;
     R0 = RP = MEMORY;
-    THROW = 0;
-    BAD = CELL_MAX;
-    NOT_ADDRESS = CELL_MAX;
 
     return 0;
 }

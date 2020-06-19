@@ -1,6 +1,6 @@
 // Test the VM-generated exceptions and HALT codes.
 //
-// (c) Reuben Thomas 1995-2018
+// (c) Reuben Thomas 1995-2020
 //
 // The package is distributed under the GNU Public License version 3, or,
 // at your option, any later version.
@@ -11,78 +11,66 @@
 #include "tests.h"
 
 
-UCELL test[] = { 0, 8, 16, 24, 36, 40, 44, 48, 56, 64, 68, 72 };
-CELL result[] = { -257, -257, 42, 0, -23, -23, -10, -9, -9, -23, -256, -258 };
-UCELL bad[] = { -1, -1, -1, 28, 40, 44, 48, 16388, 64, 68, 72, 80 };
-UCELL address[] = { -16, 16384, 0, 0, 5, 1, 0, 16384, -20, 1, 0, 1 };
+UCELL test[] = { 0, 16, 32, 72, 92, 104, 112, 124, 136, };
+CELL result[] = { -9, -9, 0, -23, -23, -9, -9, -23, -256, };
 
 
 int main(void)
 {
-    int exception = 0;
-
     size_t size = 4096;
     init((CELL *)calloc(size, CELL_W), size);
 
     start_ass(0);
-    // test 1: DUP into non-existent memory
+    // test 1: PICK into non-existent memory
     ass(O_LITERAL); lit(0xfffffff0);
-    ass(O_SPSTORE); ass(O_DUP); ass(O_NEXT00);
+    ass(O_SPSTORE); ass(O_PICK);
     // test 2: set SP to MEMORY, then try to pop (>R) the stack
-    ass(O_LITERALI); ilit(MEMORY);
-    ass(O_SPSTORE); ass(O_TOR); ass(O_NEXT00); ass(O_NEXT00);
-    // test 3: test arbitrary throw code
-    ass(O_LITERALI); ilit(42);
-    ass(O_HALT); ass(O_NEXT00); ass(O_NEXT00); ass(O_NEXT00);
-    // test 4: test SP can point to just after a memory area
-    ass(O_LITERALI); ilit(MEMORY);
-    ass(O_MINUSCELL); ass(O_SPSTORE); ass(O_TOR); ass(O_ZERO);
-    ass(O_HALT); ass(O_NEXT00); ass(O_NEXT00); ass(O_NEXT00);
-    ass(O_ONE); ass(O_PLUSCELL); ass(O_SPSTORE); ass(O_NEXT00);	// test 5
-    ass(O_ONE); ass(O_EXECUTE);	ass(O_NEXT00); ass(O_NEXT00);	// test 6
-    ass(O_ONE); ass(O_ZERO); ass(O_SLASH); ass(O_NEXT00);   // test 7
-    // test 8: allow execution to run off the end of a memory area
-    ass(O_BRANCH); ass(O_NEXT00); ass(O_NEXT00); ass(O_NEXT00);
-    lit(MEMORY - CELL_W);
-    // test 9: fetch from an invalid address
+    ass(O_LITERAL); lit(MEMORY);
+    ass(O_SPSTORE); ass(O_TOR);
+    // test 3: test SP can point to just after a memory area
+    ass(O_LITERAL); lit(MEMORY);
+    ass(O_LITERAL); lit(-CELL_W);
+    ass(O_PLUS);
+    ass(O_SPSTORE); ass(O_TOR);
+    ass(O_LITERAL); lit(0); ass(O_HALT);
+    // test 4: test setting SP to unaligned address
+    ass(O_CELL); ass(O_LITERAL); lit(1); ass(O_PLUS); ass(O_SPSTORE);
+    // test 5: test EXECUTE of unaligned address
+    ass(O_LITERAL); lit(1); ass(O_EXECUTE);
+    // test 6: allow execution to run off the end of a memory area
+    ass(O_BRANCH); lit(MEMORY - CELL_W);
+    // test 7: fetch from an invalid address
     ass(O_LITERAL); lit(0xffffffec);
-    ass(O_FETCH); ass(O_NEXT00); ass(O_NEXT00);
-    ass(O_ONE); ass(O_FETCH); ass(O_NEXT00); ass(O_NEXT00); // test 10
-    // test 11: test invalid opcode
-    ass(O_UNDEFINED); ass(O_NEXT00); ass(O_NEXT00); ass(O_NEXT00);
-    // test 12: test invalid 'THROW contents
-    ass(O_LITERAL); lit(0xffffffec);
-    ass(O_DUP); ass(O_THROWSTORE); ass(O_THROW);
-
-    start_ass(200);
-    ass(O_HALT);
-
-    THROW = 200;   // set address of exception handler
+    ass(O_FETCH);
+    // test 8: fetch from an unaligned address
+    ass(O_LITERAL); lit(1); ass(O_FETCH);
+    // test 9: test invalid opcode
+    ass(O_UNDEFINED);
 
     UCELL error = 0;
     for (size_t i = 0; i < sizeof(test) / sizeof(test[0]); i++) {
         SP = S0;    // reset stack pointer
 
         printf("Test %zu\n", i + 1);
+
+        if (i + 1 == 6) {
+            // test 6: code to run at end of memory
+            // Assemble now because it was overwritten by an earlier test
+            start_ass(MEMORY - CELL_W);
+            ass(O_CELL);
+        }
+
         EP = test[i];
-        assert(single_step() == -259);   // load first instruction word
         CELL res = run();
 
-        if (result[i] != res || (result[i] != 0 && bad[i] != BAD) ||
-            ((result[i] <= -257 || result[i] == -9 || result[i] == -23) &&
-             address[i] != NOT_ADDRESS)) {
+        if (result[i] != res) {
              printf("Error in exceptions tests: test %zu failed; EP = %"PRIu32"\n", i + 1, EP);
              printf("Return code is %d; should be %d\n", res, result[i]);
-             if (result[i] != 0)
-                 printf("'BAD = %"PRIX32"; should be %"PRIX32"\n", BAD, bad[i]);
-             if (result[i] <= -257 || result[i] == -9 || result[i] == -23)
-                 printf("-ADDRESS = %"PRIX32"; should be %"PRIX32"\n", NOT_ADDRESS, address[i]);
              error++;
         }
         putchar('\n');
     }
 
-    assert(exception == 0);
     if (error == 0)
         printf("Exceptions tests ran OK\n");
     return error;

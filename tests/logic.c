@@ -15,9 +15,23 @@
 
 
 const char *correct[] = {
-    "-16777216 8 255 8", "-16777216 8 65280",
-    "65280 -16777216 8", "65280 16711680", "16776960", "33553920", "16776960",
-    "-16776961", "-16776961 1", "-16776961 1 -1", "-16776961 -2", "-16776962"};
+    "-16777216 8 65280",
+    "-16777216 8 65280 2",
+    "8 65280 -16777216",
+    "8 65280 -16777216 2",
+    "65280 -16777216 8",
+    "65280 16711680",
+    "16776960",
+    "16776960 1",
+    "33553920",
+    "33553920 1",
+    "16776960",
+    "-16776961",
+    "-16776961 1",
+    "-16776961 1 -1",
+    "-16776961 -2",
+    "-16776962",
+};
 
 
 int main(void)
@@ -29,21 +43,30 @@ int main(void)
     PUSH(0xff000000); PUSH(8); PUSH(0xff); PUSH(8);
 
     start_ass(EP);
-    ass(O_LSHIFT); ass(O_NROT); ass(O_RSHIFT); ass(O_OR);
-    ass(O_LSHIFT1); ass(O_RSHIFT1); ass(O_INVERT); ass(O_ONE);
-    ass(O_MONE); ass(O_XOR); ass(O_AND);
+    ass(O_LSHIFT);
+    ass(O_LITERAL); lit(2); ass(O_ROLL);
+    ass(O_LITERAL); lit(2); ass(O_ROLL);
+    ass(O_RSHIFT);
+    ass(O_OR);
+    ass(O_LITERAL); lit(1);
+    ass(O_LSHIFT);
+    ass(O_LITERAL); lit(1);
+    ass(O_RSHIFT);
+    ass(O_INVERT);
+    ass(O_LITERAL); lit(1);
+    ass(O_LITERAL); lit(-1);
+    ass(O_XOR);
+    ass(O_AND);
 
-    assert(single_step() == -259);   // load first instruction word
-
-    for (size_t i = 0; i + i / 5 < sizeof(correct) / sizeof(correct[0]); i++) {
+    for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
+        assert(single_step() == -257);
+        printf("A = %s\n", disass(A));
         show_data_stack();
-        printf("Correct stack: %s\n\n", correct[i - i / 5]);
-        if (strcmp(correct[i - i / 5], val_data_stack())) {
+        printf("Correct stack: %s\n\n", correct[i]);
+        if (strcmp(correct[i], val_data_stack())) {
             printf("Error in logic tests: EP = %"PRIu32"\n", EP);
             exit(1);
         }
-        single_step();
-        printf("I = %s\n", disass(I));
     }
 
     assert(exception == 0);

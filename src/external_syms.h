@@ -2,6 +2,7 @@
 #define ALIGN bee_ALIGN
 #define ARSHIFT bee_ARSHIFT
 #define ass bee_ass
+#define ass_byte bee_ass_byte
 #define ass_current bee_ass_current
 #define BAD bee_BAD
 #define BYTE bee_BYTE
@@ -13,7 +14,6 @@
 #define CELL_pointer bee_CELL_pointer
 #define CELL_W bee_CELL_W
 #define CHAR_MASK bee_CHAR_MASK
-#define CHECKED bee_CHECKED
 #define disass bee_disass
 #define DUCELL bee_DUCELL
 #define ENDISM bee_ENDISM
@@ -21,7 +21,6 @@
 #define HASHR bee_HASHR
 #define HASHS bee_HASHS
 #define I bee_I
-#define ilit bee_ilit
 #define init bee_init
 #define IS_ALIGNED bee_IS_ALIGNED
 #define lit bee_lit
@@ -33,7 +32,6 @@
 #define memory bee_memory
 #define MEMORY bee_MEMORY
 #define mem_realloc bee_mem_realloc
-#define NOT_ADDRESS bee_NOT_ADDRESS
 #define plit bee_plit
 #define POINTER_W bee_POINTER_W
 #define POP bee_POP
@@ -62,7 +60,6 @@
 #define STORE_BYTE bee_STORE_BYTE
 #define store_cell bee_store_cell
 #define STORE_CELL bee_STORE_CELL
-#define THROW bee_THROW
 #define toass bee_toass
 #define UCELL bee_UCELL
 #define val_data_stack bee_val_data_stack

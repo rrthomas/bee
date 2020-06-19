@@ -43,16 +43,11 @@ typedef uint64_t bee_DUCELL;
 #endif
 
 extern bee_UCELL bee_EP;
-extern bee_BYTE bee_I;
 extern bee_CELL bee_A;
 extern bee_CELL *M0;
 extern bee_UCELL bee_MEMORY;
 extern bee_UCELL bee_SP, bee_RP;
 extern bee_UCELL bee_S0, bee_R0;
-extern bee_UCELL bee_THROW;
-extern bee_UCELL bee_BAD;
-extern bee_UCELL bee_NOT_ADDRESS;
-#define bee_CHECKED 1       // address checking is mandatory in this implementation
 
 // Memory access
 

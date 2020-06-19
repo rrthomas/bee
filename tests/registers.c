@@ -15,38 +15,30 @@
 #define SIZE 1024
 
 const char *correct[] = {
-    "", str(CELL_W), "", "768", "", str(SIZE), "",
-    "168", "", "168", "", str(SIZE), "", "-1", "-1 -1",
+    "768", "", str(SIZE), "", str(SIZE),
 };
 
 
 int main(void)
 {
-    int exception = 0;
-
     init((CELL *)malloc(SIZE), SIZE / CELL_W);
 
     start_ass(EP);
-    ass(O_EPFETCH); ass(O_DROP);  ass(O_S0FETCH); ass(O_DROP);
-    ass(O_R0FETCH); ass(O_DROP);  ass(O_LITERAL); ass(O_THROWSTORE);
-    lit(168); // 42 CELLS
-    ass(O_THROWFETCH); ass(O_DROP);  ass(O_MEMORYFETCH); ass(O_DROP);
-    ass(O_BADFETCH); ass(O_NOT_ADDRESSFETCH);
+    ass(O_S0FETCH); ass(O_DROP);
+    ass(O_R0FETCH); ass(O_DROP);
+    ass(O_MEMORYFETCH); ass(O_DROP);
 
-    assert(single_step() == -259);   // load first instruction word
-
-    for (size_t i = 0; i + i / 5 < sizeof(correct) / sizeof(correct[0]); i++) {
+    for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
+        assert(single_step() == -257);
+        printf("A = %s\n", disass(A));
         show_data_stack();
-        printf("Correct stack: %s\n\n", correct[i - i / 5]);
-        if (strcmp(correct[i - i / 5], val_data_stack())) {
+        printf("Correct stack: %s\n\n", correct[i]);
+        if (strcmp(correct[i], val_data_stack())) {
             printf("Error in registers tests: EP = %"PRIu32"\n", EP);
             exit(1);
         }
-        single_step();
-        printf("I = %s\n", disass(I));
     }
 
-    assert(exception == 0);
     printf("Registers tests ran OK\n");
     return 0;
 }

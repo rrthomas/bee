@@ -1,6 +1,6 @@
 # Tests Makefile.am
 #
-# (c) Reuben Thomas 2011-2018
+# (c) Reuben Thomas 2011-2020
 #
 # The package is distributed under the GNU Public License version 3, or,
 # at your option, any later version.
@@ -16,8 +16,8 @@ LDADD = $(top_builddir)/src/libbee.la
 
 check_PROGRAMS = $(TESTS) load_object
 
-TESTS = arithmetic branch comparison doloop init literals logic memory \
-	registers stack single_step run exceptions link extra_instructions
+TESTS = arithmetic branch comparison init literals logic memory \
+	registers stack single_step run exceptions extra_instructions
 TESTS_ENVIRONMENT = \
 	if test -n "$(VALGRIND)"; then export VALGRIND='$(VALGRIND)'; fi; \
 	export LIBTOOL=$(top_builddir)/libtool;
