@@ -29,6 +29,7 @@
 #define load_cell bee_load_cell
 #define LOAD_CELL bee_LOAD_CELL
 #define load_object bee_load_object
+#define M0 bee_M0
 #define memory bee_memory
 #define MEMORY bee_MEMORY
 #define mem_realloc bee_mem_realloc

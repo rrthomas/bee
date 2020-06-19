@@ -44,7 +44,7 @@ typedef uint64_t bee_DUCELL;
 
 extern bee_UCELL bee_EP;
 extern bee_CELL bee_A;
-extern bee_CELL *M0;
+extern bee_CELL *bee_M0;
 extern bee_UCELL bee_MEMORY;
 extern bee_UCELL bee_SP, bee_RP;
 extern bee_UCELL bee_S0, bee_R0;
