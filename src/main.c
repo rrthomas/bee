@@ -264,7 +264,7 @@ static void disassemble(UCELL start, UCELL end)
             printf("%s", token);
 
         UCELL opcode = a >> 1;
-        if (opcode == O_BRANCH || opcode == O_QBRANCH || opcode == O_LITERAL) {
+        if (opcode == O_BRANCH || opcode == O_QBRANCH || opcode == O_LITERAL || opcode == O_OFFSET) {
             CELL lit;
             load_cell(p, &lit);
             if (opcode != O_LITERAL)
@@ -595,9 +595,10 @@ static void do_command(int no)
                     fatal("the argument to BLITERAL must fit in a byte");
                 ass_byte((BYTE)value);
                 break;
+            case c_OFFSET:
             case c_LITERAL:
                 if ((unsigned long long)value > (UCELL)-1)
-                    fatal("the argument to LITERAL must fit in a cell");
+                    fatal("the argument to LITERAL or OFFSET must fit in a cell");
                 lit(value);
                 break;
             default: // This cannot happen

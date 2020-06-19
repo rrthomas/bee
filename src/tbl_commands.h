@@ -1,6 +1,6 @@
 // List of debugger commands.
 //
-// (c) Reuben Thomas 2018-2019
+// (c) Reuben Thomas 2018-2020
 //
 // The package is distributed under the GNU Public License version 3, or,
 // at your option, any later version.
@@ -15,10 +15,9 @@ C(DISASSEMBLE)
 C(DUMP)
 C(FROM)
 C(INFO)
-C(ILITERAL)
 C(LITERAL)
 C(LOAD)
-C(PLITERAL)
+C(OFFSET)
 C(QUIT)
 C(RFROM)
 C(RUN)
