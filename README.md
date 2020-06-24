@@ -3,9 +3,12 @@
 by Reuben Thomas <rrt@sc3d.org>  
 https://github.com/rrthomas/bee  
 
-Bee is a minimal virtual machine designed for the Forth language. It uses
+Bee is a simple virtual machine designed for the Forth language. It uses
 word-based threaded code. It has been implemented in C (for POSIX systems).
 All memory references are bounds checked. An I/O library is implemented.
+
+Bee’s small instruction set is easy to implement, yet also easy to use to
+write a naive Forth compiler with reasonable performance.
 
 This package comprises an implementation in ISO C99 using POSIX APIs.
 
