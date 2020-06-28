@@ -141,10 +141,10 @@ static const char *globdirname(const char *file)
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsuggest-attribute=pure"
-static void check_aligned(UCELL adr, const char *quantity)
+static void check_aligned(UCELL adr)
 {
     if (!IS_ALIGNED(adr))
-        fatal("%s must be cell-aligned", quantity);
+        fatal("Address must be cell-aligned");
 }
 #pragma GCC diagnostic pop
 
@@ -249,32 +249,26 @@ static void double_arg(char *s, long long *start, long long *end, bool default_a
 
 static void disassemble(UCELL start, UCELL end)
 {
-    for (UCELL p = start; p < end; ) {
+    for (UCELL p = start; p < end && p < (UCELL)-1 - CELL_W + 1; p += CELL_W) {
         printf("$%08"PRIX32": ", p);
         CELL a;
         load_cell(p, &a);
 
-        const char *token = disass(a);
-        if (strcmp(token, "") == 0)
+        const char *text = disass(a, p);
+        if (strcmp(text, "") == 0)
             printf("Undefined instruction");
-        else if (strcmp(token, "CALL") == 0)
-            printf("CALL $%"PRIX32, (UCELL)(p + a));
         else
-            printf("%s", token);
+            printf("%s", text);
 
-        UCELL opcode = a >> 1;
-        if (opcode == O_LITERAL || opcode == O_OFFSET) {
+        UCELL opcode = a >> 2;
+        if (opcode == O_LITERAL) {
             CELL lit;
             load_cell(p + CELL_W, &lit);
-            if (opcode == O_OFFSET)
-                printf(" +$%"PRIX32" ($%"PRIX32")", (UCELL)lit, p + lit);
-            else
                 printf(" %"PRId32" ($%"PRIX32")", lit, (UCELL)lit);
             p += CELL_W;
         }
 
         printf("\n");
-        p += CELL_W;
     }
 }
 
@@ -359,7 +353,7 @@ static void do_display(size_t no, const char *format)
 
     switch (no) {
         case r_A:
-            display = xasprintf("A = %s", disass((UCELL)A));
+            display = xasprintf("A = %s", disass((UCELL)A, EP));
             break;
         case r_ENDISM:
             display = xasprintf("ENDISM = %d", ENDISM);
@@ -432,8 +426,8 @@ static void do_command(int no)
         {
             long long start = (EP <= 16 ? 0 : EP - 16), end = 64;
             double_arg(strtok(NULL, ""), &start, &end, true);
-            check_aligned(start, "Address");
-            check_aligned(end, "Address");
+            check_aligned(start);
+            check_aligned(end);
             check_range(start, end, "Address");
             disassemble((UCELL)start, (UCELL)end);
         }
@@ -537,9 +531,9 @@ static void do_command(int no)
             } else {
                 upper(arg);
                 if (strcmp(arg, "TO") == 0) {
-                    unsigned long long limit = single_arg(strtok(NULL, " "));
+                    unsigned long long limit = (unsigned long long)single_arg(strtok(NULL, " "));
                     check_range(limit, limit, "Address");
-                    check_aligned(limit, "Address");
+                    check_aligned(limit);
                     while ((unsigned long)EP != limit && ret == -257) {
                         ret = single_step();
                         if (no == c_TRACE) do_info();
@@ -548,7 +542,7 @@ static void do_command(int no)
                         printf("HALT code %"PRId32" was returned at EP = $%X\n",
                                ret, EP);
                 } else {
-                    unsigned long long limit = single_arg(arg), i;
+                    unsigned long long limit = (unsigned long long)single_arg(arg), i;
                     for (i = 0; i < limit && ret == -257; i++) {
                         ret = single_step();
                         if (no == c_TRACE) do_info();
@@ -585,25 +579,39 @@ static void do_command(int no)
         }
         break;
     case c_BLITERAL:
+        {
+            long long value = single_arg(strtok(NULL, " "));
+            if (!is_byte(value))
+                fatal("the argument to BLITERAL must fit in a byte");
+            ass_byte((BYTE)value);
+            break;
+        }
+    case c_CALL:
+        {
+            unsigned long long adr = (unsigned long long)single_arg(strtok(NULL, " "));
+            check_aligned(adr);
+            check_range(adr, adr + 1, "Address");
+            call(adr);
+            break;
+        }
     case c_LITERAL:
         {
             long long value = single_arg(strtok(NULL, " "));
+            CELL stored_val = (CELL)value << 2;
+            ARSHIFT(stored_val, 2);
+            if ((long long)stored_val != value)
+                fatal("invalid argument to LITERAL");
+            lit(value);
+            break;
+        }
+    case c_OFFSET:
+        {
+            unsigned long long adr = (unsigned long long)single_arg(strtok(NULL, " "));
 
-            switch (no) {
-            case c_BLITERAL:
-                if (!is_byte(value))
-                    fatal("the argument to BLITERAL must fit in a byte");
-                ass_byte((BYTE)value);
-                break;
-            case c_OFFSET:
-            case c_LITERAL:
-                if ((unsigned long long)value > (UCELL)-1)
-                    fatal("the argument to LITERAL or OFFSET must fit in a cell");
-                lit(value);
-                break;
-            default: // This cannot happen
-                break;
-            }
+            check_aligned(adr);
+            check_range(adr, adr + 1, "Address");
+            offset(adr);
+            break;
         }
     default: // This cannot happen
         break;

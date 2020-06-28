@@ -1,6 +1,6 @@
 // Functions useful for VM debugging.
 //
-// (c) Reuben Thomas 1994-2018
+// (c) Reuben Thomas 1994-2020
 //
 // The package is distributed under the GNU Public License version 3, or,
 // at your option, any later version.
@@ -12,6 +12,7 @@
 
 #include "external_syms.h"
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -32,7 +33,8 @@ static UCELL current; // where we assemble the next instruction word or literal
 void ass(UCELL instr)
 {
     current = ALIGN(current);
-    lit(instr << 1 | 1);
+    store_cell(current, instr << 2 | OP_INSTRUCTION);
+    current += CELL_W;
 }
 
 void ass_byte(BYTE b)
@@ -43,15 +45,29 @@ void ass_byte(BYTE b)
 void lit(CELL literal)
 {
     current = ALIGN(current);
-    store_cell(current, literal);
+    CELL temp = literal << 2;
+    ARSHIFT(temp, 2);
+    assert(temp == literal);
+    store_cell(current, literal << 2 | OP_LITERAL);
     current += CELL_W;
+}
+
+static void addr_op(int op, CELL addr)
+{
+    current = ALIGN(current);
+    assert(IS_ALIGNED(addr));
+    store_cell(current, (addr - current) | op);
+    current += CELL_W;
+}
+
+void call(CELL addr)
+{
+    addr_op(OP_CALL, addr);
 }
 
 void offset(UCELL addr)
 {
-    current = ALIGN(current);
-    store_cell(current, addr - current);
-    current += CELL_W;
+    addr_op(OP_OFFSET, addr);
 }
 
 void start_ass(UCELL addr)
@@ -69,8 +85,8 @@ static const char *mnemonic[UINT8_MAX + 1] = {
     "SP@", "SP!", "R0@", "R0!", "RP@", "RP!", "MEMORY@", "CELL",
     "@", "!", "C@", "C!", "+", "NEGATE", "*", "U/MOD",
     "S/REM", "=", "<", "U<", "INVERT", "AND", "OR", "XOR",
-    "LSHIFT", "RSHIFT", "EXIT", "EXECUTE", "HALT", "(LITERAL)", "OFFSET", "BRANCH",
-    "?BRANCH", NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    "LSHIFT", "RSHIFT", "EXIT", "EXECUTE", "HALT", "BRANCH", "?BRANCH", "(LITERAL)",
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -96,20 +112,32 @@ static const char *mnemonic[UINT8_MAX + 1] = {
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, };
 
-_GL_ATTRIBUTE_CONST const char *disass(UCELL opcode)
+_GL_ATTRIBUTE_CONST const char *disass(CELL opcode, UCELL addr)
 {
     static char *text = NULL;
 
     free(text);
-    if ((opcode & 1) == 0)
-        text = xasprintf("CALL");
-    else {
-        opcode >>= 1;
-        if (opcode > sizeof(mnemonic) / sizeof(mnemonic[0]) ||
-            mnemonic[opcode] == NULL)
-            text = strdup("");
+    switch (opcode & OP_MASK) {
+    case OP_CALL:
+        text = xasprintf("CALL $%"PRIX32, (addr + (opcode & ~OP_MASK)));
+        break;
+    case OP_LITERAL:
+        {
+            ARSHIFT(opcode, 2);
+            text = xasprintf("LITERAL %"PRIi32"=$%"PRIX32, opcode, (UCELL)opcode);
+        }
+        break;
+    case OP_OFFSET:
+        text = xasprintf("OFFSET $%"PRIX32, (addr + (opcode & ~OP_MASK)));
+        break;
+    case OP_INSTRUCTION:
+        opcode >>= 2;
+        if ((UCELL)opcode <= sizeof(mnemonic) / sizeof(mnemonic[0]) &&
+            mnemonic[(UCELL)opcode] != NULL)
+            text = xasprintf("%s", mnemonic[(UCELL)opcode]);
         else
-            text = xasprintf("%s", mnemonic[opcode]);
+            text = strdup("");
+        break;
     }
     return text;
 }

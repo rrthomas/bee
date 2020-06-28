@@ -30,21 +30,21 @@ int main(void)
     init((CELL *)calloc(1024, 1), 256);
 
     start_ass(EP);
-    ass(O_LITERAL); lit(1); ass(O_NEGATE);
+    lit(1); ass(O_NEGATE);
     ass(O_CELL);
-    ass(O_LITERAL); lit(-CELL_W);
-    ass(O_LITERAL); lit(2); ass(O_ROLL);
+    lit(-CELL_W);
+    lit(2); ass(O_ROLL);
     ass(O_PLUS); ass(O_PLUS);
     ass(O_CELL);
     ass(O_STAR);
-    ass(O_LITERAL); lit(3);
+    lit(3);
     ass(O_SSLASHREM); ass(O_DROP);
-    ass(O_LITERAL); lit(-2);
+    lit(-2);
     ass(O_USLASHMOD);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
         assert(single_step() == -257);
-        printf("A = %s\n", disass(A));
+        printf("A = %s\n", disass(A, EP));
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {

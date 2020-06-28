@@ -30,7 +30,7 @@ int main(void)
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
         assert(single_step() == -257);
-        printf("A = %s\n", disass(A));
+        printf("A = %s\n", disass(A, EP));
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {

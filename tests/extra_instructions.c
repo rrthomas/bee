@@ -27,8 +27,8 @@ int main(void)
 
     start_ass(EP);
     ass(OX_ARGC);
-    ass(O_LITERAL); lit(1); ass(OX_ARGLEN);
-    ass(O_LITERAL); lit(1); ass(O_LITERAL); lit(buf); ass(OX_ARGCOPY);
+    lit(1); ass(OX_ARGLEN);
+    lit(1); lit(buf); ass(OX_ARGCOPY);
 
     assert(single_step() == -257);
     printf("argc is %"PRId32", and should be %d\n\n", LOAD_CELL(SP), argc);

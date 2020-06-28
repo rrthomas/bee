@@ -1,7 +1,7 @@
 // enum type for the opcodes to make the interpreter more readable. Opcode
 // names which are not valid C identifiers have been altered.
 //
-// (c) Reuben Thomas 1994-2018
+// (c) Reuben Thomas 1994-2020
 //
 // The package is distributed under the GNU Public License version 3, or,
 // at your option, any later version.
@@ -12,6 +12,14 @@
 #ifndef BEE_OPCODES
 #define BEE_OPCODES
 
+
+enum {
+    OP_CALL,
+    OP_LITERAL,
+    OP_OFFSET,
+    OP_INSTRUCTION,
+    OP_MASK = 3,
+};
 
 enum {
     O_DROP,
@@ -51,10 +59,9 @@ enum {
     O_EXIT,
     O_EXECUTE,
     O_HALT,
-    O_LITERAL,
-    O_OFFSET,
     O_BRANCH,
     O_QBRANCH,
+    O_LITERAL,
     O_UNDEFINED = 0x7f,
     OX_ARGC = 0x80,
     OX_ARGLEN,

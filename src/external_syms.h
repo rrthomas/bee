@@ -7,6 +7,7 @@
 #define BAD bee_BAD
 #define BYTE bee_BYTE
 #define byte_size bee_byte_size
+#define call bee_call
 #define CELL bee_CELL
 #define CELL_BIT bee_CELL_BIT
 #define CELL_MIN bee_CELL_MIN

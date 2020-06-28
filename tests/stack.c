@@ -27,12 +27,12 @@ int main(void)
 
     start_ass(EP);
     ass(O_PICK);
-    ass(O_LITERAL); lit(1);
+    lit(1);
     ass(O_PICK);
     ass(O_DROP);
-    ass(O_LITERAL); lit(1);
+    lit(1);
     ass(O_ROLL);
-    ass(O_LITERAL); lit(2);
+    lit(2);
     ass(O_ROLL);
     ass(O_TOR);
     ass(O_RFETCH);
@@ -46,7 +46,7 @@ int main(void)
             exit(1);
         }
         assert(single_step() == -257);
-        printf("A = %s\n", disass(A));
+        printf("A = %s\n", disass(A, EP));
     }
 
     assert(exception == 0);

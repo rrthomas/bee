@@ -11,7 +11,7 @@
 #include "tests.h"
 
 
-UCELL test[] = { 0, 16, 32, 72, 92, 104, 112, 124, 136, };
+UCELL test[] = { 0, 12, 24, 52, 68, 76, 84, 92, 100, };
 CELL result[] = { -9, -9, 0, -23, -23, -9, -9, -23, -256, };
 
 
@@ -22,28 +22,28 @@ int main(void)
 
     start_ass(0);
     // test 1: PICK into non-existent memory
-    ass(O_LITERAL); lit(0xfffffff0);
+    lit(0xfffffff0);
     ass(O_SPSTORE); ass(O_PICK);
     // test 2: set SP to MEMORY, then try to pop (>R) the stack
-    ass(O_LITERAL); lit(MEMORY);
+    lit(MEMORY);
     ass(O_SPSTORE); ass(O_TOR);
     // test 3: test SP can point to just after a memory area
-    ass(O_LITERAL); lit(MEMORY);
-    ass(O_LITERAL); lit(-CELL_W);
+    lit(MEMORY);
+    lit(-CELL_W);
     ass(O_PLUS);
     ass(O_SPSTORE); ass(O_TOR);
-    ass(O_LITERAL); lit(0); ass(O_HALT);
+    lit(0); ass(O_HALT);
     // test 4: test setting SP to unaligned address
-    ass(O_CELL); ass(O_LITERAL); lit(1); ass(O_PLUS); ass(O_SPSTORE);
+    ass(O_CELL); lit(1); ass(O_PLUS); ass(O_SPSTORE);
     // test 5: test EXECUTE of unaligned address
-    ass(O_LITERAL); lit(1); ass(O_EXECUTE);
+    lit(1); ass(O_EXECUTE);
     // test 6: allow execution to run off the end of a memory area
     ass(O_BRANCH); lit(MEMORY - CELL_W);
     // test 7: fetch from an invalid address
-    ass(O_LITERAL); lit(0xffffffec);
+    lit(0xffffffec);
     ass(O_FETCH);
     // test 8: fetch from an unaligned address
-    ass(O_LITERAL); lit(1); ass(O_FETCH);
+    lit(1); ass(O_FETCH);
     // test 9: test invalid opcode
     ass(O_UNDEFINED);
 

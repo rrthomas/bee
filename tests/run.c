@@ -21,7 +21,7 @@ int main(void)
     }
 
     int ret_code = 37;
-    ass(O_LITERAL); lit(ret_code);
+    lit(ret_code);
     ass(O_HALT);
 
     CELL ret = run();
@@ -32,9 +32,9 @@ int main(void)
         exit(1);
     }
 
-    UCELL final_EP = 12;
+    UCELL final_EP = 2 * CELL_W;
     printf("EP should now be %"PRIu32"\n", final_EP);
-    if (EP != 12) {
+    if (EP != final_EP) {
         printf("Error in run() tests: EP = %"PRIu32"\n", EP);
         exit(1);
     }

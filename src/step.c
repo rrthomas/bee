@@ -126,12 +126,22 @@ static CELL run_or_step(bool run)
         A = LOAD_CELL(EP);
         EP += CELL_W;
 
-        if ((A & 1) == 0) {
+        switch (A & OP_MASK) {
+        case OP_CALL:
             PUSH_RETURN(EP);
             CHECK_VALID_CELL(EP + A);
             EP += A - CELL_W;
-        } else
-            switch (A >> 1) {
+            break;
+        case OP_LITERAL:
+            temp = A;
+            ARSHIFT(temp, 2);
+            PUSH(temp);
+            break;
+        case OP_OFFSET:
+            PUSH(EP - CELL_W + (A & ~OP_MASK));
+            break;
+        case OP_INSTRUCTION:
+            switch (A >> 2) {
             case O_DROP:
                 (void)POP;
                 break;
@@ -338,6 +348,10 @@ static CELL run_or_step(bool run)
                     }
                 }
                 break;
+            case O_LITERAL:
+                PUSH(LOAD_CELL(EP));
+                EP += CELL_W;
+                break;
             case O_EXECUTE:
                 {
                     CELL addr = POP;
@@ -352,14 +366,6 @@ static CELL run_or_step(bool run)
                     CHECK_VALID_CELL(addr);
                     EP = addr;
                 }
-                break;
-            case O_LITERAL:
-                PUSH(LOAD_CELL(EP));
-                EP += CELL_W;
-                break;
-            case O_OFFSET:
-                PUSH(EP - CELL_W + LOAD_CELL(EP));
-                EP += CELL_W;
                 break;
             case O_HALT:
                 return POP;
@@ -562,6 +568,8 @@ static CELL run_or_step(bool run)
                 exception = -256;
                 goto exception;
             }
+            break;
+        }
     } while (run == true && exception == 0);
 
  exception:

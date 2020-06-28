@@ -44,23 +44,23 @@ int main(void)
 
     start_ass(EP);
     ass(O_LSHIFT);
-    ass(O_LITERAL); lit(2); ass(O_ROLL);
-    ass(O_LITERAL); lit(2); ass(O_ROLL);
+    lit(2); ass(O_ROLL);
+    lit(2); ass(O_ROLL);
     ass(O_RSHIFT);
     ass(O_OR);
-    ass(O_LITERAL); lit(1);
+    lit(1);
     ass(O_LSHIFT);
-    ass(O_LITERAL); lit(1);
+    lit(1);
     ass(O_RSHIFT);
     ass(O_INVERT);
-    ass(O_LITERAL); lit(1);
-    ass(O_LITERAL); lit(-1);
+    lit(1);
+    lit(-1);
     ass(O_XOR);
     ass(O_AND);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
         assert(single_step() == -257);
-        printf("A = %s\n", disass(A));
+        printf("A = %s\n", disass(A, EP));
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {
