@@ -30,7 +30,7 @@ int main(void)
     init((CELL *)calloc(size, CELL_W), size);
 
     start_ass(EP);
-    lit(48); ass(O_BRANCH);
+    offset(48); ass(O_BRANCH);
 
     start_ass(48);
     lit(10000); ass(O_BRANCH);
