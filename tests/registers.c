@@ -15,7 +15,7 @@
 #define SIZE 1024
 
 const char *correct[] = {
-    "768", "", str(SIZE), "", str(SIZE),
+    str(SIZE), "",
 };
 
 
@@ -24,8 +24,6 @@ int main(void)
     init((CELL *)malloc(SIZE), SIZE / CELL_W);
 
     start_ass(EP);
-    ass(O_S0FETCH); ass(O_DROP);
-    ass(O_R0FETCH); ass(O_DROP);
     ass(O_MEMORYFETCH); ass(O_DROP);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {

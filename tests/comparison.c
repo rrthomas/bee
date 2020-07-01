@@ -21,7 +21,7 @@ CELL correct[] = { 0, -1, 0, -1, -1, 0, 0, -1, 0, 0 };
 
 static void stack1(void)
 {
-    SP = S0;	// empty the stack
+    SP = 0;	// empty the stack
 
     PUSH(-4); PUSH(3);
     PUSH(2); PUSH(2);
@@ -31,7 +31,7 @@ static void stack1(void)
 
 static void stack2(void)
 {
-    SP = S0;	// empty the stack
+    SP = 0;	// empty the stack
 
     PUSH(1); PUSH(-1);
     PUSH(237); PUSH(237);
@@ -42,10 +42,11 @@ static void step(unsigned start, unsigned end)
     if (end > start)
         for (unsigned i = start; i < end; i++) {
             assert(single_step() == ERROR_STEP);
+            show_data_stack();
             printf("A = %s\n", disass(A, EP));
-            printf("Result: %d; correct result: %d\n\n", LOAD_CELL(SP),
+            printf("Result: %d; correct result: %d\n\n", *stack_position(S0, SP, 0),
                    correct[i]);
-            if (correct[i] != LOAD_CELL(SP)) {
+            if (correct[i] != *stack_position(S0, SP, 0)) {
                 printf("Error in comparison tests: EP = %"PRIu32"\n", EP);
                 exit(1);
             }

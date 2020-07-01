@@ -120,7 +120,8 @@ static CELL run_or_step(bool run)
 {
     int exception = 0;
     do {
-        CELL temp = 0, temp2 = 0;
+        CELL temp = 0;
+        DUCELL tempd = 0;
         BYTE byte = 0;
 
         A = LOAD_CELL(EP);
@@ -147,19 +148,24 @@ static CELL run_or_step(bool run)
                 break;
             case O_PICK:
                 {
-                    CELL depth = POP;
-                    CELL pickee = LOAD_CELL(SP - depth * CELL_W * STACK_DIRECTION);
-                    PUSH(pickee);
+                    UCELL depth = POP;
+                    if (depth > SP)
+                        exception = ERROR_STACK_UNDERFLOW;
+                    else
+                        PUSH(S0[SP - (depth + 1)]);
                 }
                 break;
             case O_ROLL:
                 {
-                    CELL depth = POP;
-                    CELL rollee = LOAD_CELL(SP - depth * CELL_W * STACK_DIRECTION);
-                    for (int i = depth; i > 0; i--)
-                        STORE_CELL(SP - i * CELL_W * STACK_DIRECTION,
-                                   LOAD_CELL(SP - (i - 1) * CELL_W * STACK_DIRECTION));
-                    STORE_CELL(SP, rollee);
+                    UCELL depth = POP;
+                    if (depth > SP)
+                        exception = ERROR_STACK_UNDERFLOW;
+                    else {
+                        UCELL rollee = S0[SP - (depth + 1)];
+                        for (UCELL i = depth; i > 0; i--)
+                            S0[SP - (i + 1)] = S0[SP - i];
+                        S0[SP - 1] = rollee;
+                    }
                 }
                 break;
             case O_TOR:
@@ -171,13 +177,18 @@ static CELL run_or_step(bool run)
             case O_RFROM:
                 {
                     CELL value = POP_RETURN;
-                    PUSH(value);
+                    if (exception == ERROR_OK)
+                        PUSH(value);
                 }
                 break;
             case O_RFETCH:
                 {
-                    CELL value = LOAD_CELL(RP);
-                    PUSH(value);
+                    if (RP == 0)
+                        exception = ERROR_STACK_UNDERFLOW;
+                    else {
+                        CELL value = *stack_position(R0, RP, 0);
+                        PUSH(value);
+                    }
                 }
                 break;
             case O_LESS:
@@ -318,7 +329,6 @@ static CELL run_or_step(bool run)
             case O_SPSTORE:
                 {
                     CELL value = POP;
-                    CHECK_ALIGNED(value);
                     SP = value;
                 }
                 break;
@@ -328,7 +338,6 @@ static CELL run_or_step(bool run)
             case O_RPSTORE:
                 {
                     CELL value = POP;
-                    CHECK_ALIGNED(value);
                     RP = value;
                 }
                 break;
@@ -365,26 +374,6 @@ static CELL run_or_step(bool run)
                 break;
             case O_HALT:
                 return POP;
-            case O_S0FETCH:
-                PUSH(S0);
-                break;
-            case O_S0STORE:
-                {
-                    CELL value = POP;
-                    CHECK_ALIGNED(value);
-                    S0 = value;
-                }
-                break;
-            case O_R0FETCH:
-                PUSH(R0);
-                break;
-            case O_R0STORE:
-                {
-                    CELL value = POP;
-                    CHECK_ALIGNED(value);
-                    R0 = value;
-                }
-                break;
             case O_MEMORYFETCH:
                 PUSH(MEMORY);
                 break;

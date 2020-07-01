@@ -18,6 +18,13 @@ AC_PATH_PROG([HELP2MAN], [help2man], [help2man])
 
 # Optimization
 AX_CC_MAXOPT
+AX_GCC_BUILTIN(__builtin_expect)
+if test "$ax_cv_have___builtin_expect" = yes; then
+  HAVE___BUILTIN_EXPECT=1
+else
+  HAVE___BUILTIN_EXPECT=0
+fi
+AC_SUBST([HAVE___BUILTIN_EXPECT])
 
 dnl Readline wrapper
 AC_PATH_PROG(RLWRAP, rlwrap)
@@ -68,6 +75,7 @@ AC_CONFIG_FILES([
         Makefile
         lib/Makefile
         src/Makefile
+        src/private.h
         tests/Makefile
 ])
 AC_OUTPUT

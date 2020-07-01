@@ -11,13 +11,13 @@
 #include "tests.h"
 
 
-UCELL test[] = { 0, 12, 24, 52, 68, 76, 84, 92, 100, };
 CELL result[] = {
-    ERROR_INVALID_LOAD, ERROR_INVALID_LOAD, 0,
-    ERROR_UNALIGNED_ADDRESS, ERROR_UNALIGNED_ADDRESS,
+    ERROR_STACK_OVERFLOW, ERROR_STACK_OVERFLOW, 0,
+    ERROR_UNALIGNED_ADDRESS,
     ERROR_INVALID_LOAD, ERROR_INVALID_LOAD, ERROR_UNALIGNED_ADDRESS,
     ERROR_INVALID_OPCODE,
 };
+UCELL test[sizeof(result) / sizeof(result[0])];
 
 
 int main(void)
@@ -26,35 +26,39 @@ int main(void)
     init((CELL *)calloc(size, CELL_W), size);
 
     start_ass(0);
-    // test 1: PICK into non-existent memory
-    lit(0xfffffff0);
+    // test 1: PICK with SP > SSIZE
+    test[0] = ass_current();
+    lit(SSIZE + 1);
     ass(O_SPSTORE); ass(O_PICK);
-    // test 2: set SP to MEMORY, then try to pop (>R) the stack
-    lit(MEMORY);
+    // test 2: set SP to SSIZE + 1, then try to pop (>R) the stack
+    test[1] = ass_current();
+    lit(SSIZE + 1);
     ass(O_SPSTORE); ass(O_TOR);
-    // test 3: test SP can point to just after a memory area
-    lit(MEMORY);
-    lit(-CELL_W);
-    ass(O_PLUS);
+    // test 3: test SP can be SSIZE
+    test[2] = ass_current();
+    lit(SSIZE);
     ass(O_SPSTORE); ass(O_TOR);
     lit(0); ass(O_HALT);
-    // test 4: test setting SP to unaligned address
-    ass(O_CELL); lit(1); ass(O_PLUS); ass(O_SPSTORE);
-    // test 5: test EXECUTE of unaligned address
+    // test 4: test EXECUTE of unaligned address
+    test[3] = ass_current();
     lit(1); ass(O_EXECUTE);
-    // test 6: allow execution to run off the end of a memory area
-    ass(O_BRANCH); lit(MEMORY - CELL_W);
-    // test 7: fetch from an invalid address
+    // test 5: allow execution to run off the end of memory
+    test[4] = ass_current();
+    lit(MEMORY - CELL_W); ass(O_BRANCH);
+    // test 6: fetch from an invalid address
+    test[5] = ass_current();
     lit(0xffffffec);
     ass(O_FETCH);
-    // test 8: fetch from an unaligned address
+    // test 7: fetch from an unaligned address
+    test[6] = ass_current();
     lit(1); ass(O_FETCH);
-    // test 9: test invalid opcode
+    // test 8: test invalid opcode
+    test[7] = ass_current();
     ass(O_UNDEFINED);
 
     UCELL error = 0;
     for (size_t i = 0; i < sizeof(test) / sizeof(test[0]); i++) {
-        SP = S0;    // reset stack pointer
+        SP = 0;    // reset stack pointer
 
         printf("Test %zu\n", i + 1);
 

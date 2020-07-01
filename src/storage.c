@@ -25,10 +25,40 @@
 UCELL EP;
 BYTE I;
 CELL A;
+CELL *M0, *R0, *S0;
+UCELL RSIZE, SSIZE;
 UCELL SP, RP;
-UCELL S0, R0;
-CELL *M0;
 UCELL MEMORY;
+
+
+// Stacks
+
+_GL_ATTRIBUTE_CONST CELL *stack_position(CELL *s0, UCELL sp, UCELL pos)
+{
+    if (pos >= sp)
+        return NULL;
+    return &s0[sp - pos - 1];
+}
+
+int pop_stack(CELL *s0, UCELL ssize, UCELL *sp, CELL *val_ptr)
+{
+    if (*sp == 0)
+        return ERROR_STACK_UNDERFLOW;
+    else if (*sp > ssize)
+        return ERROR_STACK_OVERFLOW;
+    (*sp)--;
+    *val_ptr = s0[*sp];
+    return ERROR_OK;
+}
+
+int push_stack(CELL *s0, UCELL ssize, UCELL *sp, CELL val)
+{
+    if (unlikely(*sp >= ssize))
+        return ERROR_STACK_OVERFLOW;
+    s0[*sp] = val;
+    (*sp)++;
+    return ERROR_OK;
+}
 
 
 // General memory access
@@ -160,8 +190,21 @@ int init(CELL *buf, size_t size)
 
     EP = 0;
     A = 0;
-    S0 = SP = MEMORY - 0x100;
-    R0 = RP = MEMORY;
+    SP = 0;
+    SSIZE = /* FIXME: Variable */ 4096;
+    S0 = (CELL *)calloc(SSIZE, CELL_W);
+    if (S0 == NULL) {
+        free(buf);
+        return -1;
+    }
+    RP = 0;
+    RSIZE = /* FIXME: Variable */ 4096;
+    R0 = (CELL *)calloc(RSIZE, CELL_W);
+    if (R0 == NULL) {
+        free(buf);
+        free(R0);
+        return -1;
+    }
 
     return 0;
 }

@@ -31,7 +31,7 @@ int main(void)
     lit(1); lit(buf); ass(OX_ARGCOPY);
 
     assert(single_step() == ERROR_STEP);
-    printf("argc is %"PRId32", and should be %d\n\n", LOAD_CELL(SP), argc);
+    printf("argc is %"PRId32", and should be %d\n\n", *stack_position(S0, SP, 0), argc);
     if (POP != argc) {
        printf("Error in extra instructions tests: EP = %"PRIu32"\n", EP);
         exit(1);
@@ -39,7 +39,7 @@ int main(void)
 
     assert(single_step() == ERROR_STEP);
     assert(single_step() == ERROR_STEP);
-    printf("arg 1's length is %"PRId32", and should be %zu\n", LOAD_CELL(SP), strlen(argv[1]));
+    printf("arg 1's length is %"PRId32", and should be %zu\n", *stack_position(S0, SP, 0), strlen(argv[1]));
     if ((UCELL)POP != strlen(argv[1])) {
         printf("Error in extra instructions tests: EP = %"PRIu32"\n", EP);
         exit(1);

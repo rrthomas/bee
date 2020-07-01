@@ -301,6 +301,8 @@ static void do_assign(char *token)
         case r_ENDISM:
         case r_M0:
         case r_MEMORY:
+        case r_R0:
+        case r_S0:
             fatal("cannot assign to %s", regist[no]);
             break;
         case r_EP:
@@ -310,14 +312,8 @@ static void do_assign(char *token)
         case r_RP:
             RP = value;
             break;
-        case r_R0:
-            R0 = value;
-            break;
         case r_SP:
             SP = value;
-            break;
-        case r_S0:
-            S0 = value;
             break;
         default:
             {
@@ -362,13 +358,13 @@ static void do_display(size_t no, const char *format)
             display = xasprintf("RP = $%"PRIX32" (%"PRIu32")", RP, RP);
             break;
         case r_R0:
-            display = xasprintf("R0 = $%"PRIX32" (%"PRIu32")", R0, R0);
+            display = xasprintf("R0 = %p", R0);
             break;
         case r_SP:
             display = xasprintf("SP = $%"PRIX32" (%"PRIu32")", SP, SP);
             break;
         case r_S0:
-            display = xasprintf("S0 = $%"PRIX32" (%"PRIu32")", S0, S0);
+            display = xasprintf("S0 = %p", S0);
             break;
         default:
             display = xasprintf("unknown register");
@@ -381,16 +377,12 @@ static void do_display(size_t no, const char *format)
     free(display);
 }
 
-static void do_registers(void)
-{
-    do_display(r_EP, "%-25s");
-    do_display(r_A, "%-16s");
-    putchar('\n');
-}
-
 static void do_info(void)
 {
-    do_registers();
+    do_display(r_EP, "%-25s");
+    CELL c;
+    load_cell(EP, &c);
+    printf("%-16s\n", disass((UCELL)c, EP));
     show_data_stack();
     show_return_stack();
 }
@@ -516,9 +508,9 @@ static void do_command(int no)
             CELL ret = ERROR_STEP;
 
             if (arg == NULL) {
+                if (no == c_TRACE) do_info();
                 if ((ret = single_step()))
                     printf("HALT code %"PRId32" was returned\n", ret);
-                if (no == c_TRACE) do_info();
             } else {
                 upper(arg);
                 if (strcmp(arg, "TO") == 0) {
@@ -526,8 +518,8 @@ static void do_command(int no)
                     check_range(limit, limit, "Address");
                     check_aligned(limit);
                     while ((unsigned long)EP != limit && ret == ERROR_STEP) {
-                        ret = single_step();
                         if (no == c_TRACE) do_info();
+                        ret = single_step();
                     }
                     if (ret != 0)
                         printf("HALT code %"PRId32" was returned at EP = $%X\n",
@@ -535,8 +527,8 @@ static void do_command(int no)
                 } else {
                     unsigned long long limit = (unsigned long long)single_arg(arg), i;
                     for (i = 0; i < limit && ret == ERROR_STEP; i++) {
-                        ret = single_step();
                         if (no == c_TRACE) do_info();
+                        ret = single_step();
                     }
                     if (ret != 0)
                         printf("HALT code %"PRId32" was returned after %llu "

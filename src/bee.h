@@ -16,7 +16,6 @@
 #include "config.h"
 
 #include <stdio.h>      // for the FILE type
-#include <stdbool.h>
 #include <stdint.h>
 #include <limits.h>
 
@@ -44,10 +43,10 @@ typedef uint64_t bee_DUCELL;
 
 extern bee_UCELL bee_EP;
 extern bee_CELL bee_A;
-extern bee_CELL *bee_M0;
+extern bee_CELL *bee_M0, *bee_R0, *bee_S0;
+extern bee_UCELL bee_RSIZE, bee_SSIZE;
 extern bee_UCELL bee_MEMORY;
 extern bee_UCELL bee_SP, bee_RP;
-extern bee_UCELL bee_S0, bee_R0;
 
 // Error codes
 enum {
@@ -61,6 +60,12 @@ enum {
     BEE_ERROR_DIVISION_BY_ZERO = -8,
     BEE_ERROR_STEP = -257,
 };
+
+// Stack access
+_GL_ATTRIBUTE_PURE CELL *bee_stack_position(CELL *s0, UCELL sp, UCELL pos);
+int bee_pop_stack(CELL *s0, UCELL ssize, UCELL *sp, CELL *val_ptr);
+int bee_push_stack(CELL *s0, UCELL ssize, UCELL *sp, CELL val);
+
 
 // Memory access
 

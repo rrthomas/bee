@@ -81,11 +81,11 @@ _GL_ATTRIBUTE_PURE UCELL ass_current(void)
 }
 
 static const char *mnemonic[UINT8_MAX + 1] = {
-    "DROP", "PICK", "ROLL", ">R", "R>", "R@", "S0@", "S0!",
-    "SP@", "SP!", "R0@", "R0!", "RP@", "RP!", "MEMORY@", "CELL",
-    "@", "!", "C@", "C!", "+", "NEGATE", "*", "U/MOD",
-    "S/REM", "=", "<", "U<", "INVERT", "AND", "OR", "XOR",
-    "LSHIFT", "RSHIFT", "EXIT", "EXECUTE", "HALT", "BRANCH", "?BRANCH", NULL,
+    "DROP", "PICK", "ROLL", ">R", "R>", "R@", "SP@", "SP!",
+    "RP@", "RP!", "MEMORY@", "CELL", "@", "!", "C@", "C!",
+    "+", "NEGATE", "*", "U/MOD", "S/REM", "=", "<", "U<",
+    "INVERT", "AND", "OR", "XOR", "LSHIFT", "RSHIFT", "EXIT", "EXECUTE",
+    "HALT", "BRANCH", "?BRANCH", NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -156,27 +156,19 @@ static char *_val_data_stack(bool with_hex)
 
     free(picture);
     picture = xasprintf("%s", "");
-    if (!STACK_UNDERFLOW(SP, S0))
-        for (UCELL i = S0; i != SP;) {
-            CELL c;
-            char *ptr;
-            i += CELL_W * STACK_DIRECTION;
-            int exception = load_cell(i, &c);
-            if (exception != 0) {
-                ptr = xasprintf("%sinvalid address!", picture);
-                free(picture);
-                picture = ptr;
-                break;
-            }
-            ptr = xasprintf("%s%"PRId32, picture, c);
+    if (SP > SSIZE) {
+        picture = xasprintf("%s", "stack overflow");
+    } else
+        for (UCELL i = 0; i < SP; i++) {
+            char *ptr = xasprintf("%s%"PRId32, picture, S0[i]);
             free(picture);
             picture = ptr;
             if (with_hex) {
-                ptr = xasprintf("%s ($%"PRIX32") ", picture, (UCELL)c);
+                ptr = xasprintf("%s ($%"PRIX32") ", picture, (UCELL)S0[i]);
                 free(picture);
                 picture = ptr;
             }
-            if (i != SP) {
+            if (i != SP - 1) {
                 ptr = xasprintf("%s ", picture);
                 free(picture);
                 picture = ptr;
@@ -193,32 +185,24 @@ char *val_data_stack(void)
 
 void show_data_stack(void)
 {
-    if (SP == S0)
+    if (SP == 0)
         printf("Data stack empty\n");
-    else if (STACK_UNDERFLOW(SP, S0))
-        printf("Data stack underflow\n");
+    else if (SP > SSIZE)
+        printf("Data stack overflow\n");
     else
         printf("Data stack: %s\n", _val_data_stack(true));
 }
 
 void show_return_stack(void)
 {
-    if (RP == R0)
+    if (RP == 0)
         printf("Return stack empty\n");
-    else if (STACK_UNDERFLOW(RP, R0))
-        printf("Return stack underflow\n");
+    else if (RP > RSIZE)
+        printf("Return stack overflow\n");
     else {
         printf("Return stack: ");
-        for (UCELL i = R0; i != RP;) {
-            CELL c;
-            i += CELL_W * STACK_DIRECTION;
-            int exception = load_cell(i, &c);
-            if (exception != 0) {
-                printf("invalid address!\n");
-                break;
-            }
-            printf("$%"PRIX32" ", (UCELL)c);
-        }
+        for (UCELL i = 0; i < RP; i++)
+            printf("$%"PRIX32" ", (UCELL)R0[i]);
         putchar('\n');
     }
 }
