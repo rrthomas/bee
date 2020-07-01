@@ -61,7 +61,6 @@ enum {
     O_HALT,
     O_BRANCH,
     O_QBRANCH,
-    O_LITERAL,
     O_UNDEFINED = 0x7f,
     OX_ARGC = 0x80,
     OX_ARGLEN,

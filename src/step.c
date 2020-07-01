@@ -348,10 +348,6 @@ static CELL run_or_step(bool run)
                     }
                 }
                 break;
-            case O_LITERAL:
-                PUSH(LOAD_CELL(EP));
-                EP += CELL_W;
-                break;
             case O_EXECUTE:
                 {
                     CELL addr = POP;

@@ -259,15 +259,6 @@ static void disassemble(UCELL start, UCELL end)
             printf("Undefined instruction");
         else
             printf("%s", text);
-
-        UCELL opcode = a >> 2;
-        if (opcode == O_LITERAL) {
-            CELL lit;
-            load_cell(p + CELL_W, &lit);
-                printf(" %"PRId32" ($%"PRIX32")", lit, (UCELL)lit);
-            p += CELL_W;
-        }
-
         printf("\n");
     }
 }
