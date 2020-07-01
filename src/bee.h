@@ -49,6 +49,19 @@ extern bee_UCELL bee_MEMORY;
 extern bee_UCELL bee_SP, bee_RP;
 extern bee_UCELL bee_S0, bee_R0;
 
+// Error codes
+enum {
+    BEE_ERROR_OK = 0,
+    BEE_ERROR_INVALID_OPCODE = -1,
+    BEE_ERROR_STACK_UNDERFLOW = -2,
+    BEE_ERROR_STACK_OVERFLOW = -3,
+    BEE_ERROR_INVALID_MEMORY_READ = -5,
+    BEE_ERROR_INVALID_MEMORY_WRITE = -6,
+    BEE_ERROR_UNALIGNED_ADDRESS = -7,
+    BEE_ERROR_DIVISION_BY_ZERO = -8,
+    BEE_ERROR_STEP = -257,
+};
+
 // Memory access
 
 // Return value is 0 if OK, or exception code for invalid or unaligned address

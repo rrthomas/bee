@@ -24,7 +24,7 @@
     }
 
 #define CHECK_ALIGNED(a)                                \
-    CHECK_ADDRESS(a, IS_ALIGNED(a), -23, exception)
+    CHECK_ADDRESS(a, IS_ALIGNED(a), ERROR_UNALIGNED_ADDRESS, exception)
 
 
 #endif

@@ -37,9 +37,9 @@ verify(sizeof(int) <= sizeof(CELL));
 #define IS_VALID(a)                                     \
     (native_address_of_range((a), CELL_W) != NULL)
 
-#define CHECK_VALID_CELL(a)                             \
-    CHECK_ADDRESS(a, IS_ALIGNED(a), -23, exception)     \
-    CHECK_ADDRESS(a, IS_VALID(a), -9, exception)
+#define CHECK_VALID_CELL(a)                                           \
+    CHECK_ADDRESS(a, IS_ALIGNED(a), ERROR_UNALIGNED_ADDRESS, exception)     \
+    CHECK_ADDRESS(a, IS_VALID(a), ERROR_INVALID_LOAD, exception)
 
 
 // Division macros
@@ -561,7 +561,7 @@ static CELL run_or_step(bool run)
                 break;
 
             default:
-                exception = -256;
+                exception = ERROR_INVALID_OPCODE;
                 goto exception;
             }
             break;
@@ -570,7 +570,7 @@ static CELL run_or_step(bool run)
 
  exception:
     if (exception == 0 && run == false)
-        exception = -257; // single_step terminated OK
+        exception = ERROR_STEP; // single_step terminated OK
     return exception;
 }
 

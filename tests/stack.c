@@ -45,7 +45,7 @@ int main(void)
             printf("Error in stack tests: EP = %"PRIu32"\n", EP);
             exit(1);
         }
-        assert(single_step() == -257);
+        assert(single_step() == ERROR_STEP);
         printf("A = %s\n", disass(A, EP));
     }
 

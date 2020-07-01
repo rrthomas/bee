@@ -513,7 +513,7 @@ static void do_command(int no)
     case c_TRACE:
         {
             char *arg = strtok(NULL, " ");
-            CELL ret = -257;
+            CELL ret = ERROR_STEP;
 
             if (arg == NULL) {
                 if ((ret = single_step()))
@@ -525,7 +525,7 @@ static void do_command(int no)
                     unsigned long long limit = (unsigned long long)single_arg(strtok(NULL, " "));
                     check_range(limit, limit, "Address");
                     check_aligned(limit);
-                    while ((unsigned long)EP != limit && ret == -257) {
+                    while ((unsigned long)EP != limit && ret == ERROR_STEP) {
                         ret = single_step();
                         if (no == c_TRACE) do_info();
                     }
@@ -534,7 +534,7 @@ static void do_command(int no)
                                ret, EP);
                 } else {
                     unsigned long long limit = (unsigned long long)single_arg(arg), i;
-                    for (i = 0; i < limit && ret == -257; i++) {
+                    for (i = 0; i < limit && ret == ERROR_STEP; i++) {
                         ret = single_step();
                         if (no == c_TRACE) do_info();
                     }
@@ -609,14 +609,15 @@ static void do_command(int no)
     }
 
     switch (exception) {
-    case -9:
+    case ERROR_INVALID_LOAD:
+    case ERROR_INVALID_STORE:
         fatal("invalid address");
         break;
-    case -23:
+    case ERROR_UNALIGNED_ADDRESS:
         fatal("address alignment exception");
         break;
     default:
-    case 0:
+    case ERROR_OK:
         break;
     }
 }

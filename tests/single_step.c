@@ -21,7 +21,7 @@ int main(void)
         // Assemble the test as we go!
         ass(O_CELL);
         printf("EP = %"PRIu32"\n", EP);
-        assert(single_step() == -257);
+        assert(single_step() == ERROR_STEP);
     }
 
     UCELL final_EP = steps * CELL_W;

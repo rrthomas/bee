@@ -19,10 +19,10 @@ int main(void)
     init((CELL *)calloc(1024, 1), 256);
 
     start_ass(EP);
-    lit(-257); lit(12345678);
+    lit(ERROR_STEP); lit(12345678);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
-        assert(single_step() == -257);
+        assert(single_step() == ERROR_STEP);
         printf("A = %s\n", disass(A, EP));
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);

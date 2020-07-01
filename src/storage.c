@@ -52,51 +52,51 @@ _GL_ATTRIBUTE_PURE uint8_t *native_address_of_range(UCELL start, UCELL length)
 int load_cell(UCELL addr, CELL *value)
 {
     if (!IS_ALIGNED(addr))
-        return -23;
+        return ERROR_UNALIGNED_ADDRESS;
 
     uint8_t *ptr = native_address_of_range(addr, CELL_W);
     if (ptr == NULL || !IS_ALIGNED((size_t)ptr))
-        return -9;
+        return ERROR_INVALID_LOAD;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
     *value = *(CELL *)ptr;
 #pragma GCC diagnostic pop
-    return 0;
+    return ERROR_OK;
 }
 
 int load_byte(UCELL addr, BYTE *value)
 {
     uint8_t *ptr = native_address_of_range(FLIP(addr), 1);
     if (ptr == NULL)
-        return -9;
+        return ERROR_INVALID_LOAD;
     *value = *ptr;
-    return 0;
+    return ERROR_OK;
 }
 
 int store_cell(UCELL addr, CELL value)
 {
     if (!IS_ALIGNED(addr))
-        return -23;
+        return ERROR_UNALIGNED_ADDRESS;
 
     uint8_t *ptr = native_address_of_range(addr, CELL_W);
     if (ptr == NULL || !IS_ALIGNED((size_t)ptr))
-        return -9;
+        return ERROR_INVALID_STORE;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
     *(CELL *)ptr = value;
 #pragma GCC diagnostic pop
-    return 0;
+    return ERROR_OK;
 }
 
 int store_byte(UCELL addr, BYTE value)
 {
     uint8_t *ptr = native_address_of_range(FLIP(addr), 1);
     if (ptr == NULL)
-        return -9;
+        return ERROR_INVALID_STORE;
     *ptr = value;
-    return 0;
+    return ERROR_OK;
 }
 
 

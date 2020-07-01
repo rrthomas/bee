@@ -41,7 +41,7 @@ static void step(unsigned start, unsigned end)
 {
     if (end > start)
         for (unsigned i = start; i < end; i++) {
-            assert(single_step() == -257);
+            assert(single_step() == ERROR_STEP);
             printf("A = %s\n", disass(A, EP));
             printf("Result: %d; correct result: %d\n\n", LOAD_CELL(SP),
                    correct[i]);

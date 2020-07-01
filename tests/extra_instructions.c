@@ -30,24 +30,24 @@ int main(void)
     lit(1); ass(OX_ARGLEN);
     lit(1); lit(buf); ass(OX_ARGCOPY);
 
-    assert(single_step() == -257);
+    assert(single_step() == ERROR_STEP);
     printf("argc is %"PRId32", and should be %d\n\n", LOAD_CELL(SP), argc);
     if (POP != argc) {
        printf("Error in extra instructions tests: EP = %"PRIu32"\n", EP);
         exit(1);
     }
 
-    assert(single_step() == -257);
-    assert(single_step() == -257);
+    assert(single_step() == ERROR_STEP);
+    assert(single_step() == ERROR_STEP);
     printf("arg 1's length is %"PRId32", and should be %zu\n", LOAD_CELL(SP), strlen(argv[1]));
     if ((UCELL)POP != strlen(argv[1])) {
         printf("Error in extra instructions tests: EP = %"PRIu32"\n", EP);
         exit(1);
     }
 
-    assert(single_step() == -257);
-    assert(single_step() == -257);
-    assert(single_step() == -257);
+    assert(single_step() == ERROR_STEP);
+    assert(single_step() == ERROR_STEP);
+    assert(single_step() == ERROR_STEP);
     const char *arg = (char *)native_address_of_range(buf, 0), *correct_arg = argv[1];
     printf("arg is %s, and should be %s\n", arg, correct_arg);
     if (strcmp(arg, correct_arg) != 0) {

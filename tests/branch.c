@@ -50,7 +50,7 @@ int main(void)
     ass(O_EXIT);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
-        assert(single_step() == -257);
+        assert(single_step() == ERROR_STEP);
         printf("A = %s\n", disass(A, EP));
         printf("Instruction %zu: EP = %u; should be %u\n\n", i, EP, correct[i]);
         if (correct[i] != EP) {
