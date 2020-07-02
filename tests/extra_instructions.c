@@ -27,8 +27,8 @@ int main(void)
 
     start_ass(PC);
     ass(OX_ARGC);
-    lit(1); ass(OX_ARGLEN);
-    lit(1); lit(buf); ass(OX_ARGCOPY);
+    push(1); ass(OX_ARGLEN);
+    push(1); push(buf); ass(OX_ARGCOPY);
 
     assert(single_step() == ERROR_STEP);
     printf("argc is %"PRId32", and should be %d\n\n", *stack_position(S0, SP, 0), argc);

@@ -15,8 +15,8 @@
 
 enum {
     OP_CALL,
-    OP_LITERAL,
-    OP_OFFSET,
+    OP_PUSH,
+    OP_PUSHREL,
     OP_INSTRUCTION,
     OP_MASK = 3,
 };

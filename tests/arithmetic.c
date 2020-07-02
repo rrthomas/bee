@@ -1,4 +1,4 @@
-// Test the arithmetic operators. Also uses the ROLL, POP, and LITERAL
+// Test the arithmetic operators. Also uses the ROLL, POP, and PUSH
 // instructions. Since unsigned arithmetic overflow behaviour is guaranteed
 // by the ISO C standard, we only test the stack handling and basic
 // correctness of the operators here, assuming that if the arithmetic works
@@ -33,16 +33,16 @@ int main(void)
     init((CELL *)calloc(1024, 1), 256);
 
     start_ass(PC);
-    lit(1); ass(O_NEGATE);
+    push(1); ass(O_NEGATE);
     ass(O_WORD_BYTES);
-    lit(-CELL_W);
-    lit(2); ass(O_ROLL);
+    push(-CELL_W);
+    push(2); ass(O_ROLL);
     ass(O_ADD); ass(O_ADD);
     ass(O_WORD_BYTES);
     ass(O_MUL);
-    lit(3);
+    push(3);
     ass(O_DIVMOD); ass(O_POP);
-    lit(-2);
+    push(-2);
     ass(O_UDIVMOD);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {

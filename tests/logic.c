@@ -45,17 +45,17 @@ int main(void)
 
     start_ass(PC);
     ass(O_LSHIFT);
-    lit(2); ass(O_ROLL);
-    lit(2); ass(O_ROLL);
+    push(2); ass(O_ROLL);
+    push(2); ass(O_ROLL);
     ass(O_RSHIFT);
     ass(O_OR);
-    lit(1);
+    push(1);
     ass(O_LSHIFT);
-    lit(1);
+    push(1);
     ass(O_RSHIFT);
     ass(O_NOT);
-    lit(1);
-    lit(-1);
+    push(1);
+    push(-1);
     ass(O_XOR);
     ass(O_AND);
 

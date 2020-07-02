@@ -22,7 +22,7 @@ int main(void)
     init((CELL *)calloc(1024, 1), 256);
 
     start_ass(PC);
-    lit(ERROR_STEP); lit(12345678);
+    push(ERROR_STEP); push(12345678);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
         printf("Instruction = %s\n", disass(LOAD_CELL(PC), PC));

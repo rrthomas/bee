@@ -6,13 +6,12 @@
 /hello.output
 /arithmetic
 /comparison
-/doloop
+/constants
 /exceptions
 /extra_instructions
 /init
 /jump
 /link
-/literals
 /load_object
 /logic
 /memory

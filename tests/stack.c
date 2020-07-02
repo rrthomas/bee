@@ -1,4 +1,4 @@
-// Test the stack operators. Also uses the LITERAL instruction.
+// Test the stack operators. Also uses the PUSH instruction.
 //
 // (c) Reuben Thomas 1994-2020
 //
@@ -28,12 +28,12 @@ int main(void)
 
     start_ass(PC);
     ass(O_DUP);
-    lit(1);
+    push(1);
     ass(O_DUP);
     ass(O_POP);
-    lit(1);
+    push(1);
     ass(O_ROLL);
-    lit(2);
+    push(2);
     ass(O_ROLL);
     ass(O_PUSHR);
     ass(O_DUPR);

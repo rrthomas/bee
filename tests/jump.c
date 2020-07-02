@@ -33,17 +33,17 @@ int main(void)
     init((CELL *)calloc(size, CELL_W), size);
 
     start_ass(PC);
-    offset(48); ass(O_JUMP);
+    pushrel(48); ass(O_JUMP);
 
     start_ass(48);
-    lit(10000); ass(O_JUMP);
+    push(10000); ass(O_JUMP);
 
     start_ass(10000);
-    lit(1); lit(0); ass(O_JUMPZ);
-    lit(0); lit(11000); ass(O_JUMPZ);
+    push(1); push(0); ass(O_JUMPZ);
+    push(0); push(11000); ass(O_JUMPZ);
 
     start_ass(11000);
-    lit(64);
+    push(64);
     ass(O_CALL);
 
     start_ass(64);

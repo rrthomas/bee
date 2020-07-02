@@ -133,12 +133,12 @@ static CELL run_or_step(bool run)
             CHECK_VALID_CELL(PC + A);
             PC += A - CELL_W;
             break;
-        case OP_LITERAL:
+        case OP_PUSH:
             temp = A;
             ARSHIFT(temp, 2);
             PUSH(temp);
             break;
-        case OP_OFFSET:
+        case OP_PUSHREL:
             PUSH(PC - CELL_W + (A & ~OP_MASK));
             break;
         case OP_INSTRUCTION:

@@ -42,13 +42,13 @@ void ass_byte(BYTE b)
     store_byte(current++, b);
 }
 
-void lit(CELL literal)
+void push(CELL literal)
 {
     current = ALIGN(current);
     CELL temp = literal << 2;
     ARSHIFT(temp, 2);
     assert(temp == literal);
-    store_cell(current, literal << 2 | OP_LITERAL);
+    store_cell(current, literal << 2 | OP_PUSH);
     current += CELL_W;
 }
 
@@ -65,9 +65,9 @@ void call(CELL addr)
     addr_op(OP_CALL, addr);
 }
 
-void offset(UCELL addr)
+void pushrel(UCELL addr)
 {
-    addr_op(OP_OFFSET, addr);
+    addr_op(OP_PUSHREL, addr);
 }
 
 void start_ass(UCELL addr)
@@ -121,14 +121,14 @@ _GL_ATTRIBUTE_CONST const char *disass(CELL opcode, UCELL addr)
     case OP_CALL:
         text = xasprintf("CALL $%"PRIX32, (addr + (opcode & ~OP_MASK)));
         break;
-    case OP_LITERAL:
+    case OP_PUSH:
         {
             ARSHIFT(opcode, 2);
-            text = xasprintf("LITERAL %"PRIi32"=$%"PRIX32, opcode, (UCELL)opcode);
+            text = xasprintf("PUSH %"PRIi32"=$%"PRIX32, opcode, (UCELL)opcode);
         }
         break;
-    case OP_OFFSET:
-        text = xasprintf("OFFSET $%"PRIX32, (addr + (opcode & ~OP_MASK)));
+    case OP_PUSHREL:
+        text = xasprintf("PUSHREL $%"PRIX32, (addr + (opcode & ~OP_MASK)));
         break;
     case OP_INSTRUCTION:
         opcode >>= 2;

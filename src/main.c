@@ -562,23 +562,23 @@ static void do_command(int no)
             call(adr);
             break;
         }
-    case c_LITERAL:
+    case c_PUSH:
         {
             long long value = single_arg(strtok(NULL, " "));
             CELL stored_val = (CELL)value << 2;
             ARSHIFT(stored_val, 2);
             if ((long long)stored_val != value)
-                fatal("invalid argument to LITERAL");
-            lit(value);
+                fatal("invalid argument to PUSH");
+            push(value);
             break;
         }
-    case c_OFFSET:
+    case c_PUSHREL:
         {
             unsigned long long adr = (unsigned long long)single_arg(strtok(NULL, " "));
 
             check_aligned(adr);
             check_range(adr, adr + 1, "Address");
-            offset(adr);
+            pushrel(adr);
             break;
         }
     default: // This cannot happen

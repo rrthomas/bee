@@ -21,7 +21,7 @@ int main(void)
     }
 
     int ret_code = 37;
-    lit(ret_code);
+    push(ret_code);
     ass(O_HALT);
 
     CELL ret = run();

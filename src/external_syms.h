@@ -32,7 +32,6 @@
 #define I bee_I
 #define init bee_init
 #define IS_ALIGNED bee_IS_ALIGNED
-#define lit bee_lit
 #define load_byte bee_load_byte
 #define LOAD_BYTE bee_LOAD_BYTE
 #define load_cell bee_load_cell
@@ -42,7 +41,6 @@
 #define memory bee_memory
 #define MEMORY bee_MEMORY
 #define mem_realloc bee_mem_realloc
-#define offset bee_offset
 #define PC bee_PC
 #define plit bee_plit
 #define POINTER_W bee_POINTER_W
@@ -55,6 +53,8 @@
 #define PUSH bee_PUSH
 #define PUSH_DOUBLE bee_PUSH_DOUBLE
 #define PUSH_RETURN bee_PUSH_RETURN
+#define push bee_push
+#define pushrel bee_pushrel
 #define push_stack bee_push_stack
 #define R0 bee_R0
 #define register_args bee_register_args
