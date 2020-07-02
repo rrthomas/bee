@@ -69,11 +69,11 @@ int main(void)
             ass(O_WORD_BYTES);
         }
 
-        EP = test[i];
+        PC = test[i];
         CELL res = run();
 
         if (result[i] != res) {
-             printf("Error in exceptions tests: test %zu failed; EP = %"PRIu32"\n", i + 1, EP);
+             printf("Error in exceptions tests: test %zu failed; PC = %"PRIu32"\n", i + 1, PC);
              printf("Return code is %d (%s); should be %d (%s)\n",
                     res, error_to_msg(res), result[i], error_to_msg(result[i]));
              error++;

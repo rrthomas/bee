@@ -32,10 +32,10 @@ int main(void)
         exit(1);
     }
 
-    UCELL final_EP = 2 * CELL_W;
-    printf("EP should now be %"PRIu32"\n", final_EP);
-    if (EP != final_EP) {
-        printf("Error in run() tests: EP = %"PRIu32"\n", EP);
+    UCELL final_PC = 2 * CELL_W;
+    printf("PC should now be %"PRIu32"\n", final_PC);
+    if (PC != final_PC) {
+        printf("Error in run() tests: PC = %"PRIu32"\n", PC);
         exit(1);
     }
 

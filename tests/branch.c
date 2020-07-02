@@ -29,7 +29,7 @@ int main(void)
     size_t size = 4096;
     init((CELL *)calloc(size, CELL_W), size);
 
-    start_ass(EP);
+    start_ass(PC);
     offset(48); ass(O_JUMP);
 
     start_ass(48);
@@ -51,10 +51,10 @@ int main(void)
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
         assert(single_step() == ERROR_STEP);
-        printf("A = %s\n", disass(A, EP));
-        printf("Instruction %zu: EP = %u; should be %u\n\n", i, EP, correct[i]);
-        if (correct[i] != EP) {
-            printf("Error in branch tests: EP = %"PRIu32"\n", EP);
+        printf("A = %s\n", disass(A, PC));
+        printf("Instruction %zu: PC = %u; should be %u\n\n", i, PC, correct[i]);
+        if (correct[i] != PC) {
+            printf("Error in branch tests: PC = %"PRIu32"\n", PC);
             exit(1);
         }
     }

@@ -25,7 +25,7 @@ int main(void)
 
     PUSH(3); PUSH(2); PUSH(1);	// initialise the stack
 
-    start_ass(EP);
+    start_ass(PC);
     ass(O_DUP);
     lit(1);
     ass(O_DUP);
@@ -42,11 +42,11 @@ int main(void)
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {
-            printf("Error in stack tests: EP = %"PRIu32"\n", EP);
+            printf("Error in stack tests: PC = %"PRIu32"\n", PC);
             exit(1);
         }
         assert(single_step() == ERROR_STEP);
-        printf("A = %s\n", disass(A, EP));
+        printf("A = %s\n", disass(A, PC));
     }
 
     assert(exception == 0);

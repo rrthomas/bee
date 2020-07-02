@@ -305,9 +305,9 @@ static void do_assign(char *token)
         case r_S0:
             fatal("cannot assign to %s", regist[no]);
             break;
-        case r_EP:
-            EP = value;
-            start_ass(EP);
+        case r_PC:
+            PC = value;
+            start_ass(PC);
             break;
         case r_RP:
             RP = value;
@@ -340,13 +340,13 @@ static void do_display(size_t no, const char *format)
 
     switch (no) {
         case r_A:
-            display = xasprintf("A = %s", disass((UCELL)A, EP));
+            display = xasprintf("A = %s", disass((UCELL)A, PC));
             break;
         case r_ENDISM:
             display = xasprintf("ENDISM = %d", ENDISM);
             break;
-        case r_EP:
-            display = xasprintf("EP = $%"PRIX32" (%"PRIu32")", EP, EP);
+        case r_PC:
+            display = xasprintf("PC = $%"PRIX32" (%"PRIu32")", PC, PC);
             break;
         case r_M0:
             display = xasprintf("M0 = %p", M0);
@@ -379,10 +379,10 @@ static void do_display(size_t no, const char *format)
 
 static void do_info(void)
 {
-    do_display(r_EP, "%-25s");
+    do_display(r_PC, "%-25s");
     CELL c;
-    load_cell(EP, &c);
-    printf("%-16s\n", disass((UCELL)c, EP));
+    load_cell(PC, &c);
+    printf("%-16s\n", disass((UCELL)c, PC));
     show_data_stack();
     show_return_stack();
 }
@@ -407,7 +407,7 @@ static void do_command(int no)
         break;
     case c_DISASSEMBLE:
         {
-            long long start = (EP <= 16 ? 0 : EP - 16), end = 64;
+            long long start = (PC <= 16 ? 0 : PC - 16), end = 64;
             double_arg(strtok(NULL, ""), &start, &end, true);
             check_aligned(start);
             check_aligned(end);
@@ -423,7 +423,7 @@ static void do_command(int no)
         break;
     case c_DUMP:
         {
-            long long start = (EP <= 64 ? 0 : EP - 64), end = 256;
+            long long start = (PC <= 64 ? 0 : PC - 64), end = 256;
             double_arg(strtok(NULL, ""), &start, &end, true);
             check_range(start, end, "Address");
             while (start < end) {
@@ -508,13 +508,13 @@ static void do_command(int no)
                     unsigned long long limit = (unsigned long long)single_arg(strtok(NULL, " "));
                     check_range(limit, limit, "Address");
                     check_aligned(limit);
-                    while ((unsigned long)EP != limit && ret == ERROR_STEP) {
+                    while ((unsigned long)PC != limit && ret == ERROR_STEP) {
                         if (no == c_TRACE) do_info();
                         ret = single_step();
                     }
                     if (ret != 0)
-                        printf("HALT code %"PRId32" (%s) was returned at EP = $%X\n",
-                               ret, error_to_msg(ret), EP);
+                        printf("HALT code %"PRId32" (%s) was returned at PC = $%X\n",
+                               ret, error_to_msg(ret), PC);
                 } else {
                     unsigned long long limit = (unsigned long long)single_arg(arg), i;
                     for (i = 0; i < limit && ret == ERROR_STEP; i++) {
@@ -788,7 +788,7 @@ int main(int argc, char *argv[])
     if ((memory = (CELL *)calloc(memory_size, CELL_W)) == NULL)
         die("could not allocate %"PRIu32" cells of memory", memory_size);
     init(memory, memory_size);
-    start_ass(EP);
+    start_ass(PC);
 
     argc -= optind;
     if (argc >= 1) {

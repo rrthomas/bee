@@ -124,14 +124,14 @@ static CELL run_or_step(bool run)
         DUCELL tempd = 0;
         BYTE byte = 0;
 
-        A = LOAD_CELL(EP);
-        EP += CELL_W;
+        A = LOAD_CELL(PC);
+        PC += CELL_W;
 
         switch (A & OP_MASK) {
         case OP_CALL:
-            PUSH_RETURN(EP);
-            CHECK_VALID_CELL(EP + A);
-            EP += A - CELL_W;
+            PUSH_RETURN(PC);
+            CHECK_VALID_CELL(PC + A);
+            PC += A - CELL_W;
             break;
         case OP_LITERAL:
             temp = A;
@@ -139,7 +139,7 @@ static CELL run_or_step(bool run)
             PUSH(temp);
             break;
         case OP_OFFSET:
-            PUSH(EP - CELL_W + (A & ~OP_MASK));
+            PUSH(PC - CELL_W + (A & ~OP_MASK));
             break;
         case OP_INSTRUCTION:
             switch (A >> 2) {
@@ -348,15 +348,15 @@ static CELL run_or_step(bool run)
                 {
                     CELL addr = POP_RETURN;
                     CHECK_VALID_CELL(addr);
-                    EP = addr;
+                    PC = addr;
                 }
                 break;
             case O_CALL:
                 {
                     CELL addr = POP;
                     CHECK_VALID_CELL(addr);
-                    PUSH_RETURN(EP);
-                    EP = addr;
+                    PUSH_RETURN(PC);
+                    PC = addr;
                 }
                 break;
             case O_HALT:
@@ -365,7 +365,7 @@ static CELL run_or_step(bool run)
                 {
                     CELL addr = POP;
                     CHECK_VALID_CELL(addr);
-                    EP = addr;
+                    PC = addr;
                 }
                 break;
             case O_JUMPZ:
@@ -373,7 +373,7 @@ static CELL run_or_step(bool run)
                     CELL addr = POP;
                     if (POP == BEE_FALSE) {
                         CHECK_VALID_CELL(addr);
-                        EP = addr;
+                        PC = addr;
                     }
                 }
                 break;

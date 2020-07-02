@@ -22,7 +22,7 @@
 
 // VM registers
 
-UCELL EP;
+UCELL PC;
 BYTE I;
 CELL A;
 CELL *M0, *R0, *S0;
@@ -188,7 +188,7 @@ int init(CELL *buf, size_t size)
     MEMORY = size * CELL_W;
     memset(M0, 0, MEMORY);
 
-    EP = 0;
+    PC = 0;
     A = 0;
     SP = 0;
     SSIZE = /* FIXME: Variable */ 4096;

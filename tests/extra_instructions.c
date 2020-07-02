@@ -25,7 +25,7 @@ int main(void)
     init((CELL *)malloc(4096), 1024);
     assert(register_args(argc, argv) == 0);
 
-    start_ass(EP);
+    start_ass(PC);
     ass(OX_ARGC);
     lit(1); ass(OX_ARGLEN);
     lit(1); lit(buf); ass(OX_ARGCOPY);
@@ -33,7 +33,7 @@ int main(void)
     assert(single_step() == ERROR_STEP);
     printf("argc is %"PRId32", and should be %d\n\n", *stack_position(S0, SP, 0), argc);
     if (POP != argc) {
-       printf("Error in extra instructions tests: EP = %"PRIu32"\n", EP);
+       printf("Error in extra instructions tests: PC = %"PRIu32"\n", PC);
         exit(1);
     }
 
@@ -41,7 +41,7 @@ int main(void)
     assert(single_step() == ERROR_STEP);
     printf("arg 1's length is %"PRId32", and should be %zu\n", *stack_position(S0, SP, 0), strlen(argv[1]));
     if ((UCELL)POP != strlen(argv[1])) {
-        printf("Error in extra instructions tests: EP = %"PRIu32"\n", EP);
+        printf("Error in extra instructions tests: PC = %"PRIu32"\n", PC);
         exit(1);
     }
 
@@ -51,7 +51,7 @@ int main(void)
     const char *arg = (char *)native_address_of_range(buf, 0), *correct_arg = argv[1];
     printf("arg is %s, and should be %s\n", arg, correct_arg);
     if (strcmp(arg, correct_arg) != 0) {
-        printf("Error in extra instructions tests: EP = %"PRIu32"\n", EP);
+        printf("Error in extra instructions tests: PC = %"PRIu32"\n", PC);
         exit(1);
     }
 

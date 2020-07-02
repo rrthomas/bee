@@ -18,7 +18,6 @@
 #define disass bee_disass
 #define DUCELL bee_DUCELL
 #define ENDISM bee_ENDISM
-#define EP bee_EP
 #define ERROR_OK BEE_ERROR_OK
 #define ERROR_INVALID_OPCODE BEE_ERROR_INVALID_OPCODE
 #define ERROR_STACK_UNDERFLOW BEE_ERROR_STACK_UNDERFLOW
@@ -45,6 +44,7 @@
 #define MEMORY bee_MEMORY
 #define mem_realloc bee_mem_realloc
 #define offset bee_offset
+#define PC bee_PC
 #define plit bee_plit
 #define POINTER_W bee_POINTER_W
 #define POP bee_POP

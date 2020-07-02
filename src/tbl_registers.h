@@ -10,7 +10,7 @@
 
 R(A)
 R(ENDISM)
-R(EP)
+R(PC)
 R(M0)
 R(MEMORY)
 R(RP)

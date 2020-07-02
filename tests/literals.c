@@ -18,16 +18,16 @@ int main(void)
 {
     init((CELL *)calloc(1024, 1), 256);
 
-    start_ass(EP);
+    start_ass(PC);
     lit(ERROR_STEP); lit(12345678);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
         assert(single_step() == ERROR_STEP);
-        printf("A = %s\n", disass(A, EP));
+        printf("A = %s\n", disass(A, PC));
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {
-            printf("Error in literals tests: EP = %"PRIu32"\n", EP);
+            printf("Error in literals tests: PC = %"PRIu32"\n", PC);
             exit(1);
         }
     }

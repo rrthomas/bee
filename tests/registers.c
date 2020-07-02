@@ -23,16 +23,16 @@ int main(void)
 {
     init((CELL *)malloc(SIZE), SIZE / CELL_W);
 
-    start_ass(EP);
+    start_ass(PC);
     ass(O_GET_MEMORY); ass(O_POP);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
         assert(single_step() == ERROR_STEP);
-        printf("A = %s\n", disass(A, EP));
+        printf("A = %s\n", disass(A, PC));
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {
-            printf("Error in registers tests: EP = %"PRIu32"\n", EP);
+            printf("Error in registers tests: PC = %"PRIu32"\n", PC);
             exit(1);
         }
     }
