@@ -444,18 +444,6 @@ static void do_command(int no)
             }
         }
         break;
-    case c_FROM:
-        {
-            char *arg = strtok(NULL, " ");
-            if (arg != NULL) {
-                long adr = single_arg(arg);
-                EP = adr;
-            }
-            CELL ret = single_step();
-            if (ret)
-                printf("HALT code %"PRId32" was returned\n", ret);
-        }
-        break;
     case c_INFO:
         do_info();
         break;
