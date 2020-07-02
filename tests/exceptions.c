@@ -74,7 +74,8 @@ int main(void)
 
         if (result[i] != res) {
              printf("Error in exceptions tests: test %zu failed; EP = %"PRIu32"\n", i + 1, EP);
-             printf("Return code is %d; should be %d\n", res, result[i]);
+             printf("Return code is %d (%s); should be %d (%s)\n",
+                    res, error_to_msg(res), result[i], error_to_msg(result[i]));
              error++;
         }
         putchar('\n');

@@ -206,3 +206,28 @@ void show_return_stack(void)
         putchar('\n');
     }
 }
+
+
+struct {
+    int code;
+    const char *msg;
+} error_msg[] = {
+    { 0, "BEE_ERROR_OK" },
+    { -1, "BEE_ERROR_INVALID_OPCODE" },
+    { -2, "BEE_ERROR_STACK_UNDERFLOW" },
+    { -3, "BEE_ERROR_STACK_OVERFLOW" },
+    { -5, "BEE_ERROR_INVALID_MEMORY_READ" },
+    { -6, "BEE_ERROR_INVALID_MEMORY_WRITE" },
+    { -7, "BEE_ERROR_UNALIGNED_ADDRESS" },
+    { -8, "BEE_ERROR_DIVISION_BY_ZERO" },
+    { -257, "BEE_ERROR_STEP" },
+};
+
+_GL_ATTRIBUTE_PURE const char *error_to_msg(int code)
+{
+    for (size_t i = 0; i < sizeof(error_msg) / sizeof(error_msg[0]); i++) {
+        if (error_msg[i].code == code)
+            return error_msg[i].msg;
+    }
+    return "unknown error";
+}

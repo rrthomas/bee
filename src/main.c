@@ -487,7 +487,10 @@ static void do_command(int no)
         }
         break;
     case c_RUN:
-        printf("HALT code %"PRId32" was returned\n", run());
+        {
+            CELL ret = run();
+            printf("HALT code %"PRId32" (%s) was returned\n", ret, error_to_msg(ret));
+        }
         break;
     case c_STEP:
     case c_TRACE:
@@ -498,7 +501,7 @@ static void do_command(int no)
             if (arg == NULL) {
                 if (no == c_TRACE) do_info();
                 if ((ret = single_step()))
-                    printf("HALT code %"PRId32" was returned\n", ret);
+                    printf("HALT code %"PRId32" (%s) was returned\n", ret, error_to_msg(ret));
             } else {
                 upper(arg);
                 if (strcmp(arg, "TO") == 0) {
@@ -510,8 +513,8 @@ static void do_command(int no)
                         ret = single_step();
                     }
                     if (ret != 0)
-                        printf("HALT code %"PRId32" was returned at EP = $%X\n",
-                               ret, EP);
+                        printf("HALT code %"PRId32" (%s) was returned at EP = $%X\n",
+                               ret, error_to_msg(ret), EP);
                 } else {
                     unsigned long long limit = (unsigned long long)single_arg(arg), i;
                     for (i = 0; i < limit && ret == ERROR_STEP; i++) {
@@ -519,8 +522,8 @@ static void do_command(int no)
                         ret = single_step();
                     }
                     if (ret != 0)
-                        printf("HALT code %"PRId32" was returned after %llu "
-                               "steps\n", ret, i);
+                        printf("HALT code %"PRId32" (%s) was returned after %llu "
+                               "steps\n", ret, error_to_msg(ret), i);
                 }
             }
         }

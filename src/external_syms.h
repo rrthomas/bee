@@ -28,6 +28,7 @@
 #define ERROR_UNALIGNED_ADDRESS BEE_ERROR_UNALIGNED_ADDRESS
 #define ERROR_DIVISION_BY_ZERO BEE_ERROR_DIVISION_BY_ZERO
 #define ERROR_STEP BEE_ERROR_STEP
+#define error_to_msg bee_error_to_msg
 #define HASHR bee_HASHR
 #define HASHS bee_HASHS
 #define I bee_I
