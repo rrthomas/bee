@@ -22,7 +22,7 @@ int main(void)
     WORD temp = 0;
     int exception = 0;
 
-    init((WORD *)malloc(1024), 256);
+    init_defaults((WORD *)malloc(1024), 256);
 
     PUSH(3); PUSH(2); PUSH(1);	// initialise the stack
 

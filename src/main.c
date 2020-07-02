@@ -298,8 +298,6 @@ static void do_assign(char *token)
         case r_ENDISM:
         case r_M0:
         case r_MEMORY:
-        case r_R0:
-        case r_S0:
             fatal("cannot assign to %s", regist[no]);
             break;
         case r_PC:
@@ -351,14 +349,8 @@ static void do_display(size_t no, const char *format)
         case r_RP:
             display = xasprintf("RP = $%"PRIX32" (%"PRIu32")", RP, RP);
             break;
-        case r_R0:
-            display = xasprintf("R0 = %p", R0);
-            break;
         case r_SP:
             display = xasprintf("SP = $%"PRIX32" (%"PRIu32")", SP, SP);
-            break;
-        case r_S0:
-            display = xasprintf("S0 = %p", S0);
             break;
         default:
             display = xasprintf("unknown register");
@@ -724,7 +716,7 @@ static void usage(void)
 #undef DOC
 }
 
-static WORD parse_memory_size(UWORD max)
+static WORD parse_size(UWORD max)
 {
     char *endptr;
     errno = 0;
@@ -739,11 +731,14 @@ int main(int argc, char *argv[])
     set_program_name(argv[0]);
     interactive = isatty(fileno(stdin));
 
+    WORD stack_size = DEFAULT_STACK_SIZE;
+    WORD return_stack_size = DEFAULT_STACK_SIZE;
+
     // Options string starts with '+' to stop option processing at first non-option, then
     // leading ':' so as to return ':' for a missing arg, not '?'
     for (;;) {
         int this_optind = optind ? optind : 1, longindex = -1;
-        int c = getopt_long(argc, argv, "+:dm:", longopts, &longindex);
+        int c = getopt_long(argc, argv, "+:dm:r:s:", longopts, &longindex);
 
         if (c == -1)
             break;
@@ -751,22 +746,32 @@ int main(int argc, char *argv[])
             die("option '%s' requires an argument", argv[this_optind]);
         else if (c == '?')
             die("unrecognised option '%s'\nTry '%s --help' for more information.", argv[this_optind], program_name);
-        else if (c == 'd')
+        else if (c == 'r')
+            longindex = 2;
+        else if (c == 's')
             longindex = 1;
+        else if (c == 'd')
+            longindex = 3;
         else if (c == 'm')
             longindex = 0;
 
         switch (longindex) {
             case 0:
-                memory_size = parse_memory_size((UWORD)MAX_MEMORY);
+                memory_size = parse_size((UWORD)MAX_MEMORY);
                 break;
             case 1:
-                debug_on_error = true;
+                stack_size = parse_size((UWORD)MAX_MEMORY);
                 break;
             case 2:
+                return_stack_size = parse_size((UWORD)MAX_MEMORY);
+                break;
+            case 3:
+                debug_on_error = true;
+                break;
+            case 4:
                 usage();
                 exit(EXIT_SUCCESS);
-            case 3:
+            case 5:
                 printf("Bee " VERSION "\n"
                        COPYRIGHT_STRING "\n"
                        "Bee comes with ABSOLUTELY NO WARRANTY.\n"
@@ -781,7 +786,7 @@ int main(int argc, char *argv[])
 
     if ((memory = (WORD *)calloc(memory_size, WORD_BYTES)) == NULL)
         die("could not allocate %"PRIu32" words of memory", memory_size);
-    init(memory, memory_size);
+    init(memory, memory_size, stack_size, return_stack_size);
     ass_goto(PC);
 
     argc -= optind;

@@ -55,7 +55,7 @@ static void step(unsigned start, unsigned end)
 
 int main(void)
 {
-    init((WORD *)malloc(1024), 256);
+    init_defaults((WORD *)malloc(1024), 256);
 
     ass_goto(PC);
     ass(O_LT); ass(O_LT); ass(O_LT); ass(O_LT);

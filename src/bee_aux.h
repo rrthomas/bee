@@ -21,9 +21,6 @@
 #include <limits.h>
 
 
-// Stacks size
-#define bee_DEFAULT_STACK_SIZE   16384
-
 // Memory access
 
 // Return value is 0 if OK, or exception code for invalid or unaligned address

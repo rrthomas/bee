@@ -83,8 +83,12 @@ bee_WORD bee_run(void);
 bee_WORD bee_single_step(void);
 int bee_load_object(FILE *file, bee_UWORD address);
 
+// Default stacks size in words
+#define bee_DEFAULT_STACK_SIZE   4096
+
 // Additional implementation-specific routines, macros, types and quantities
-int bee_init(bee_WORD *c_array, size_t size);
+int bee_init(bee_WORD *c_array, WORD memory_size, WORD stack_size, WORD return_stack_size);
+int bee_init_defaults(bee_WORD *c_array, WORD memory_size);
 int bee_register_args(int argc, const char *argv[]);
 
 #define BEE_TRUE bee_WORD_MASK            // VM TRUE flag

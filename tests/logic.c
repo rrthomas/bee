@@ -39,7 +39,7 @@ int main(void)
     WORD temp = 0;
     int exception = 0;
 
-    init((WORD *)malloc(1024), 256);
+    init_defaults((WORD *)malloc(1024), 256);
 
     PUSH(0xff000000); PUSH(8); PUSH(0xff); PUSH(8);
 

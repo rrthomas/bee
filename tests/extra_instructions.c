@@ -22,7 +22,7 @@ int main(void)
     UWORD buf = 32;
     const char *argv[] = {"foo", "bard", "basilisk"};
 
-    init((WORD *)malloc(4096), 1024);
+    init_defaults((WORD *)malloc(4096), 1024);
     assert(register_args(argc, argv) == 0);
 
     ass_goto(PC);

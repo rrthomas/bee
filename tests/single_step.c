@@ -13,7 +13,7 @@
 
 int main(void)
 {
-    init((WORD *)calloc(1024, 1), 256);
+    init_defaults((WORD *)calloc(1024, 1), 256);
 
     const UWORD steps = 10;
     for (UWORD i = 0; i < steps; i++) {

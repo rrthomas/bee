@@ -8,6 +8,7 @@
 #define byte_size bee_byte_size
 #define call bee_call
 #define CHAR_MASK bee_CHAR_MASK
+#define DEFAULT_STACK_SIZE bee_DEFAULT_STACK_SIZE
 #define disass bee_disass
 #define DUWORD bee_DUWORD
 #define ENDISM bee_ENDISM
@@ -25,6 +26,7 @@
 #define HASHS bee_HASHS
 #define I bee_I
 #define init bee_init
+#define init_defaults bee_init_defaults
 #define IS_ALIGNED bee_IS_ALIGNED
 #define load_byte bee_load_byte
 #define LOAD_BYTE bee_LOAD_BYTE

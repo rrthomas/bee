@@ -24,7 +24,7 @@ int main(void)
     WORD temp = 0;
     int exception = 0;
 
-    init((WORD *)malloc(SIZE), SIZE / WORD_BYTES);
+    init_defaults((WORD *)malloc(SIZE), SIZE / WORD_BYTES);
 
     ass_goto(PC);
     ass(O_GET_MEMORY); ass(O_POP);

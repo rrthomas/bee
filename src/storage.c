@@ -23,8 +23,6 @@
 // VM registers
 
 UWORD PC;
-BYTE I;
-WORD A;
 WORD *M0, *R0, *S0;
 UWORD RSIZE, SSIZE;
 UWORD SP, RP;
@@ -180,31 +178,34 @@ int post_dma(UWORD from, UWORD to)
 
 // Initialise registers that are not fixed
 
-int init(WORD *buf, size_t size)
+int init(WORD *buf, WORD memory_size, WORD stack_size, WORD return_stack_size)
 {
     if (buf == NULL)
         return -1;
     M0 = buf;
-    MEMORY = size * WORD_BYTES;
+    MEMORY = memory_size * WORD_BYTES;
     memset(M0, 0, MEMORY);
 
     PC = 0;
-    A = 0;
     SP = 0;
-    SSIZE = /* FIXME: Variable */ 4096;
+
+    SSIZE = stack_size;
     S0 = (WORD *)calloc(SSIZE, WORD_BYTES);
-    if (S0 == NULL) {
-        free(buf);
+    if (S0 == NULL)
         return -1;
-    }
     RP = 0;
-    RSIZE = /* FIXME: Variable */ 4096;
+
+    RSIZE = return_stack_size;
     R0 = (WORD *)calloc(RSIZE, WORD_BYTES);
     if (R0 == NULL) {
-        free(buf);
         free(R0);
         return -1;
     }
 
     return 0;
+}
+
+int init_defaults(WORD *buf, WORD memory_size)
+{
+    return init(buf, memory_size, DEFAULT_STACK_SIZE, DEFAULT_STACK_SIZE);
 }

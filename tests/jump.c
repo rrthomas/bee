@@ -30,7 +30,7 @@ int main(void)
     int exception = 0;
 
     size_t size = 4096;
-    init((WORD *)calloc(size, WORD_BYTES), size);
+    init_defaults((WORD *)calloc(size, WORD_BYTES), size);
 
     ass_goto(PC);
     pushrel(48); ass(O_JUMP);

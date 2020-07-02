@@ -19,7 +19,7 @@ int main(void)
     WORD temp = 0;
     int exception = 0;
 
-    init((WORD *)calloc(1024, 1), 256);
+    init_defaults((WORD *)calloc(1024, 1), 256);
 
     ass_goto(PC);
     push(ERROR_STEP); push(12345678);

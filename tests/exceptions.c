@@ -23,7 +23,7 @@ UWORD test[sizeof(result) / sizeof(result[0])];
 int main(void)
 {
     size_t size = 4096;
-    init((WORD *)calloc(size, WORD_BYTES), size);
+    init_defaults((WORD *)calloc(size, WORD_BYTES), size);
 
     ass_goto(0);
     // test 1: DUP with SP > SSIZE

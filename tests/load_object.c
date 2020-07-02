@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
     }
 
     WORD *memory = (WORD *)calloc(1024, 1);
-    init(memory, 256);
+    init_defaults(memory, 256);
 
     size_t i;
     for (i = 0; i < 4; i++) {

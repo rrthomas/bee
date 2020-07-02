@@ -14,7 +14,7 @@
 
 int main(void)
 {
-    int i = init((WORD *)calloc(1024, 1), 256);
+    int i = init_defaults((WORD *)calloc(1024, 1), 256);
     if (i != 0) {
         printf("Error in run() tests: init with valid parameters failed\n");
         exit(1);
