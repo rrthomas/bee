@@ -1,4 +1,4 @@
-// Test the literal instructions. Also uses the NEXT instruction.
+// Test the literal instructions.
 //
 // (c) Reuben Thomas 1994-2018
 //

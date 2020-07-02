@@ -143,10 +143,10 @@ static CELL run_or_step(bool run)
             break;
         case OP_INSTRUCTION:
             switch (A >> 2) {
-            case O_DROP:
+            case O_POP:
                 (void)POP;
                 break;
-            case O_PICK:
+            case O_DUP:
                 {
                     UCELL depth = POP;
                     if (depth > SP)
@@ -168,20 +168,20 @@ static CELL run_or_step(bool run)
                     }
                 }
                 break;
-            case O_TOR:
+            case O_PUSHR:
                 {
                     CELL value = POP;
                     PUSH_RETURN(value);
                 }
                 break;
-            case O_RFROM:
+            case O_POPR:
                 {
                     CELL value = POP_RETURN;
                     if (exception == ERROR_OK)
                         PUSH(value);
                 }
                 break;
-            case O_RFETCH:
+            case O_DUPR:
                 {
                     if (RP == 0)
                         exception = ERROR_STACK_UNDERFLOW;
@@ -191,58 +191,66 @@ static CELL run_or_step(bool run)
                     }
                 }
                 break;
-            case O_LESS:
+            case O_GET_SP:
                 {
-                    CELL a = POP;
-                    CELL b = POP;
-                    PUSH(b < a ? BEE_TRUE : BEE_FALSE);
+                    CELL value = SP;
+                    PUSH(value);
                 }
                 break;
-            case O_EQUAL:
+            case O_SET_SP:
                 {
-                    CELL a = POP;
-                    CELL b = POP;
-                    PUSH(a == b ? BEE_TRUE : BEE_FALSE);
+                    CELL value = POP;
+                    SP = value;
                 }
                 break;
-            case O_ULESS:
+            case O_GET_RP:
+                PUSH(RP);
+                break;
+            case O_SET_RP:
                 {
-                    UCELL a = POP;
-                    UCELL b = POP;
-                    PUSH(b < a ? BEE_TRUE : BEE_FALSE);
+                    CELL value = POP;
+                    RP = value;
                 }
                 break;
-            case O_CELL:
+            case O_GET_MEMORY:
+                PUSH(MEMORY);
+                break;
+            case O_WORD_BYTES:
                 PUSH(CELL_W);
                 break;
-            case O_PLUS:
+            case O_LOAD:
+                {
+                    CELL addr = POP;
+                    CELL value = LOAD_CELL(addr);
+                    PUSH(value);
+                }
+                break;
+            case O_STORE:
+                {
+                    CELL addr = POP;
+                    CELL value = POP;
+                    STORE_CELL(addr, value);
+                }
+                break;
+            case O_LOAD1:
+                {
+                    CELL addr = POP;
+                    BYTE value = LOAD_BYTE(addr);
+                    PUSH((CELL)value);
+                }
+                break;
+            case O_STORE1:
+                {
+                    CELL addr = POP;
+                    BYTE value = (BYTE)POP;
+                    STORE_BYTE(addr, value);
+                }
+                break;
+            case O_ADD:
                 {
                     CELL a = POP;
                     CELL b = POP;
                     PUSH(b + a);
-                }
-                break;
-            case O_STAR:
-                {
-                    CELL multiplier = POP;
-                    CELL multiplicand = POP;
-                    PUSH(multiplier * multiplicand);
-                }
-                break;
-            case O_USLASHMOD:
-                {
-                    UCELL divisor = POP;
-                    UCELL dividend = POP;
-                    PUSH(MOD_CATCH_ZERO(dividend, divisor));
-                    PUSH(DIV_CATCH_ZERO(dividend, divisor));
-                }
-                break;
-            case O_SSLASHREM:
-                {
-                    CELL divisor = POP;
-                    CELL dividend = POP;
-                    PUSH(MOD_WITH_OVERFLOW(dividend, divisor));
-                    PUSH(DIV_WITH_OVERFLOW(dividend, divisor));
                 }
                 break;
             case O_NEGATE:
@@ -251,7 +259,51 @@ static CELL run_or_step(bool run)
                     PUSH(-a);
                 }
                 break;
-            case O_INVERT:
+            case O_MUL:
+                {
+                    CELL multiplier = POP;
+                    CELL multiplicand = POP;
+                    PUSH(multiplier * multiplicand);
+                }
+                break;
+            case O_UDIVMOD:
+                {
+                    UCELL divisor = POP;
+                    UCELL dividend = POP;
+                    PUSH(MOD_CATCH_ZERO(dividend, divisor));
+                    PUSH(DIV_CATCH_ZERO(dividend, divisor));
+                }
+                break;
+            case O_DIVMOD:
+                {
+                    CELL divisor = POP;
+                    CELL dividend = POP;
+                    PUSH(MOD_WITH_OVERFLOW(dividend, divisor));
+                    PUSH(DIV_WITH_OVERFLOW(dividend, divisor));
+                }
+                break;
+            case O_EQ:
+                {
+                    CELL a = POP;
+                    CELL b = POP;
+                    PUSH(a == b ? BEE_TRUE : BEE_FALSE);
+                }
+                break;
+            case O_LT:
+                {
+                    CELL a = POP;
+                    CELL b = POP;
+                    PUSH(b < a ? BEE_TRUE : BEE_FALSE);
+                }
+                break;
+            case O_ULT:
+                {
+                    UCELL a = POP;
+                    UCELL b = POP;
+                    PUSH(b < a ? BEE_TRUE : BEE_FALSE);
+                }
+                break;
+            case O_NOT:
                 {
                     CELL a = POP;
                     PUSH(~a);
@@ -292,72 +344,14 @@ static CELL run_or_step(bool run)
                     PUSH(shift < (CELL)CELL_BIT ? (CELL)((UCELL)value >> shift) : 0);
                 }
                 break;
-            case O_FETCH:
+            case O_RET:
                 {
-                    CELL addr = POP;
-                    CELL value = LOAD_CELL(addr);
-                    PUSH(value);
-                }
-                break;
-            case O_STORE:
-                {
-                    CELL addr = POP;
-                    CELL value = POP;
-                    STORE_CELL(addr, value);
-                }
-                break;
-            case O_CFETCH:
-                {
-                    CELL addr = POP;
-                    BYTE value = LOAD_BYTE(addr);
-                    PUSH((CELL)value);
-                }
-                break;
-            case O_CSTORE:
-                {
-                    CELL addr = POP;
-                    BYTE value = (BYTE)POP;
-                    STORE_BYTE(addr, value);
-                }
-                break;
-            case O_SPFETCH:
-                {
-                    CELL value = SP;
-                    PUSH(value);
-                }
-                break;
-            case O_SPSTORE:
-                {
-                    CELL value = POP;
-                    SP = value;
-                }
-                break;
-            case O_RPFETCH:
-                PUSH(RP);
-                break;
-            case O_RPSTORE:
-                {
-                    CELL value = POP;
-                    RP = value;
-                }
-                break;
-            case O_BRANCH:
-                {
-                    CELL addr = POP;
+                    CELL addr = POP_RETURN;
                     CHECK_VALID_CELL(addr);
                     EP = addr;
                 }
                 break;
-            case O_QBRANCH:
-                {
-                    CELL addr = POP;
-                    if (POP == BEE_FALSE) {
-                        CHECK_VALID_CELL(addr);
-                        EP = addr;
-                    }
-                }
-                break;
-            case O_EXECUTE:
+            case O_CALL:
                 {
                     CELL addr = POP;
                     CHECK_VALID_CELL(addr);
@@ -365,17 +359,23 @@ static CELL run_or_step(bool run)
                     EP = addr;
                 }
                 break;
-            case O_EXIT:
+            case O_HALT:
+                return POP;
+            case O_JUMP:
                 {
-                    CELL addr = POP_RETURN;
+                    CELL addr = POP;
                     CHECK_VALID_CELL(addr);
                     EP = addr;
                 }
                 break;
-            case O_HALT:
-                return POP;
-            case O_MEMORYFETCH:
-                PUSH(MEMORY);
+            case O_JUMPZ:
+                {
+                    CELL addr = POP;
+                    if (POP == BEE_FALSE) {
+                        CHECK_VALID_CELL(addr);
+                        EP = addr;
+                    }
+                }
                 break;
 
             case OX_ARGC: // ( -- u )

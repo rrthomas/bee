@@ -1,9 +1,9 @@
-// Test the logic operators. Also uses the NEXT and -ROT instructions. We
-// only test the stack handling and basic correctness of the operators here,
-// assuming that if the logic works in one case, it will work in all (if the
-// C compiler doesn't implement it correctly, we're in trouble anyway!).
+// Test the logic operators. Also uses the ROLL instruction. We only test
+// the stack handling and basic correctness of the operators here, assuming
+// that if the logic works in one case, it will work in all (if the C
+// compiler doesn't implement it correctly, we're in trouble anyway!).
 //
-// (c) Reuben Thomas 1994-2018
+// (c) Reuben Thomas 1994-2020
 //
 // The package is distributed under the GNU Public License version 3, or,
 // at your option, any later version.
@@ -52,7 +52,7 @@ int main(void)
     ass(O_LSHIFT);
     lit(1);
     ass(O_RSHIFT);
-    ass(O_INVERT);
+    ass(O_NOT);
     lit(1);
     lit(-1);
     ass(O_XOR);

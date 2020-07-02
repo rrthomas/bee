@@ -1,5 +1,5 @@
 // Test the register instructions, except for those operating on RP and SP
-// (see memory.c). Also uses NEXT.
+// (see memory.c).
 //
 // (c) Reuben Thomas 1994-2018
 //
@@ -24,7 +24,7 @@ int main(void)
     init((CELL *)malloc(SIZE), SIZE / CELL_W);
 
     start_ass(EP);
-    ass(O_MEMORYFETCH); ass(O_DROP);
+    ass(O_GET_MEMORY); ass(O_POP);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
         assert(single_step() == ERROR_STEP);

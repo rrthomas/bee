@@ -1,10 +1,10 @@
-// Test the arithmetic operators. Also uses the ROLL, DROP, and
-// (LITERAL) instructions. Since unsigned arithmetic overflow behaviour
-// is guaranteed by the ISO C standard, we only test the stack handling
-// and basic correctness of the operators here, assuming that if the
-// arithmetic works in one case, it will work in all. Note that the
-// correct stack values are not quite independent of the cell size (in
-// CELL_W and str(CELL_W)); some stack pictures implicitly refer to it.
+// Test the arithmetic operators. Also uses the ROLL, POP, and LITERAL
+// instructions. Since unsigned arithmetic overflow behaviour is guaranteed
+// by the ISO C standard, we only test the stack handling and basic
+// correctness of the operators here, assuming that if the arithmetic works
+// in one case, it will work in all. Note that the correct stack values are
+// not quite independent of the cell size (in CELL_W and str(CELL_W)); some
+// stack pictures implicitly refer to it.
 //
 // (c) Reuben Thomas 1994-2020
 //
@@ -31,16 +31,16 @@ int main(void)
 
     start_ass(EP);
     lit(1); ass(O_NEGATE);
-    ass(O_CELL);
+    ass(O_WORD_BYTES);
     lit(-CELL_W);
     lit(2); ass(O_ROLL);
-    ass(O_PLUS); ass(O_PLUS);
-    ass(O_CELL);
-    ass(O_STAR);
+    ass(O_ADD); ass(O_ADD);
+    ass(O_WORD_BYTES);
+    ass(O_MUL);
     lit(3);
-    ass(O_SSLASHREM); ass(O_DROP);
+    ass(O_DIVMOD); ass(O_POP);
     lit(-2);
-    ass(O_USLASHMOD);
+    ass(O_UDIVMOD);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
         assert(single_step() == ERROR_STEP);

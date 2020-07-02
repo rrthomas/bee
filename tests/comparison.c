@@ -1,6 +1,5 @@
-// Test the comparison operators. Also uses the NEXT instruction. We
-// only test simple cases here, assuming that the C compiler's comparison
-// routines will work for other cases.
+// Test the comparison operators. We only test simple cases here, assuming
+// that the C compiler's comparison routines will work for other cases.
 //
 // (c) Reuben Thomas 1994-2020
 //
@@ -59,9 +58,9 @@ int main(void)
     init((CELL *)malloc(1024), 256);
 
     start_ass(EP);
-    ass(O_LESS); ass(O_LESS); ass(O_LESS); ass(O_LESS);
-    ass(O_EQUAL); ass(O_EQUAL);
-    ass(O_ULESS); ass(O_ULESS); ass(O_ULESS); ass(O_ULESS);
+    ass(O_LT); ass(O_LT); ass(O_LT); ass(O_LT);
+    ass(O_EQ); ass(O_EQ);
+    ass(O_ULT); ass(O_ULT); ass(O_ULT); ass(O_ULT);
 
     stack1();       // set up the stack with four standard pairs to compare
     step(0, 4);     // do the < tests

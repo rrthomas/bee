@@ -30,24 +30,24 @@ int main(void)
     init((CELL *)calloc(size, CELL_W), size);
 
     start_ass(EP);
-    offset(48); ass(O_BRANCH);
+    offset(48); ass(O_JUMP);
 
     start_ass(48);
-    lit(10000); ass(O_BRANCH);
+    lit(10000); ass(O_JUMP);
 
     start_ass(10000);
-    lit(1); lit(0); ass(O_QBRANCH);
-    lit(0); lit(11000); ass(O_QBRANCH);
+    lit(1); lit(0); ass(O_JUMPZ);
+    lit(0); lit(11000); ass(O_JUMPZ);
 
     start_ass(11000);
     lit(64);
-    ass(O_EXECUTE);
+    ass(O_CALL);
 
     start_ass(64);
     call(300);
 
     start_ass(300);
-    ass(O_EXIT);
+    ass(O_RET);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
         assert(single_step() == ERROR_STEP);

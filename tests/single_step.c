@@ -1,5 +1,4 @@
-// Test that single_step works, and that address alignment and bounds
-// checking is properly performed on EP.
+// Test that single_step works.
 //
 // (c) Reuben Thomas 1994-2020
 //
@@ -19,7 +18,7 @@ int main(void)
     const UCELL steps = 10;
     for (UCELL i = 0; i < steps; i++) {
         // Assemble the test as we go!
-        ass(O_CELL);
+        ass(O_WORD_BYTES);
         printf("EP = %"PRIu32"\n", EP);
         assert(single_step() == ERROR_STEP);
     }

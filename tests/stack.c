@@ -1,4 +1,4 @@
-// Test the stack operators. Also uses the (LITERAL) instruction.
+// Test the stack operators. Also uses the LITERAL instruction.
 //
 // (c) Reuben Thomas 1994-2020
 //
@@ -26,17 +26,17 @@ int main(void)
     PUSH(3); PUSH(2); PUSH(1);	// initialise the stack
 
     start_ass(EP);
-    ass(O_PICK);
+    ass(O_DUP);
     lit(1);
-    ass(O_PICK);
-    ass(O_DROP);
+    ass(O_DUP);
+    ass(O_POP);
     lit(1);
     ass(O_ROLL);
     lit(2);
     ass(O_ROLL);
-    ass(O_TOR);
-    ass(O_RFETCH);
-    ass(O_RFROM);
+    ass(O_PUSHR);
+    ass(O_DUPR);
+    ass(O_POPR);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
         show_data_stack();

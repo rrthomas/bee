@@ -81,11 +81,11 @@ _GL_ATTRIBUTE_PURE UCELL ass_current(void)
 }
 
 static const char *mnemonic[UINT8_MAX + 1] = {
-    "DROP", "PICK", "ROLL", ">R", "R>", "R@", "SP@", "SP!",
-    "RP@", "RP!", "MEMORY@", "CELL", "@", "!", "C@", "C!",
-    "+", "NEGATE", "*", "U/MOD", "S/REM", "=", "<", "U<",
-    "INVERT", "AND", "OR", "XOR", "LSHIFT", "RSHIFT", "EXIT", "EXECUTE",
-    "HALT", "BRANCH", "?BRANCH", NULL, NULL, NULL, NULL, NULL,
+    "POP", "DUP", "ROLL", "PUSHR", "POPR", "DUPR", "GET_SP", "SET_SP",
+    "GET_RP", "SET_RP", "GET_MEMORY", "WORD_BYTES", "LOAD", "STORE", "LOAD1", "STORE1",
+    "ADD", "NEGATE", "MUL", "UDIVMOD", "DIVMOD", "EQ", "LT", "ULT",
+    "NOT", "AND", "OR", "XOR", "LSHIFT", "RSHIFT", "RET", "CALL",
+    "HALT", "JUMP", "JUMPZ", NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
