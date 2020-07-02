@@ -143,165 +143,7 @@ static WORD run_or_step(bool run)
             break;
         case OP_INSTRUCTION:
             switch (A >> 2) {
-            case O_POP:
-                (void)POP;
-                break;
-            case O_DUP:
-                {
-                    UWORD depth = POP;
-                    if (depth > SP)
-                        exception = ERROR_STACK_UNDERFLOW;
-                    else
-                        PUSH(S0[SP - (depth + 1)]);
-                }
-                break;
-            case O_ROLL:
-                {
-                    UWORD depth = POP;
-                    if (depth > SP)
-                        exception = ERROR_STACK_UNDERFLOW;
-                    else {
-                        UWORD rollee = S0[SP - (depth + 1)];
-                        for (UWORD i = depth; i > 0; i--)
-                            S0[SP - (i + 1)] = S0[SP - i];
-                        S0[SP - 1] = rollee;
-                    }
-                }
-                break;
-            case O_PUSHR:
-                {
-                    WORD value = POP;
-                    PUSH_RETURN(value);
-                }
-                break;
-            case O_POPR:
-                {
-                    WORD value = POP_RETURN;
-                    if (exception == ERROR_OK)
-                        PUSH(value);
-                }
-                break;
-            case O_DUPR:
-                {
-                    if (RP == 0)
-                        exception = ERROR_STACK_UNDERFLOW;
-                    else {
-                        WORD value = *stack_position(R0, RP, 0);
-                        PUSH(value);
-                    }
-                }
-                break;
-            case O_GET_SP:
-                {
-                    WORD value = SP;
-                    PUSH(value);
-                }
-                break;
-            case O_SET_SP:
-                {
-                    WORD value = POP;
-                    SP = value;
-                }
-                break;
-            case O_GET_RP:
-                PUSH(RP);
-                break;
-            case O_SET_RP:
-                {
-                    WORD value = POP;
-                    RP = value;
-                }
-                break;
-            case O_GET_MEMORY:
-                PUSH(MEMORY);
-                break;
-            case O_WORD_BYTES:
-                PUSH(WORD_BYTES);
-                break;
-            case O_LOAD:
-                {
-                    WORD addr = POP;
-                    WORD value = LOAD_WORD(addr);
-                    PUSH(value);
-                }
-                break;
-            case O_STORE:
-                {
-                    WORD addr = POP;
-                    WORD value = POP;
-                    STORE_WORD(addr, value);
-                }
-                break;
-            case O_LOAD1:
-                {
-                    WORD addr = POP;
-                    BYTE value = LOAD_BYTE(addr);
-                    PUSH((WORD)value);
-                }
-                break;
-            case O_STORE1:
-                {
-                    WORD addr = POP;
-                    BYTE value = (BYTE)POP;
-                    STORE_BYTE(addr, value);
-                }
-                break;
-            case O_ADD:
-                {
-                    WORD a = POP;
-                    WORD b = POP;
-                    PUSH(b + a);
-                }
-                break;
-            case O_NEGATE:
-                {
-                    WORD a = POP;
-                    PUSH(-a);
-                }
-                break;
-            case O_MUL:
-                {
-                    WORD multiplier = POP;
-                    WORD multiplicand = POP;
-                    PUSH(multiplier * multiplicand);
-                }
-                break;
-            case O_UDIVMOD:
-                {
-                    UWORD divisor = POP;
-                    UWORD dividend = POP;
-                    PUSH(MOD_CATCH_ZERO(dividend, divisor));
-                    PUSH(DIV_CATCH_ZERO(dividend, divisor));
-                }
-                break;
-            case O_DIVMOD:
-                {
-                    WORD divisor = POP;
-                    WORD dividend = POP;
-                    PUSH(MOD_WITH_OVERFLOW(dividend, divisor));
-                    PUSH(DIV_WITH_OVERFLOW(dividend, divisor));
-                }
-                break;
-            case O_EQ:
-                {
-                    WORD a = POP;
-                    WORD b = POP;
-                    PUSH(a == b ? BEE_TRUE : BEE_FALSE);
-                }
-                break;
-            case O_LT:
-                {
-                    WORD a = POP;
-                    WORD b = POP;
-                    PUSH(b < a ? BEE_TRUE : BEE_FALSE);
-                }
-                break;
-            case O_ULT:
-                {
-                    UWORD a = POP;
-                    UWORD b = POP;
-                    PUSH(b < a ? BEE_TRUE : BEE_FALSE);
-                }
+            case O_NOP:
                 break;
             case O_NOT:
                 {
@@ -344,23 +186,42 @@ static WORD run_or_step(bool run)
                     PUSH(shift < (WORD)WORD_BIT ? (WORD)((UWORD)value >> shift) : 0);
                 }
                 break;
-            case O_RET:
+            case O_ARSHIFT:
                 {
-                    WORD addr = POP_RETURN;
-                    CHECK_VALID_WORD(addr);
-                    PC = addr;
+                    WORD shift = POP;
+                    WORD value = POP;
+                    WORD result = ARSHIFT(value, shift);
+                    PUSH(result);
                 }
                 break;
-            case O_CALL:
+            case O_POP:
+                (void)POP;
+                break;
+            case O_DUP:
                 {
-                    WORD addr = POP;
-                    CHECK_VALID_WORD(addr);
-                    PUSH_RETURN(PC);
-                    PC = addr;
+                    UWORD depth = POP;
+                    if (depth > SP)
+                        exception = ERROR_STACK_UNDERFLOW;
+                    else
+                        PUSH(S0[SP - (depth + 1)]);
                 }
                 break;
-            case O_HALT:
-                return POP;
+            case O_ROLL:
+                {
+                    UWORD depth = POP;
+                    if (depth > SP)
+                        exception = ERROR_STACK_UNDERFLOW;
+                    else {
+                        UWORD rollee = S0[SP - (depth + 1)];
+                        for (UWORD i = depth; i > 0; i--)
+                            S0[SP - (i + 1)] = S0[SP - i];
+                        S0[SP - 1] = rollee;
+                    }
+                }
+                break;
+            case X_SWAP:
+                exception = ERROR_INVALID_OPCODE;
+                break;
             case O_JUMP:
                 {
                     WORD addr = POP;
@@ -376,6 +237,168 @@ static WORD run_or_step(bool run)
                         PC = addr;
                     }
                 }
+                break;
+            case O_CALL:
+                {
+                    WORD addr = POP;
+                    CHECK_VALID_WORD(addr);
+                    PUSH_RETURN(PC);
+                    PC = addr;
+                }
+                break;
+            case O_RET:
+                {
+                    WORD addr = POP_RETURN;
+                    CHECK_VALID_WORD(addr);
+                    PC = addr;
+                }
+                break;
+            case O_LOAD:
+                {
+                    WORD addr = POP;
+                    WORD value = LOAD_WORD(addr);
+                    PUSH(value);
+                }
+                break;
+            case O_STORE:
+                {
+                    WORD addr = POP;
+                    WORD value = POP;
+                    STORE_WORD(addr, value);
+                }
+                break;
+            case O_LOAD1:
+                {
+                    WORD addr = POP;
+                    BYTE value = LOAD_BYTE(addr);
+                    PUSH((WORD)value);
+                }
+                break;
+            case O_STORE1:
+                {
+                    WORD addr = POP;
+                    BYTE value = (BYTE)POP;
+                    STORE_BYTE(addr, value);
+                }
+                break;
+            case X_LOAD2:
+            case X_STORE2:
+            case X_LOAD4:
+            case X_STORE4:
+                exception = ERROR_INVALID_OPCODE;
+                break;
+            case O_NEGATE:
+                {
+                    WORD a = POP;
+                    PUSH(-a);
+                }
+                break;
+            case O_ADD:
+                {
+                    WORD a = POP;
+                    WORD b = POP;
+                    PUSH(b + a);
+                }
+                break;
+            case O_MUL:
+                {
+                    WORD multiplier = POP;
+                    WORD multiplicand = POP;
+                    PUSH(multiplier * multiplicand);
+                }
+                break;
+            case O_DIVMOD:
+                {
+                    WORD divisor = POP;
+                    WORD dividend = POP;
+                    PUSH(MOD_WITH_OVERFLOW(dividend, divisor));
+                    PUSH(DIV_WITH_OVERFLOW(dividend, divisor));
+                }
+                break;
+            case O_UDIVMOD:
+                {
+                    UWORD divisor = POP;
+                    UWORD dividend = POP;
+                    PUSH(MOD_CATCH_ZERO(dividend, divisor));
+                    PUSH(DIV_CATCH_ZERO(dividend, divisor));
+                }
+                break;
+            case O_EQ:
+                {
+                    WORD a = POP;
+                    WORD b = POP;
+                    PUSH(a == b ? BEE_TRUE : BEE_FALSE);
+                }
+                break;
+            case O_LT:
+                {
+                    WORD a = POP;
+                    WORD b = POP;
+                    PUSH(b < a ? BEE_TRUE : BEE_FALSE);
+                }
+                break;
+            case O_ULT:
+                {
+                    UWORD a = POP;
+                    UWORD b = POP;
+                    PUSH(b < a ? BEE_TRUE : BEE_FALSE);
+                }
+                break;
+            case O_PUSHR:
+                {
+                    WORD value = POP;
+                    PUSH_RETURN(value);
+                }
+                break;
+            case O_POPR:
+                {
+                    WORD value = POP_RETURN;
+                    if (exception == ERROR_OK)
+                        PUSH(value);
+                }
+                break;
+            case O_DUPR:
+                {
+                    if (RP == 0)
+                        exception = ERROR_STACK_UNDERFLOW;
+                    else {
+                        WORD value = *stack_position(R0, RP, 0);
+                        PUSH(value);
+                    }
+                }
+                break;
+            case O_CATCH:
+                exception = ERROR_INVALID_OPCODE;
+                break;
+            case O_THROW:
+                return POP;
+
+            case O_GET_SP:
+                {
+                    WORD value = SP;
+                    PUSH(value);
+                }
+                break;
+            case O_SET_SP:
+                {
+                    WORD value = POP;
+                    SP = value;
+                }
+                break;
+            case O_GET_RP:
+                PUSH(RP);
+                break;
+            case O_SET_RP:
+                {
+                    WORD value = POP;
+                    RP = value;
+                }
+                break;
+            case O_GET_MEMORY:
+                PUSH(MEMORY);
+                break;
+            case O_WORD_BYTES:
+                PUSH(WORD_BYTES);
                 break;
 
             case OX_ARGC: // ( -- u )
@@ -551,7 +574,7 @@ static WORD run_or_step(bool run)
 
             default:
                 exception = ERROR_INVALID_OPCODE;
-                goto exception;
+                break;
             }
             break;
         }

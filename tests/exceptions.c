@@ -38,7 +38,7 @@ int main(void)
     test[2] = label();
     push(SSIZE);
     ass(O_SET_SP); ass(O_PUSHR);
-    push(0); ass(O_HALT);
+    push(0); ass(O_THROW);
     // test 4: test CALL of unaligned address
     test[3] = label();
     push(1); ass(O_CALL);

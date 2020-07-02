@@ -22,7 +22,7 @@ int main(void)
 
     int ret_code = 37;
     push(ret_code);
-    ass(O_HALT);
+    ass(O_THROW);
 
     WORD ret = run();
 
