@@ -22,25 +22,25 @@
 
 // VM registers
 
-UCELL PC;
+UWORD PC;
 BYTE I;
-CELL A;
-CELL *M0, *R0, *S0;
-UCELL RSIZE, SSIZE;
-UCELL SP, RP;
-UCELL MEMORY;
+WORD A;
+WORD *M0, *R0, *S0;
+UWORD RSIZE, SSIZE;
+UWORD SP, RP;
+UWORD MEMORY;
 
 
 // Stacks
 
-_GL_ATTRIBUTE_CONST CELL *stack_position(CELL *s0, UCELL sp, UCELL pos)
+_GL_ATTRIBUTE_CONST WORD *stack_position(WORD *s0, UWORD sp, UWORD pos)
 {
     if (pos >= sp)
         return NULL;
     return &s0[sp - pos - 1];
 }
 
-int pop_stack(CELL *s0, UCELL ssize, UCELL *sp, CELL *val_ptr)
+int pop_stack(WORD *s0, UWORD ssize, UWORD *sp, WORD *val_ptr)
 {
     if (*sp == 0)
         return ERROR_STACK_UNDERFLOW;
@@ -51,7 +51,7 @@ int pop_stack(CELL *s0, UCELL ssize, UCELL *sp, CELL *val_ptr)
     return ERROR_OK;
 }
 
-int push_stack(CELL *s0, UCELL ssize, UCELL *sp, CELL val)
+int push_stack(WORD *s0, UWORD ssize, UWORD *sp, WORD val)
 {
     if (unlikely(*sp >= ssize))
         return ERROR_STACK_OVERFLOW;
@@ -64,7 +64,7 @@ int push_stack(CELL *s0, UCELL ssize, UCELL *sp, CELL val)
 // General memory access
 
 // Return native address of a range of VM memory, or NULL if invalid
-_GL_ATTRIBUTE_PURE uint8_t *native_address_of_range(UCELL start, UCELL length)
+_GL_ATTRIBUTE_PURE uint8_t *native_address_of_range(UWORD start, UWORD length)
 {
     if (start > MEMORY || MEMORY - start < length)
         return NULL;
@@ -74,28 +74,28 @@ _GL_ATTRIBUTE_PURE uint8_t *native_address_of_range(UCELL start, UCELL length)
 
 // Macro for byte addressing
 #ifdef WORDS_BIGENDIAN
-#define FLIP(addr) ((addr) ^ (CELL_W - 1))
+#define FLIP(addr) ((addr) ^ (WORD_BYTES - 1))
 #else
 #define FLIP(addr) (addr)
 #endif
 
-int load_cell(UCELL addr, CELL *value)
+int load_word(UWORD addr, WORD *value)
 {
     if (!IS_ALIGNED(addr))
         return ERROR_UNALIGNED_ADDRESS;
 
-    uint8_t *ptr = native_address_of_range(addr, CELL_W);
+    uint8_t *ptr = native_address_of_range(addr, WORD_BYTES);
     if (ptr == NULL || !IS_ALIGNED((size_t)ptr))
         return ERROR_INVALID_LOAD;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
-    *value = *(CELL *)ptr;
+    *value = *(WORD *)ptr;
 #pragma GCC diagnostic pop
     return ERROR_OK;
 }
 
-int load_byte(UCELL addr, BYTE *value)
+int load_byte(UWORD addr, BYTE *value)
 {
     uint8_t *ptr = native_address_of_range(FLIP(addr), 1);
     if (ptr == NULL)
@@ -104,23 +104,23 @@ int load_byte(UCELL addr, BYTE *value)
     return ERROR_OK;
 }
 
-int store_cell(UCELL addr, CELL value)
+int store_word(UWORD addr, WORD value)
 {
     if (!IS_ALIGNED(addr))
         return ERROR_UNALIGNED_ADDRESS;
 
-    uint8_t *ptr = native_address_of_range(addr, CELL_W);
+    uint8_t *ptr = native_address_of_range(addr, WORD_BYTES);
     if (ptr == NULL || !IS_ALIGNED((size_t)ptr))
         return ERROR_INVALID_STORE;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
-    *(CELL *)ptr = value;
+    *(WORD *)ptr = value;
 #pragma GCC diagnostic pop
     return ERROR_OK;
 }
 
-int store_byte(UCELL addr, BYTE value)
+int store_byte(UWORD addr, BYTE value)
 {
     uint8_t *ptr = native_address_of_range(FLIP(addr), 1);
     if (ptr == NULL)
@@ -130,38 +130,38 @@ int store_byte(UCELL addr, BYTE value)
 }
 
 
-_GL_ATTRIBUTE_CONST CELL reverse_cell(CELL value)
+_GL_ATTRIBUTE_CONST WORD reverse_word(WORD value)
 {
-    CELL res = 0;
-    for (unsigned i = 0; i < CELL_W / 2; i++) {
+    WORD res = 0;
+    for (unsigned i = 0; i < WORD_BYTES / 2; i++) {
         unsigned lopos = CHAR_BIT * i;
-        unsigned hipos = CHAR_BIT * (CELL_W - 1 - i);
+        unsigned hipos = CHAR_BIT * (WORD_BYTES - 1 - i);
         unsigned move = hipos - lopos;
-        res |= ((((UCELL)value) & (CHAR_MASK << hipos)) >> move)
-            | ((((UCELL)value) & (CHAR_MASK << lopos)) << move);
+        res |= ((((UWORD)value) & (CHAR_MASK << hipos)) >> move)
+            | ((((UWORD)value) & (CHAR_MASK << lopos)) << move);
     }
     return res;
 }
 
-int reverse(UCELL start, UCELL length)
+int reverse(UWORD start, UWORD length)
 {
     int ret = 0;
-    for (UCELL i = 0; ret == 0 && i < length; i ++) {
-        CELL c;
-        ret = load_cell(start + i * CELL_W, &c)
-            || store_cell(start + i, reverse_cell(c));
+    for (UWORD i = 0; ret == 0 && i < length; i ++) {
+        WORD c;
+        ret = load_word(start + i * WORD_BYTES, &c)
+            || store_word(start + i, reverse_word(c));
     }
     return ret;
 }
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsuggest-attribute=pure"
-int pre_dma(UCELL from, UCELL to)
+int pre_dma(UWORD from, UWORD to)
 {
     int exception = 0;
 
     // Expand range to words
-    from &= -CELL_W;
+    from &= -WORD_BYTES;
     to = ALIGN(to);
 
     if (to < from || native_address_of_range(from, to - from) == NULL)
@@ -172,7 +172,7 @@ int pre_dma(UCELL from, UCELL to)
 }
 #pragma GCC diagnostic pop
 
-int post_dma(UCELL from, UCELL to)
+int post_dma(UWORD from, UWORD to)
 {
     return pre_dma(from, to);
 }
@@ -180,26 +180,26 @@ int post_dma(UCELL from, UCELL to)
 
 // Initialise registers that are not fixed
 
-int init(CELL *buf, size_t size)
+int init(WORD *buf, size_t size)
 {
     if (buf == NULL)
         return -1;
     M0 = buf;
-    MEMORY = size * CELL_W;
+    MEMORY = size * WORD_BYTES;
     memset(M0, 0, MEMORY);
 
     PC = 0;
     A = 0;
     SP = 0;
     SSIZE = /* FIXME: Variable */ 4096;
-    S0 = (CELL *)calloc(SSIZE, CELL_W);
+    S0 = (WORD *)calloc(SSIZE, WORD_BYTES);
     if (S0 == NULL) {
         free(buf);
         return -1;
     }
     RP = 0;
     RSIZE = /* FIXME: Variable */ 4096;
-    R0 = (CELL *)calloc(RSIZE, CELL_W);
+    R0 = (WORD *)calloc(RSIZE, WORD_BYTES);
     if (R0 == NULL) {
         free(buf);
         free(R0);

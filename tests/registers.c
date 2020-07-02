@@ -21,17 +21,17 @@ const char *correct[] = {
 
 int main(void)
 {
-    CELL temp = 0;
+    WORD temp = 0;
     int exception = 0;
 
-    init((CELL *)malloc(SIZE), SIZE / CELL_W);
+    init((WORD *)malloc(SIZE), SIZE / WORD_BYTES);
 
     ass_goto(PC);
     ass(O_GET_MEMORY); ass(O_POP);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
         assert(single_step() == ERROR_STEP);
-        printf("Instruction = %s\n", disass(LOAD_CELL(PC), PC));
+        printf("Instruction = %s\n", disass(LOAD_WORD(PC), PC));
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {

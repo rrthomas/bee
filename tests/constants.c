@@ -16,16 +16,16 @@ const char *correct[] = { "-257", "-257 12345678", "-257 12345678" };
 
 int main(void)
 {
-    CELL temp = 0;
+    WORD temp = 0;
     int exception = 0;
 
-    init((CELL *)calloc(1024, 1), 256);
+    init((WORD *)calloc(1024, 1), 256);
 
     ass_goto(PC);
     push(ERROR_STEP); push(12345678);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
-        printf("Instruction = %s\n", disass(LOAD_CELL(PC), PC));
+        printf("Instruction = %s\n", disass(LOAD_WORD(PC), PC));
         assert(single_step() == ERROR_STEP);
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);

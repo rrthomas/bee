@@ -13,7 +13,7 @@
 
 
 const char *correct[] = {
-    "16384", "16384 " str(CELL_W), "16384 -" str(CELL_W), "16380",
+    "16384", "16384 " str(WORD_BYTES), "16384 -" str(WORD_BYTES), "16380",
     "16380 513", "16380 513 1", "16380 513 16380", "16380", "16380 0",
     "16380 16380", "16380 513", "16380", "16380 0",
     "16380 16380", "16380 1", "16381", "2", "2 16383", "", "16380", "33554945",
@@ -23,11 +23,11 @@ const char *correct[] = {
 
 int main(void)
 {
-    CELL temp = 0;
+    WORD temp = 0;
     int exception = 0;
 
     size_t size = 4096;
-    init((CELL *)calloc(size, CELL_W), size);
+    init((WORD *)calloc(size, WORD_BYTES), size);
 
     ass_goto(PC);
     ass(O_GET_MEMORY);
@@ -61,7 +61,7 @@ int main(void)
     ass(O_GET_RP);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
-        printf("Instruction = %s\n", disass(LOAD_CELL(PC), PC));
+        printf("Instruction = %s\n", disass(LOAD_WORD(PC), PC));
         assert(single_step() == ERROR_STEP);
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);

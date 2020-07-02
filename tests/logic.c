@@ -36,10 +36,10 @@ const char *correct[] = {
 
 int main(void)
 {
-    CELL temp = 0;
+    WORD temp = 0;
     int exception = 0;
 
-    init((CELL *)malloc(1024), 256);
+    init((WORD *)malloc(1024), 256);
 
     PUSH(0xff000000); PUSH(8); PUSH(0xff); PUSH(8);
 
@@ -60,7 +60,7 @@ int main(void)
     ass(O_AND);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
-        printf("Instruction = %s\n", disass(LOAD_CELL(PC), PC));
+        printf("Instruction = %s\n", disass(LOAD_WORD(PC), PC));
         assert(single_step() == ERROR_STEP);
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);

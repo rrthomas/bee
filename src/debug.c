@@ -27,14 +27,14 @@
 #include "bee_opcodes.h"
 
 
-static UCELL current; // where we assemble the next instruction word or literal
+static UWORD current; // where we assemble the next instruction word or literal
 
 
-void ass(UCELL instr)
+void ass(UWORD instr)
 {
     current = ALIGN(current);
-    store_cell(current, instr << 2 | OP_INSTRUCTION);
-    current += CELL_W;
+    store_word(current, instr << 2 | OP_INSTRUCTION);
+    current += WORD_BYTES;
 }
 
 void ass_byte(BYTE b)
@@ -42,40 +42,40 @@ void ass_byte(BYTE b)
     store_byte(current++, b);
 }
 
-void push(CELL literal)
+void push(WORD literal)
 {
     current = ALIGN(current);
-    CELL temp = literal << 2;
+    WORD temp = literal << 2;
     ARSHIFT(temp, 2);
     assert(temp == literal);
-    store_cell(current, literal << 2 | OP_PUSH);
-    current += CELL_W;
+    store_word(current, literal << 2 | OP_PUSH);
+    current += WORD_BYTES;
 }
 
-static void addr_op(int op, CELL addr)
+static void addr_op(int op, WORD addr)
 {
     current = ALIGN(current);
     assert(IS_ALIGNED(addr));
-    store_cell(current, (addr - current) | op);
-    current += CELL_W;
+    store_word(current, (addr - current) | op);
+    current += WORD_BYTES;
 }
 
-void call(CELL addr)
+void call(WORD addr)
 {
     addr_op(OP_CALL, addr);
 }
 
-void pushrel(UCELL addr)
+void pushrel(UWORD addr)
 {
     addr_op(OP_PUSHREL, addr);
 }
 
-void ass_goto(UCELL addr)
+void ass_goto(UWORD addr)
 {
     current = addr;
 }
 
-_GL_ATTRIBUTE_PURE UCELL label(void)
+_GL_ATTRIBUTE_PURE UWORD label(void)
 {
     return current;
 }
@@ -112,7 +112,7 @@ static const char *mnemonic[UINT8_MAX + 1] = {
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, };
 
-_GL_ATTRIBUTE_CONST const char *disass(CELL opcode, UCELL addr)
+_GL_ATTRIBUTE_CONST const char *disass(WORD opcode, UWORD addr)
 {
     static char *text = NULL;
 
@@ -124,7 +124,7 @@ _GL_ATTRIBUTE_CONST const char *disass(CELL opcode, UCELL addr)
     case OP_PUSH:
         {
             ARSHIFT(opcode, 2);
-            text = xasprintf("PUSH %"PRIi32"=$%"PRIX32, opcode, (UCELL)opcode);
+            text = xasprintf("PUSH %"PRIi32"=$%"PRIX32, opcode, (UWORD)opcode);
         }
         break;
     case OP_PUSHREL:
@@ -132,9 +132,9 @@ _GL_ATTRIBUTE_CONST const char *disass(CELL opcode, UCELL addr)
         break;
     case OP_INSTRUCTION:
         opcode >>= 2;
-        if ((UCELL)opcode <= sizeof(mnemonic) / sizeof(mnemonic[0]) &&
-            mnemonic[(UCELL)opcode] != NULL)
-            text = xasprintf("%s", mnemonic[(UCELL)opcode]);
+        if ((UWORD)opcode <= sizeof(mnemonic) / sizeof(mnemonic[0]) &&
+            mnemonic[(UWORD)opcode] != NULL)
+            text = xasprintf("%s", mnemonic[(UWORD)opcode]);
         else
             text = strdup("");
         break;
@@ -159,12 +159,12 @@ static char *_val_data_stack(bool with_hex)
     if (SP > SSIZE) {
         picture = xasprintf("%s", "stack overflow");
     } else
-        for (UCELL i = 0; i < SP; i++) {
+        for (UWORD i = 0; i < SP; i++) {
             char *ptr = xasprintf("%s%"PRId32, picture, S0[i]);
             free(picture);
             picture = ptr;
             if (with_hex) {
-                ptr = xasprintf("%s ($%"PRIX32") ", picture, (UCELL)S0[i]);
+                ptr = xasprintf("%s ($%"PRIX32") ", picture, (UWORD)S0[i]);
                 free(picture);
                 picture = ptr;
             }
@@ -201,8 +201,8 @@ void show_return_stack(void)
         printf("Return stack overflow\n");
     else {
         printf("Return stack: ");
-        for (UCELL i = 0; i < RP; i++)
-            printf("$%"PRIX32" ", (UCELL)R0[i]);
+        for (UWORD i = 0; i < RP; i++)
+            printf("$%"PRIX32" ", (UWORD)R0[i]);
         putchar('\n');
     }
 }

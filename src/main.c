@@ -35,10 +35,10 @@
 #include "bee_opcodes.h"
 
 
-#define DEFAULT_MEMORY 1048576 // Default size of VM memory in cells (4Mb)
-#define MAX_MEMORY 536870912 // Maximum size of memory in cells (2Gb)
-static UCELL memory_size = DEFAULT_MEMORY; // Size of VM memory in cells
-CELL *memory;
+#define DEFAULT_MEMORY 1048576 // Default size of VM memory in words (4Mb)
+#define MAX_MEMORY 536870912 // Maximum size of memory in words (2Gb)
+static UWORD memory_size = DEFAULT_MEMORY; // Size of VM memory in words
+WORD *memory;
 
 static bool interactive;
 static unsigned long lineno;
@@ -141,14 +141,14 @@ static const char *globdirname(const char *file)
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsuggest-attribute=pure"
-static void check_aligned(UCELL adr)
+static void check_aligned(UWORD adr)
 {
     if (!IS_ALIGNED(adr))
-        fatal("Address must be cell-aligned");
+        fatal("Address must be word-aligned");
 }
 #pragma GCC diagnostic pop
 
-static void check_range(UCELL start, UCELL end, const char *quantity)
+static void check_range(UWORD start, UWORD end, const char *quantity)
 {
     if (start > end)
         fatal("start address cannot be greater than end address");
@@ -247,12 +247,12 @@ static void double_arg(char *s, long long *start, long long *end, bool default_a
 }
 
 
-static void disassemble(UCELL start, UCELL end)
+static void disassemble(UWORD start, UWORD end)
 {
-    for (UCELL p = start; p < end && p < (UCELL)-1 - CELL_W + 1; p += CELL_W) {
+    for (UWORD p = start; p < end && p < (UWORD)-1 - WORD_BYTES + 1; p += WORD_BYTES) {
         printf("$%08"PRIX32": ", p);
-        CELL a;
-        load_cell(p, &a);
+        WORD a;
+        load_word(p, &a);
 
         const char *text = disass(a, p);
         if (strcmp(text, "") == 0)
@@ -264,7 +264,7 @@ static void disassemble(UCELL start, UCELL end)
 }
 
 
-static int save_object(FILE *file, UCELL address, UCELL length)
+static int save_object(FILE *file, UWORD address, UWORD length)
 {
     uint8_t *ptr = native_address_of_range(address, length);
     if (!IS_ALIGNED(address) || ptr == NULL)
@@ -276,8 +276,8 @@ static int save_object(FILE *file, UCELL address, UCELL length)
         putc('\0', file) == EOF ||
         putc('\0', file) == EOF ||
         putc((char)ENDISM, file) == EOF ||
-        fwrite(&length, CELL_W, 1, file) != 1 ||
-        fwrite(ptr, CELL_W, length, file) != length)
+        fwrite(&length, WORD_BYTES, 1, file) != 1 ||
+        fwrite(ptr, WORD_BYTES, length, file) != length)
         return -3;
 
     return 0;
@@ -314,7 +314,7 @@ static void do_assign(char *token)
             break;
         default:
             {
-                CELL adr = (CELL)single_arg(token);
+                WORD adr = (WORD)single_arg(token);
 
                 if (!IS_ALIGNED(adr) && !is_byte(value))
                     fatal("only a byte can be assigned to an unaligned address");
@@ -322,10 +322,10 @@ static void do_assign(char *token)
                     check_range(adr, adr + 1, "Address");
                     store_byte(adr, value);
                 } else {
-                    check_range(adr, adr + CELL_W, "Address");
-                    if ((unsigned long long)value > (UCELL)-1)
-                        fatal("the value assigned to a cell must fit in a cell");
-                    store_cell(adr, value);
+                    check_range(adr, adr + WORD_BYTES, "Address");
+                    if ((unsigned long long)value > (UWORD)-1)
+                        fatal("the value assigned to a word must fit in a word");
+                    store_word(adr, value);
                 }
             }
     }
@@ -374,9 +374,9 @@ static void do_display(size_t no, const char *format)
 static void do_info(void)
 {
     do_display(r_PC, "%-25s");
-    CELL c;
-    load_cell(PC, &c);
-    printf("%-16s\n", disass((UCELL)c, PC));
+    WORD c;
+    load_word(PC, &c);
+    printf("%-16s\n", disass((UWORD)c, PC));
     show_data_stack();
     show_return_stack();
 }
@@ -384,7 +384,7 @@ static void do_info(void)
 static void do_command(int no)
 {
     int exception = 0;
-    CELL temp = 0;
+    WORD temp = 0;
 
     switch (no) {
     case c_TOD:
@@ -406,13 +406,13 @@ static void do_command(int no)
             check_aligned(start);
             check_aligned(end);
             check_range(start, end, "Address");
-            disassemble((UCELL)start, (UCELL)end);
+            disassemble((UWORD)start, (UWORD)end);
         }
         break;
     case c_DFROM:
         {
-            CELL value = POP;
-            printf("%"PRId32" ($%"PRIX32")\n", value, (UCELL)value);
+            WORD value = POP;
+            printf("%"PRId32" ($%"PRIX32")\n", value, (UWORD)value);
         }
         break;
     case c_DUMP:
@@ -446,7 +446,7 @@ static void do_command(int no)
             const char *file = strtok(NULL, " ");
             if (file == NULL)
                 fatal("LOAD requires a file name");
-            UCELL adr = 0;
+            UWORD adr = 0;
             char *arg = strtok(NULL, " ");
             if (arg != NULL)
                 adr = single_arg(arg);
@@ -476,13 +476,13 @@ static void do_command(int no)
         exit(0);
     case c_RFROM:
         {
-            CELL value = POP_RETURN;
-            printf("$%"PRIX32" (%"PRId32")\n", (UCELL)value, value);
+            WORD value = POP_RETURN;
+            printf("$%"PRIX32" (%"PRId32")\n", (UWORD)value, value);
         }
         break;
     case c_RUN:
         {
-            CELL ret = run();
+            WORD ret = run();
             printf("HALT code %"PRId32" (%s) was returned\n", ret, error_to_msg(ret));
         }
         break;
@@ -490,7 +490,7 @@ static void do_command(int no)
     case c_TRACE:
         {
             char *arg = strtok(NULL, " ");
-            CELL ret = ERROR_STEP;
+            WORD ret = ERROR_STEP;
 
             if (arg == NULL) {
                 if (no == c_TRACE) do_info();
@@ -531,7 +531,7 @@ static void do_command(int no)
             FILE *handle;
             if ((handle = fopen(globdirname(file), "wb")) == NULL)
                 fatal("cannot open file %s", file);
-            int ret = save_object(handle, start, (UCELL)((end - start) / CELL_W));
+            int ret = save_object(handle, start, (UWORD)((end - start) / WORD_BYTES));
             fclose(handle);
 
             switch (ret) {
@@ -565,7 +565,7 @@ static void do_command(int no)
     case c_PUSH:
         {
             long long value = single_arg(strtok(NULL, " "));
-            CELL stored_val = (CELL)value << 2;
+            WORD stored_val = (WORD)value << 2;
             ARSHIFT(stored_val, 2);
             if ((long long)stored_val != value)
                 fatal("invalid argument to PUSH");
@@ -648,7 +648,7 @@ static void parse(char *input)
             no = search(token, regist, registers);
             if (no == SIZE_MAX) {
                 char *endp, *display;
-                UCELL adr = (UCELL)parse_number(token, &endp);
+                UWORD adr = (UWORD)parse_number(token, &endp);
 
                 if (endp != &token[strlen(token)])
                     fatal("unknown command or register '%s'", token);
@@ -657,14 +657,14 @@ static void parse(char *input)
                     check_range(adr, adr + 1, "Address");
                     BYTE b;
                     load_byte(adr, &b);
-                    display = xasprintf("$%"PRIX32": $%X (%d) (byte)", (UCELL)adr,
+                    display = xasprintf("$%"PRIX32": $%X (%d) (byte)", (UWORD)adr,
                                         b, b);
                 } else {
-                    check_range(adr, adr + CELL_W, "Address");
-                    CELL c;
-                    load_cell(adr, &c);
-                    display = xasprintf("$%"PRIX32": $%"PRIX32" (%"PRId32") (cell)", (UCELL)adr,
-                                        (UCELL)c, c);
+                    check_range(adr, adr + WORD_BYTES, "Address");
+                    WORD c;
+                    load_word(adr, &c);
+                    display = xasprintf("$%"PRIX32": $%"PRIX32" (%"PRId32") (word)", (UWORD)adr,
+                                        (UWORD)c, c);
                 }
                 printf("%s\n", display);
                 free(display);
@@ -724,12 +724,12 @@ static void usage(void)
 #undef DOC
 }
 
-static CELL parse_memory_size(UCELL max)
+static WORD parse_memory_size(UWORD max)
 {
     char *endptr;
     errno = 0;
-    long size = (CELL)strtol(optarg, &endptr, 10);
-    if (*optarg == '\0' || *endptr != '\0' || size <= 0 || (UCELL)size > max)
+    long size = (WORD)strtol(optarg, &endptr, 10);
+    if (*optarg == '\0' || *endptr != '\0' || size <= 0 || (UWORD)size > max)
         die("memory size must be a positive number up to %"PRIu32, max);
     return size;
 }
@@ -758,7 +758,7 @@ int main(int argc, char *argv[])
 
         switch (longindex) {
             case 0:
-                memory_size = parse_memory_size((UCELL)MAX_MEMORY);
+                memory_size = parse_memory_size((UWORD)MAX_MEMORY);
                 break;
             case 1:
                 debug_on_error = true;
@@ -779,8 +779,8 @@ int main(int argc, char *argv[])
             }
     }
 
-    if ((memory = (CELL *)calloc(memory_size, CELL_W)) == NULL)
-        die("could not allocate %"PRIu32" cells of memory", memory_size);
+    if ((memory = (WORD *)calloc(memory_size, WORD_BYTES)) == NULL)
+        die("could not allocate %"PRIu32" words of memory", memory_size);
     init(memory, memory_size);
     ass_goto(PC);
 

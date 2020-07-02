@@ -16,21 +16,21 @@
 
 
 unsigned correct[] = {
-    CELL_W, 48, 48 + CELL_W,
-    10000, 10000 + CELL_W, 10000 + CELL_W * 2, 10000 + CELL_W * 3,
-    10000 + CELL_W * 4, 10000 + CELL_W * 5,
-    11000, 11000 + CELL_W,
-    64, 300, 64 + CELL_W,
+    WORD_BYTES, 48, 48 + WORD_BYTES,
+    10000, 10000 + WORD_BYTES, 10000 + WORD_BYTES * 2, 10000 + WORD_BYTES * 3,
+    10000 + WORD_BYTES * 4, 10000 + WORD_BYTES * 5,
+    11000, 11000 + WORD_BYTES,
+    64, 300, 64 + WORD_BYTES,
 };
 
 
 int main(void)
 {
-    CELL temp = 0;
+    WORD temp = 0;
     int exception = 0;
 
     size_t size = 4096;
-    init((CELL *)calloc(size, CELL_W), size);
+    init((WORD *)calloc(size, WORD_BYTES), size);
 
     ass_goto(PC);
     pushrel(48); ass(O_JUMP);
@@ -53,7 +53,7 @@ int main(void)
     ass(O_RET);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
-        printf("Instruction = %s\n", disass(LOAD_CELL(PC), PC));
+        printf("Instruction = %s\n", disass(LOAD_WORD(PC), PC));
         assert(single_step() == ERROR_STEP);
         printf("Instruction %zu: PC = %u; should be %u\n\n", i, PC, correct[i]);
         if (correct[i] != PC) {

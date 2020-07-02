@@ -11,19 +11,19 @@
 #include "tests.h"
 
 
-CELL result[] = {
+WORD result[] = {
     ERROR_STACK_OVERFLOW, ERROR_STACK_OVERFLOW, 0,
     ERROR_UNALIGNED_ADDRESS,
     ERROR_INVALID_LOAD, ERROR_INVALID_LOAD, ERROR_UNALIGNED_ADDRESS,
     ERROR_INVALID_OPCODE,
 };
-UCELL test[sizeof(result) / sizeof(result[0])];
+UWORD test[sizeof(result) / sizeof(result[0])];
 
 
 int main(void)
 {
     size_t size = 4096;
-    init((CELL *)calloc(size, CELL_W), size);
+    init((WORD *)calloc(size, WORD_BYTES), size);
 
     ass_goto(0);
     // test 1: DUP with SP > SSIZE
@@ -44,7 +44,7 @@ int main(void)
     push(1); ass(O_CALL);
     // test 5: allow execution to run off the end of memory
     test[4] = label();
-    push(MEMORY - CELL_W); ass(O_JUMP);
+    push(MEMORY - WORD_BYTES); ass(O_JUMP);
     // test 6: load from an invalid address
     test[5] = label();
     push(0xffffffec);
@@ -56,7 +56,7 @@ int main(void)
     test[7] = label();
     ass(O_UNDEFINED);
 
-    UCELL error = 0;
+    UWORD error = 0;
     for (size_t i = 0; i < sizeof(test) / sizeof(test[0]); i++) {
         SP = 0;    // reset stack pointer
 
@@ -65,12 +65,12 @@ int main(void)
         if (i + 1 == 6) {
             // test 6: code to run at end of memory
             // Assemble now because it was overwritten by an earlier test
-            ass_goto(MEMORY - CELL_W);
+            ass_goto(MEMORY - WORD_BYTES);
             ass(O_WORD_BYTES);
         }
 
         PC = test[i];
-        CELL res = run();
+        WORD res = run();
 
         if (result[i] != res) {
              printf("Error in exceptions tests: test %zu failed; PC = %"PRIu32"\n", i + 1, PC);

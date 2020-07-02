@@ -13,17 +13,17 @@
 
 int main(void)
 {
-    init((CELL *)calloc(1024, 1), 256);
+    init((WORD *)calloc(1024, 1), 256);
 
-    const UCELL steps = 10;
-    for (UCELL i = 0; i < steps; i++) {
+    const UWORD steps = 10;
+    for (UWORD i = 0; i < steps; i++) {
         // Assemble the test as we go!
         ass(O_WORD_BYTES);
         printf("PC = %"PRIu32"\n", PC);
         assert(single_step() == ERROR_STEP);
     }
 
-    UCELL final_PC = steps * CELL_W;
+    UWORD final_PC = steps * WORD_BYTES;
     printf("PC should now be %"PRIu32"\n", final_PC);
     if (PC != final_PC) {
         printf("Error in single_step() tests: PC = %"PRIu32"\n", PC);

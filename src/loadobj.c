@@ -20,7 +20,7 @@
 #include "bee_aux.h"
 
 
-int load_object(FILE *file, UCELL address)
+int load_object(FILE *file, UWORD address)
 {
     if (!IS_ALIGNED(address))
         return -1;
@@ -51,17 +51,17 @@ int load_object(FILE *file, UCELL address)
         return -2;
     int reversed = endism ^ ENDISM;
 
-    UCELL length = 0;
-    if (fread(&length, 1, CELL_W, file) != CELL_W)
+    UWORD length = 0;
+    if (fread(&length, 1, WORD_BYTES, file) != WORD_BYTES)
         return -3;
     if (reversed)
-        length = (UCELL)reverse_cell((CELL)length);
+        length = (UWORD)reverse_word((WORD)length);
 
-    uint8_t *ptr = native_address_of_range(address, length * CELL_W);
+    uint8_t *ptr = native_address_of_range(address, length * WORD_BYTES);
     if (ptr == NULL)
         return -1;
 
-    if (fread(ptr, CELL_W, length, file) != length)
+    if (fread(ptr, WORD_BYTES, length, file) != length)
         return -3;
     if (reversed)
         reverse(address, length);

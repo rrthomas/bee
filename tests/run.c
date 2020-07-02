@@ -14,7 +14,7 @@
 
 int main(void)
 {
-    int i = init((CELL *)calloc(1024, 1), 256);
+    int i = init((WORD *)calloc(1024, 1), 256);
     if (i != 0) {
         printf("Error in run() tests: init with valid parameters failed\n");
         exit(1);
@@ -24,7 +24,7 @@ int main(void)
     push(ret_code);
     ass(O_HALT);
 
-    CELL ret = run();
+    WORD ret = run();
 
     printf("Return value should be %d and is %"PRId32"\n", ret_code, ret);
     if (ret != ret_code) {
@@ -32,7 +32,7 @@ int main(void)
         exit(1);
     }
 
-    UCELL final_PC = 2 * CELL_W;
+    UWORD final_PC = 2 * WORD_BYTES;
     printf("PC should now be %"PRIu32"\n", final_PC);
     if (PC != final_PC) {
         printf("Error in run() tests: PC = %"PRIu32"\n", PC);

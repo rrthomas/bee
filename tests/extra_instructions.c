@@ -15,14 +15,14 @@
 int main(void)
 {
     int exception = 0;
-    CELL temp = 0;
+    WORD temp = 0;
 
     // Data for ARGC/ARGLEN/ARGCOPY tests
     int argc = 3;
-    UCELL buf = 32;
+    UWORD buf = 32;
     const char *argv[] = {"foo", "bard", "basilisk"};
 
-    init((CELL *)malloc(4096), 1024);
+    init((WORD *)malloc(4096), 1024);
     assert(register_args(argc, argv) == 0);
 
     ass_goto(PC);
@@ -40,7 +40,7 @@ int main(void)
     assert(single_step() == ERROR_STEP);
     assert(single_step() == ERROR_STEP);
     printf("arg 1's length is %"PRId32", and should be %zu\n", *stack_position(S0, SP, 0), strlen(argv[1]));
-    if ((UCELL)POP != strlen(argv[1])) {
+    if ((UWORD)POP != strlen(argv[1])) {
         printf("Error in extra instructions tests: PC = %"PRIu32"\n", PC);
         exit(1);
     }

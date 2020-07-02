@@ -13,9 +13,9 @@
 
 
 int exception = 0;
-CELL temp;
+WORD temp;
 
-CELL correct[] = { 0, -1, 0, -1, -1, 0, 0, -1, 0, 0 };
+WORD correct[] = { 0, -1, 0, -1, -1, 0, 0, -1, 0, 0 };
 
 
 static void stack1(void)
@@ -40,7 +40,7 @@ static void step(unsigned start, unsigned end)
 {
     if (end > start)
         for (unsigned i = start; i < end; i++) {
-            printf("Instruction = %s\n", disass(LOAD_CELL(PC), PC));
+            printf("Instruction = %s\n", disass(LOAD_WORD(PC), PC));
             assert(single_step() == ERROR_STEP);
             show_data_stack();
             printf("Result: %d; correct result: %d\n\n", *stack_position(S0, SP, 0),
@@ -55,7 +55,7 @@ static void step(unsigned start, unsigned end)
 
 int main(void)
 {
-    init((CELL *)malloc(1024), 256);
+    init((WORD *)malloc(1024), 256);
 
     ass_goto(PC);
     ass(O_LT); ass(O_LT); ass(O_LT); ass(O_LT);
