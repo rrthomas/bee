@@ -25,7 +25,7 @@ int main(void)
     init((CELL *)malloc(4096), 1024);
     assert(register_args(argc, argv) == 0);
 
-    start_ass(PC);
+    ass_goto(PC);
     ass(OX_ARGC);
     push(1); ass(OX_ARGLEN);
     push(1); push(buf); ass(OX_ARGCOPY);

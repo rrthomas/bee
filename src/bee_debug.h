@@ -21,8 +21,8 @@ void bee_ass_byte(bee_BYTE b);	// assemble a byte
 void bee_call(bee_CELL addr);	// assemble a call
 void bee_push(bee_CELL literal);	// assemble a literal
 void bee_pushrel(bee_UCELL addr);	// assemble an offset to the given address
-void bee_start_ass(bee_UCELL addr);	// start assembly, initialising variables
-bee_UCELL bee_ass_current(void);	// return address of bee_CELL currently being assembled to
+void bee_ass_goto(bee_UCELL addr);	// start assembly, initialising variables
+bee_UCELL bee_label(void);	// return address of bee_CELL currently being assembled to
 const char *bee_disass(bee_CELL opcode, bee_UCELL addr);  // disassemble an instruction
 bee_BYTE bee_toass(const char *token);    // convert a instruction to its opcode
 

@@ -25,35 +25,35 @@ int main(void)
     size_t size = 4096;
     init((CELL *)calloc(size, CELL_W), size);
 
-    start_ass(0);
+    ass_goto(0);
     // test 1: DUP with SP > SSIZE
-    test[0] = ass_current();
+    test[0] = label();
     push(SSIZE + 1);
     ass(O_SET_SP); ass(O_DUP);
     // test 2: set SP to SSIZE + 1, then try to pop (PUSHR) the stack
-    test[1] = ass_current();
+    test[1] = label();
     push(SSIZE + 1);
     ass(O_SET_SP); ass(O_PUSHR);
     // test 3: test SP can be SSIZE
-    test[2] = ass_current();
+    test[2] = label();
     push(SSIZE);
     ass(O_SET_SP); ass(O_PUSHR);
     push(0); ass(O_HALT);
     // test 4: test CALL of unaligned address
-    test[3] = ass_current();
+    test[3] = label();
     push(1); ass(O_CALL);
     // test 5: allow execution to run off the end of memory
-    test[4] = ass_current();
+    test[4] = label();
     push(MEMORY - CELL_W); ass(O_JUMP);
     // test 6: load from an invalid address
-    test[5] = ass_current();
+    test[5] = label();
     push(0xffffffec);
     ass(O_LOAD);
     // test 7: load from an unaligned address
-    test[6] = ass_current();
+    test[6] = label();
     push(1); ass(O_LOAD);
     // test 8: test invalid opcode
-    test[7] = ass_current();
+    test[7] = label();
     ass(O_UNDEFINED);
 
     UCELL error = 0;
@@ -65,7 +65,7 @@ int main(void)
         if (i + 1 == 6) {
             // test 6: code to run at end of memory
             // Assemble now because it was overwritten by an earlier test
-            start_ass(MEMORY - CELL_W);
+            ass_goto(MEMORY - CELL_W);
             ass(O_WORD_BYTES);
         }
 

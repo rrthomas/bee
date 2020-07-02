@@ -32,24 +32,24 @@ int main(void)
     size_t size = 4096;
     init((CELL *)calloc(size, CELL_W), size);
 
-    start_ass(PC);
+    ass_goto(PC);
     pushrel(48); ass(O_JUMP);
 
-    start_ass(48);
+    ass_goto(48);
     push(10000); ass(O_JUMP);
 
-    start_ass(10000);
+    ass_goto(10000);
     push(1); push(0); ass(O_JUMPZ);
     push(0); push(11000); ass(O_JUMPZ);
 
-    start_ass(11000);
+    ass_goto(11000);
     push(64);
     ass(O_CALL);
 
-    start_ass(64);
+    ass_goto(64);
     call(300);
 
-    start_ass(300);
+    ass_goto(300);
     ass(O_RET);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {

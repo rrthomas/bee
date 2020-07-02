@@ -29,7 +29,7 @@ int main(void)
     size_t size = 4096;
     init((CELL *)calloc(size, CELL_W), size);
 
-    start_ass(PC);
+    ass_goto(PC);
     ass(O_GET_MEMORY);
     ass(O_WORD_BYTES);
     ass(O_NEGATE);

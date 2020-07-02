@@ -2,7 +2,7 @@
 #define ARSHIFT bee_ARSHIFT
 #define ass bee_ass
 #define ass_byte bee_ass_byte
-#define ass_current bee_ass_current
+#define label bee_label
 #define BAD bee_BAD
 #define BYTE bee_BYTE
 #define byte_size bee_byte_size
@@ -72,7 +72,7 @@
 #define STACK_DIRECTION bee_STACK_DIRECTION
 #define stack_position bee_stack_position
 #define STACK_UNDERFLOW bee_STACK_UNDERFLOW
-#define start_ass bee_start_ass
+#define ass_goto bee_ass_goto
 #define store_byte bee_store_byte
 #define STORE_BYTE bee_STORE_BYTE
 #define store_cell bee_store_cell

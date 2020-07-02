@@ -26,7 +26,7 @@ int main(void)
 
     PUSH(3); PUSH(2); PUSH(1);	// initialise the stack
 
-    start_ass(PC);
+    ass_goto(PC);
     ass(O_DUP);
     push(1);
     ass(O_DUP);

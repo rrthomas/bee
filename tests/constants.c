@@ -21,7 +21,7 @@ int main(void)
 
     init((CELL *)calloc(1024, 1), 256);
 
-    start_ass(PC);
+    ass_goto(PC);
     push(ERROR_STEP); push(12345678);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {

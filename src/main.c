@@ -304,7 +304,7 @@ static void do_assign(char *token)
             break;
         case r_PC:
             PC = value;
-            start_ass(PC);
+            ass_goto(PC);
             break;
         case r_RP:
             RP = value;
@@ -782,7 +782,7 @@ int main(int argc, char *argv[])
     if ((memory = (CELL *)calloc(memory_size, CELL_W)) == NULL)
         die("could not allocate %"PRIu32" cells of memory", memory_size);
     init(memory, memory_size);
-    start_ass(PC);
+    ass_goto(PC);
 
     argc -= optind;
     if (argc >= 1) {

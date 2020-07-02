@@ -57,7 +57,7 @@ int main(void)
 {
     init((CELL *)malloc(1024), 256);
 
-    start_ass(PC);
+    ass_goto(PC);
     ass(O_LT); ass(O_LT); ass(O_LT); ass(O_LT);
     ass(O_EQ); ass(O_EQ);
     ass(O_ULT); ass(O_ULT); ass(O_ULT); ass(O_ULT);

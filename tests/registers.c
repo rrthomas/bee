@@ -26,7 +26,7 @@ int main(void)
 
     init((CELL *)malloc(SIZE), SIZE / CELL_W);
 
-    start_ass(PC);
+    ass_goto(PC);
     ass(O_GET_MEMORY); ass(O_POP);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {

@@ -32,7 +32,7 @@ int main(void)
 
     init((CELL *)calloc(1024, 1), 256);
 
-    start_ass(PC);
+    ass_goto(PC);
     push(1); ass(O_NEGATE);
     ass(O_WORD_BYTES);
     push(-CELL_W);

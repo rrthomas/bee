@@ -70,12 +70,12 @@ void pushrel(UCELL addr)
     addr_op(OP_PUSHREL, addr);
 }
 
-void start_ass(UCELL addr)
+void ass_goto(UCELL addr)
 {
     current = addr;
 }
 
-_GL_ATTRIBUTE_PURE UCELL ass_current(void)
+_GL_ATTRIBUTE_PURE UCELL label(void)
 {
     return current;
 }

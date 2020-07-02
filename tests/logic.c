@@ -43,7 +43,7 @@ int main(void)
 
     PUSH(0xff000000); PUSH(8); PUSH(0xff); PUSH(8);
 
-    start_ass(PC);
+    ass_goto(PC);
     ass(O_LSHIFT);
     push(2); ass(O_ROLL);
     push(2); ass(O_ROLL);
