@@ -1,4 +1,3 @@
-#define A bee_A
 #define ALIGN bee_ALIGN
 #define ARSHIFT bee_ARSHIFT
 #define ass bee_ass

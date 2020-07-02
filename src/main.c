@@ -295,9 +295,6 @@ static void do_assign(char *token)
 
     int no = search(token, regist, registers);
     switch (no) {
-        case r_A:
-            A = value;
-            break;
         case r_ENDISM:
         case r_M0:
         case r_MEMORY:
@@ -339,9 +336,6 @@ static void do_display(size_t no, const char *format)
     char *display;
 
     switch (no) {
-        case r_A:
-            display = xasprintf("A = %s", disass((UCELL)A, PC));
-            break;
         case r_ENDISM:
             display = xasprintf("ENDISM = %d", ENDISM);
             break;

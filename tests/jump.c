@@ -26,6 +26,9 @@ unsigned correct[] = {
 
 int main(void)
 {
+    CELL temp = 0;
+    int exception = 0;
+
     size_t size = 4096;
     init((CELL *)calloc(size, CELL_W), size);
 
@@ -50,8 +53,8 @@ int main(void)
     ass(O_RET);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
+        printf("Instruction = %s\n", disass(LOAD_CELL(PC), PC));
         assert(single_step() == ERROR_STEP);
-        printf("A = %s\n", disass(A, PC));
         printf("Instruction %zu: PC = %u; should be %u\n\n", i, PC, correct[i]);
         if (correct[i] != PC) {
             printf("Error in branch tests: PC = %"PRIu32"\n", PC);

@@ -19,6 +19,7 @@ const char *correct[] = {
 
 int main(void)
 {
+    CELL temp = 0;
     int exception = 0;
 
     init((CELL *)malloc(1024), 256);
@@ -45,8 +46,8 @@ int main(void)
             printf("Error in stack tests: PC = %"PRIu32"\n", PC);
             exit(1);
         }
+        printf("Instruction = %s\n", disass(LOAD_CELL(PC), PC));
         assert(single_step() == ERROR_STEP);
-        printf("A = %s\n", disass(A, PC));
     }
 
     assert(exception == 0);

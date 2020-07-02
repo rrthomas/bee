@@ -123,8 +123,8 @@ static CELL run_or_step(bool run)
         CELL temp = 0;
         DUCELL tempd = 0;
         BYTE byte = 0;
+        CELL A = LOAD_CELL(PC);
 
-        A = LOAD_CELL(PC);
         PC += CELL_W;
 
         switch (A & OP_MASK) {

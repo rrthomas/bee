@@ -40,9 +40,9 @@ static void step(unsigned start, unsigned end)
 {
     if (end > start)
         for (unsigned i = start; i < end; i++) {
+            printf("Instruction = %s\n", disass(LOAD_CELL(PC), PC));
             assert(single_step() == ERROR_STEP);
             show_data_stack();
-            printf("A = %s\n", disass(A, PC));
             printf("Result: %d; correct result: %d\n\n", *stack_position(S0, SP, 0),
                    correct[i]);
             if (correct[i] != *stack_position(S0, SP, 0)) {

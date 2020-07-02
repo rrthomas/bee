@@ -16,7 +16,7 @@ LDADD = $(top_builddir)/src/libbee.la
 
 check_PROGRAMS = $(TESTS) load_object
 
-TESTS = arithmetic branch comparison init literals logic memory \
+TESTS = arithmetic comparison init jump literals logic memory \
 	registers stack single_step run exceptions extra_instructions
 TESTS_ENVIRONMENT = \
 	if test -n "$(VALGRIND)"; then export VALGRIND='$(VALGRIND)'; fi; \

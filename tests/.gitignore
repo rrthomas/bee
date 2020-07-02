@@ -5,12 +5,12 @@
 /hello.obj
 /hello.output
 /arithmetic
-/branch
 /comparison
 /doloop
 /exceptions
 /extra_instructions
 /init
+/jump
 /link
 /literals
 /load_object
