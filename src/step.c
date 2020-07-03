@@ -255,6 +255,10 @@ static WORD run_or_step(bool run)
             case O_RET:
                 {
                     WORD addr = POP_RETURN;
+                    if (addr & 1) {
+                        PUSH_RETURN(addr & ~1);
+                        return BEE_ERROR_OK;
+                    }
                     CHECK_VALID_WORD(addr);
                     PC = addr;
                 }
@@ -406,7 +410,14 @@ static WORD run_or_step(bool run)
                 }
                 break;
             case O_CATCH:
-                error = ERROR_INVALID_OPCODE;
+                {
+                    WORD addr = POP;
+                    CHECK_VALID_WORD(addr);
+                    PC = addr;
+                    PUSH_RETURN(PC | 1);
+                    PUSH(run_or_step(run));
+                    PC = POP;
+                }
                 break;
             case O_THROW:
                 return POP;
