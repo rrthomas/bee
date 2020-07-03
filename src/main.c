@@ -804,7 +804,7 @@ int main(int argc, char *argv[])
         int res = run();
         if (!debug_on_error || res >= 0)
             return res;
-        warn("exception %d raised", res);
+        warn("exception %d (%s) raised", res, error_to_msg(res));
     } else
         interactive_printf("%s\n%s\n\n", VERSION_STRING, COPYRIGHT_STRING);
 
