@@ -83,7 +83,7 @@ _GL_ATTRIBUTE_PURE UWORD label(void)
 static const char *mnemonic[UINT8_MAX + 1] = {
 // 0x00
     "NOP", "NOT", "AND", "OR", "XOR", "LSHIFT", "RSHIFT", "ARSHIFT",
-    "POP", "DUP", "ROLL", "(SWAP)", "JUMP", "JUMPZ", "CALL", "RET",
+    "POP", "DUP", "SET", "SWAP", "JUMP", "JUMPZ", "CALL", "RET",
 // 0x10
     "LOAD", "STORE", "LOAD1", "STORE1", "(LOAD2)", "(STORE2)", "(LOAD4)", "(STORE4)",
     "NEGATE", "ADD", "MUL", "DIVMOD", "UDIVMOD", "EQ", "LT", "ULT",

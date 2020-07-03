@@ -200,27 +200,33 @@ static WORD run_or_step(bool run)
             case O_DUP:
                 {
                     UWORD depth = POP;
-                    if (depth > SP)
+                    if (depth >= SP)
                         exception = ERROR_STACK_UNDERFLOW;
                     else
                         PUSH(S0[SP - (depth + 1)]);
                 }
                 break;
-            case O_ROLL:
+            case O_SET:
                 {
                     UWORD depth = POP;
-                    if (depth > SP)
+                    UWORD value = POP;
+                    if (depth >= SP)
                         exception = ERROR_STACK_UNDERFLOW;
-                    else {
-                        UWORD rollee = S0[SP - (depth + 1)];
-                        for (UWORD i = depth; i > 0; i--)
-                            S0[SP - (i + 1)] = S0[SP - i];
-                        S0[SP - 1] = rollee;
-                    }
+                    else
+                        S0[SP - (depth + 1)] = value;
                 }
                 break;
-            case X_SWAP:
-                exception = ERROR_INVALID_OPCODE;
+            case O_SWAP:
+                {
+                    UWORD depth = POP;
+                    if (SP == 0 || depth >= SP - 1)
+                        exception = ERROR_STACK_UNDERFLOW;
+                    else {
+                        temp = S0[SP - (depth + 2)];
+                        S0[SP - (depth + 2)] = S0[SP - 1];
+                        S0[SP - 1] = temp;
+                    }
+                }
                 break;
             case O_JUMP:
                 {

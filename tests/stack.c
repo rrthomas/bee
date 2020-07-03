@@ -12,8 +12,8 @@
 
 
 const char *correct[] = {
-    "3 2 1", "3 2 3", "3 2 3 1", "3 2 3 2", "3 2 3", "3 2 3 1", "3 3 2",
-    "3 3 2 2", "3 2 3", "3 2", "3 2 3", "3 2 3 3",
+    "3 2 1", "3 2 3", "3 2 3 1", "3 2 3 2", "3 2 3", "3 2 3 0", "3 3 2",
+    "3 3 2 1", "2 3 3", "2 3", "2 3 3", "2 3 3 3",
 };
 
 
@@ -31,10 +31,10 @@ int main(void)
     push(1);
     ass(O_DUP);
     ass(O_POP);
+    push(0);
+    ass(O_SWAP);
     push(1);
-    ass(O_ROLL);
-    push(2);
-    ass(O_ROLL);
+    ass(O_SWAP);
     ass(O_PUSHR);
     ass(O_DUPR);
     ass(O_POPR);

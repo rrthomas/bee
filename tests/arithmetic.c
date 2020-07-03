@@ -1,4 +1,4 @@
-// Test the arithmetic operators. Also uses the ROLL, POP, and PUSH
+// Test the arithmetic operators. Also uses the SWAP, POP, and PUSH
 // instructions. Since unsigned arithmetic overflow behaviour is guaranteed
 // by the ISO C standard, we only test the stack handling and basic
 // correctness of the operators here, assuming that if the arithmetic works
@@ -19,7 +19,8 @@
 
 const char *correct[] = {
     "1", "-1", "-1 " str(WORD_BYTES), "-1 " str(WORD_BYTES) " -" str(WORD_BYTES),
-    "-1 " str(WORD_BYTES) " -" str(WORD_BYTES) " 2", str(WORD_BYTES) " -" str(WORD_BYTES) " -1",
+    "-1 " str(WORD_BYTES) " -" str(WORD_BYTES) " 0", "-1 -" str(WORD_BYTES) " " str(WORD_BYTES),
+    "-1 -" str(WORD_BYTES) " " str(WORD_BYTES) " 1", str(WORD_BYTES) " -" str(WORD_BYTES) " -1",
     str(WORD_BYTES) " -5", "-1", "-1 " str(WORD_BYTES), "-" str(WORD_BYTES),
     "-" str(WORD_BYTES) " 3", "-1 -1", "-1", "-1 -2", "1 1"
 };
@@ -36,7 +37,8 @@ int main(void)
     push(1); ass(O_NEGATE);
     ass(O_WORD_BYTES);
     push(-WORD_BYTES);
-    push(2); ass(O_ROLL);
+    push(0); ass(O_SWAP);
+    push(1); ass(O_SWAP);
     ass(O_ADD); ass(O_ADD);
     ass(O_WORD_BYTES);
     ass(O_MUL);

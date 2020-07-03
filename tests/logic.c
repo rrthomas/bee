@@ -1,4 +1,4 @@
-// Test the logic operators. Also uses the ROLL instruction. We only test
+// Test the logic operators. Also uses the SWAP instruction. We only test
 // the stack handling and basic correctness of the operators here, assuming
 // that if the logic works in one case, it will work in all (if the C
 // compiler doesn't implement it correctly, we're in trouble anyway!).
@@ -16,9 +16,9 @@
 
 const char *correct[] = {
     "-16777216 8 65280",
-    "-16777216 8 65280 2",
-    "8 65280 -16777216",
-    "8 65280 -16777216 2",
+    "-16777216 8 65280 1",
+    "65280 8 -16777216",
+    "65280 8 -16777216 0",
     "65280 -16777216 8",
     "65280 16711680",
     "16776960",
@@ -45,8 +45,8 @@ int main(void)
 
     ass_goto(PC);
     ass(O_LSHIFT);
-    push(2); ass(O_ROLL);
-    push(2); ass(O_ROLL);
+    push(1); ass(O_SWAP);
+    push(0); ass(O_SWAP);
     ass(O_RSHIFT);
     ass(O_OR);
     push(1);
