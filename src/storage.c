@@ -93,7 +93,7 @@ int load_word(UWORD addr, WORD *value)
     return ERROR_OK;
 }
 
-int load_byte(UWORD addr, BYTE *value)
+int load_byte(UWORD addr, uint8_t *value)
 {
     uint8_t *ptr = native_address_of_range(FLIP(addr), 1);
     if (ptr == NULL)
@@ -118,7 +118,7 @@ int store_word(UWORD addr, WORD value)
     return ERROR_OK;
 }
 
-int store_byte(UWORD addr, BYTE value)
+int store_byte(UWORD addr, uint8_t value)
 {
     uint8_t *ptr = native_address_of_range(FLIP(addr), 1);
     if (ptr == NULL)

@@ -62,7 +62,7 @@ static int getstr(UWORD adr, UWORD len, char **res)
         exception = -511;
     else
         for (size_t i = 0; exception == 0 && i < len; i++, adr++) {
-            exception = load_byte(adr, (BYTE *)((*res) + i));
+            exception = load_byte(adr, (uint8_t *)((*res) + i));
         }
 
     return exception;
@@ -122,7 +122,7 @@ static WORD run_or_step(bool run)
     do {
         WORD temp = 0;
         DUWORD tempd = 0;
-        BYTE byte = 0;
+        uint8_t byte = 0;
         WORD A = LOAD_WORD(PC);
 
         PC += WORD_BYTES;
@@ -276,14 +276,14 @@ static WORD run_or_step(bool run)
             case O_LOAD1:
                 {
                     WORD addr = POP;
-                    BYTE value = LOAD_BYTE(addr);
+                    uint8_t value = LOAD_BYTE(addr);
                     PUSH((WORD)value);
                 }
                 break;
             case O_STORE1:
                 {
                     WORD addr = POP;
-                    BYTE value = (BYTE)POP;
+                    uint8_t value = (uint8_t)POP;
                     STORE_BYTE(addr, value);
                 }
                 break;

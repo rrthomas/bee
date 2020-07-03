@@ -17,14 +17,14 @@ int bee_byte_size(bee_WORD v); // return number of significant bytes in a bee_WO
 
 void bee_align(void);		// align assembly pointer to next word
 void bee_ass(bee_UWORD instr);	// assemble an instruction
-void bee_ass_byte(bee_BYTE b);	// assemble a byte
+void bee_ass_byte(uint8_t b);	// assemble a byte
 void bee_call(bee_WORD addr);	// assemble a call
 void bee_push(bee_WORD literal);	// assemble a literal
 void bee_pushrel(bee_UWORD addr);	// assemble an offset to the given address
 void bee_ass_goto(bee_UWORD addr);	// start assembly, initialising variables
 bee_UWORD bee_label(void);	// return address of bee_WORD currently being assembled to
 const char *bee_disass(bee_WORD opcode, bee_UWORD addr);  // disassemble an instruction
-bee_BYTE bee_toass(const char *token);    // convert a instruction to its opcode
+uint8_t bee_toass(const char *token);    // convert a instruction to its opcode
 
 char *bee_val_data_stack(void); // return the current data stack as a string
 void bee_show_data_stack(void); // show the current contents of the data stack

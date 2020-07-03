@@ -179,9 +179,9 @@ static size_t search(const char *token, const char *list[], size_t entries)
     return SIZE_MAX;
 }
 
-static BYTE parse_instruction(const char *token)
+static uint8_t parse_instruction(const char *token)
 {
-    BYTE opcode = O_UNDEFINED;
+    uint8_t opcode = O_UNDEFINED;
     if (token[0] == 'O') {
         opcode = toass(token + 1);
         if (opcode == O_UNDEFINED)
@@ -198,7 +198,7 @@ static long long parse_number(const char *s, char **endp)
 
 static int is_byte(long long value)
 {
-    return (long long)(BYTE)value == value;
+    return (long long)(uint8_t)value == value;
 }
 
 static long long single_arg(const char *s)
@@ -418,7 +418,7 @@ static void do_command(int no)
                 #define chunk 16
                 char ascii[chunk];
                 for (int i = 0; i < chunk && start < end; i++) {
-                    BYTE byte;
+                    uint8_t byte;
                     load_byte(start + i, &byte);
                     if (i % 8 == 0)
                         putchar(' ');
@@ -543,7 +543,7 @@ static void do_command(int no)
             long long value = single_arg(strtok(NULL, " "));
             if (!is_byte(value))
                 fatal("the argument to BLITERAL must fit in a byte");
-            ass_byte((BYTE)value);
+            ass_byte((uint8_t)value);
             break;
         }
     case c_CALL:
@@ -631,7 +631,7 @@ static void parse(char *input)
         if (assign)
             do_assign(token);
         else {
-            BYTE opcode = parse_instruction(token);
+            uint8_t opcode = parse_instruction(token);
             if (opcode != O_UNDEFINED) {
                 ass(opcode);
                 return;
@@ -647,7 +647,7 @@ static void parse(char *input)
 
                 if (!IS_ALIGNED(adr)) {
                     check_range(adr, adr + 1, "Address");
-                    BYTE b;
+                    uint8_t b;
                     load_byte(adr, &b);
                     display = xasprintf("$%"PRIX32": $%X (%d) (byte)", (UWORD)adr,
                                         b, b);

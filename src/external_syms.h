@@ -4,7 +4,6 @@
 #define ass_byte bee_ass_byte
 #define label bee_label
 #define BAD bee_BAD
-#define BYTE bee_BYTE
 #define byte_size bee_byte_size
 #define call bee_call
 #define CHAR_MASK bee_CHAR_MASK

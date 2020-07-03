@@ -37,7 +37,7 @@ void ass(UWORD instr)
     current += WORD_BYTES;
 }
 
-void ass_byte(BYTE b)
+void ass_byte(uint8_t b)
 {
     store_byte(current++, b);
 }
@@ -147,7 +147,7 @@ _GL_ATTRIBUTE_CONST const char *disass(WORD opcode, UWORD addr)
     return text;
 }
 
-_GL_ATTRIBUTE_PURE BYTE toass(const char *token)
+_GL_ATTRIBUTE_PURE uint8_t toass(const char *token)
 {
     for (size_t i = 0; i < sizeof(mnemonic) / sizeof(mnemonic[0]); i++)
         if (mnemonic[i] && strcmp(token, mnemonic[i]) == 0) return i;
