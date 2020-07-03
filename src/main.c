@@ -375,7 +375,7 @@ static void do_info(void)
 
 static void do_command(int no)
 {
-    int exception = 0;
+    int error = 0;
     WORD temp = 0;
 
     switch (no) {
@@ -577,13 +577,13 @@ static void do_command(int no)
         break;
     }
 
-    switch (exception) {
+    switch (error) {
     case ERROR_INVALID_LOAD:
     case ERROR_INVALID_STORE:
         fatal("invalid address");
         break;
     case ERROR_UNALIGNED_ADDRESS:
-        fatal("address alignment exception");
+        fatal("address alignment error");
         break;
     default:
     case ERROR_OK:
@@ -804,7 +804,7 @@ int main(int argc, char *argv[])
         int res = run();
         if (!debug_on_error || res >= 0)
             return res;
-        warn("exception %d (%s) raised", res, error_to_msg(res));
+        warn("error %d (%s) raised", res, error_to_msg(res));
     } else
         interactive_printf("%s\n%s\n\n", VERSION_STRING, COPYRIGHT_STRING);
 

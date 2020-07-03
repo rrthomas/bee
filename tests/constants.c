@@ -17,7 +17,7 @@ const char *correct[] = { "-257", "-257 12345678", "-257 12345678" };
 int main(void)
 {
     WORD temp = 0;
-    int exception = 0;
+    int error = 0;
 
     init_defaults((WORD *)calloc(1024, 1), 256);
 

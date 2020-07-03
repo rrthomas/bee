@@ -14,7 +14,7 @@
 
 int main(void)
 {
-    int exception = 0;
+    int error = 0;
     WORD temp = 0;
 
     // Data for ARGC/ARGLEN/ARGCOPY tests

@@ -12,7 +12,7 @@
 #include "tests.h"
 
 
-int exception = 0;
+int error = 0;
 WORD temp;
 
 WORD correct[] = { 0, -1, 0, -1, -1, 0, 0, -1, 0, 0 };
@@ -69,7 +69,7 @@ int main(void)
     stack1();       // set up the stack with four standard pairs to compare
     step(6, 10);    // do the U< tests
 
-    assert(exception == 0);
+    assert(error == 0);
     printf("Comparison tests ran OK\n");
     return 0;
 }

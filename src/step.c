@@ -38,8 +38,8 @@ verify(sizeof(int) <= sizeof(WORD));
     (native_address_of_range((a), WORD_BYTES) != NULL)
 
 #define CHECK_VALID_WORD(a)                                           \
-    CHECK_ADDRESS(a, IS_ALIGNED(a), ERROR_UNALIGNED_ADDRESS, exception)     \
-    CHECK_ADDRESS(a, IS_VALID(a), ERROR_INVALID_LOAD, exception)
+    CHECK_ADDRESS(a, IS_ALIGNED(a), ERROR_UNALIGNED_ADDRESS, error)     \
+    CHECK_ADDRESS(a, IS_VALID(a), ERROR_INVALID_LOAD, error)
 
 
 // Division macros
@@ -55,17 +55,17 @@ verify(sizeof(int) <= sizeof(WORD));
 // Copy a string from VM to native memory
 static int getstr(UWORD adr, UWORD len, char **res)
 {
-    int exception = 0;
+    int error = 0;
 
     *res = calloc(1, len + 1);
     if (*res == NULL)
-        exception = -511;
+        error = -511;
     else
-        for (size_t i = 0; exception == 0 && i < len; i++, adr++) {
-            exception = load_byte(adr, (uint8_t *)((*res) + i));
+        for (size_t i = 0; error == 0 && i < len; i++, adr++) {
+            error = load_byte(adr, (uint8_t *)((*res) + i));
         }
 
-    return exception;
+    return error;
 }
 
 // Convert portable open(2) flags bits to system flags
@@ -118,7 +118,7 @@ int register_args(int argc, const char *argv[])
 // Inner execution function
 static WORD run_or_step(bool run)
 {
-    int exception = 0;
+    int error = 0;
     do {
         WORD temp = 0;
         DUWORD tempd = 0;
@@ -201,7 +201,7 @@ static WORD run_or_step(bool run)
                 {
                     UWORD depth = POP;
                     if (depth >= SP)
-                        exception = ERROR_STACK_UNDERFLOW;
+                        error = ERROR_STACK_UNDERFLOW;
                     else
                         PUSH(S0[SP - (depth + 1)]);
                 }
@@ -211,7 +211,7 @@ static WORD run_or_step(bool run)
                     UWORD depth = POP;
                     UWORD value = POP;
                     if (depth >= SP)
-                        exception = ERROR_STACK_UNDERFLOW;
+                        error = ERROR_STACK_UNDERFLOW;
                     else
                         S0[SP - (depth + 1)] = value;
                 }
@@ -220,7 +220,7 @@ static WORD run_or_step(bool run)
                 {
                     UWORD depth = POP;
                     if (SP == 0 || depth >= SP - 1)
-                        exception = ERROR_STACK_UNDERFLOW;
+                        error = ERROR_STACK_UNDERFLOW;
                     else {
                         temp = S0[SP - (depth + 2)];
                         S0[SP - (depth + 2)] = S0[SP - 1];
@@ -291,7 +291,7 @@ static WORD run_or_step(bool run)
                 {
                     WORD addr = POP;
                     if (addr % 2 != 0)
-                        exception = ERROR_UNALIGNED_ADDRESS;
+                        error = ERROR_UNALIGNED_ADDRESS;
                     else {
                         uint8_t byte1 = LOAD_BYTE(addr);
                         uint8_t byte2 = LOAD_BYTE(addr + 1);
@@ -303,7 +303,7 @@ static WORD run_or_step(bool run)
                 {
                     WORD addr = POP;
                     if (addr % 2 != 0)
-                        exception = ERROR_UNALIGNED_ADDRESS;
+                        error = ERROR_UNALIGNED_ADDRESS;
                     else {
                         uint16_t value = (uint16_t)POP;
                         STORE_BYTE(addr, (uint8_t)value);
@@ -391,14 +391,14 @@ static WORD run_or_step(bool run)
             case O_POPR:
                 {
                     WORD value = POP_RETURN;
-                    if (exception == ERROR_OK)
+                    if (error == ERROR_OK)
                         PUSH(value);
                 }
                 break;
             case O_DUPR:
                 {
                     if (RP == 0)
-                        exception = ERROR_STACK_UNDERFLOW;
+                        error = ERROR_STACK_UNDERFLOW;
                     else {
                         WORD value = *stack_position(R0, RP, 0);
                         PUSH(value);
@@ -406,7 +406,7 @@ static WORD run_or_step(bool run)
                 }
                 break;
             case O_CATCH:
-                exception = ERROR_INVALID_OPCODE;
+                error = ERROR_INVALID_OPCODE;
                 break;
             case O_THROW:
                 return POP;
@@ -483,8 +483,8 @@ static WORD run_or_step(bool run)
                     UWORD len = POP;
                     UWORD str = POP;
                     char *file;
-                    exception = getstr(str, len, &file);
-                    int fd = exception == 0 ? open(file, perm, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH) : -1;
+                    error = getstr(str, len, &file);
+                    int fd = error == 0 ? open(file, perm, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH) : -1;
                     free(file);
                     PUSH((WORD)fd);
                     PUSH(fd < 0 || (binary && set_binary_mode(fd, O_BINARY) < 0) ? -1 : 0);
@@ -503,16 +503,16 @@ static WORD run_or_step(bool run)
                     UWORD buf = POP;
 
                     ssize_t res = 0;
-                    if (exception == 0) {
-                        exception = pre_dma(buf, buf + nbytes);
-                        if (exception == 0) {
+                    if (error == 0) {
+                        error = pre_dma(buf, buf + nbytes);
+                        if (error == 0) {
                             res = read(fd, native_address_of_range(buf, 0), nbytes);
-                            exception = post_dma(buf, buf + nbytes);
+                            error = post_dma(buf, buf + nbytes);
                         }
                     }
 
                     PUSH(res);
-                    PUSH((exception == 0 && res >= 0) ? 0 : -1);
+                    PUSH((error == 0 && res >= 0) ? 0 : -1);
                 }
                 break;
             case OX_WRITE_FILE:
@@ -522,15 +522,15 @@ static WORD run_or_step(bool run)
                     UWORD buf = POP;
 
                     ssize_t res = 0;
-                    if (exception == 0) {
-                        exception = pre_dma(buf, buf + nbytes);
-                        if (exception == 0) {
+                    if (error == 0) {
+                        error = pre_dma(buf, buf + nbytes);
+                        if (error == 0) {
                             res = write(fd, native_address_of_range(buf, 0), nbytes);
-                            exception = post_dma(buf, buf + nbytes);
+                            error = post_dma(buf, buf + nbytes);
                         }
                     }
 
-                    PUSH((exception == 0 && res >= 0) ? 0 : -1);
+                    PUSH((error == 0 && res >= 0) ? 0 : -1);
                 }
                 break;
             case OX_FILE_POSITION:
@@ -564,12 +564,12 @@ static WORD run_or_step(bool run)
                     UWORD str2 = POP;
                     char *from;
                     char *to = NULL;
-                    exception = getstr(str2, len2, &from) ||
+                    error = getstr(str2, len2, &from) ||
                         getstr(str1, len1, &to) ||
                         rename(from, to);
                     free(from);
                     free(to);
-                    PUSH(exception);
+                    PUSH(error);
                 }
                 break;
             case OX_DELETE_FILE:
@@ -577,10 +577,10 @@ static WORD run_or_step(bool run)
                     UWORD len = POP;
                     UWORD str = POP;
                     char *file;
-                    exception = getstr(str, len, &file) ||
+                    error = getstr(str, len, &file) ||
                         remove(file);
                     free(file);
-                    PUSH(exception);
+                    PUSH(error);
                 }
                 break;
             case OX_FILE_SIZE:
@@ -611,17 +611,17 @@ static WORD run_or_step(bool run)
                 break;
 
             default:
-                exception = ERROR_INVALID_OPCODE;
+                error = ERROR_INVALID_OPCODE;
                 break;
             }
             break;
         }
-    } while (run == true && exception == 0);
+    } while (run == true && error == 0);
 
- exception:
-    if (exception == 0 && run == false)
-        exception = ERROR_STEP; // single_step terminated OK
-    return exception;
+ error:
+    if (error == 0 && run == false)
+        error = ERROR_STEP; // single_step terminated OK
+    return error;
 }
 
 // Perform one pass of the execution cycle

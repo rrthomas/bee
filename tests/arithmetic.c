@@ -29,7 +29,7 @@ const char *correct[] = {
 int main(void)
 {
     WORD temp = 0;
-    int exception = 0;
+    int error = 0;
 
     init_defaults((WORD *)calloc(1024, 1), 256);
 

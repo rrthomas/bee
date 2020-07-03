@@ -7,7 +7,7 @@
 /arithmetic
 /comparison
 /constants
-/exceptions
+/errors
 /extra_instructions
 /init
 /jump

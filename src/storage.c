@@ -156,17 +156,17 @@ int reverse(UWORD start, UWORD length)
 #pragma GCC diagnostic ignored "-Wsuggest-attribute=pure"
 int pre_dma(UWORD from, UWORD to)
 {
-    int exception = 0;
+    int error = 0;
 
     // Expand range to words
     from &= -WORD_BYTES;
     to = ALIGN(to);
 
     if (to < from || native_address_of_range(from, to - from) == NULL)
-        exception = -1;
-    if (exception == 0 && ENDISM)
-        exception = reverse(from, to - from);
-    return exception;
+        error = -1;
+    if (error == 0 && ENDISM)
+        error = reverse(from, to - from);
+    return error;
 }
 #pragma GCC diagnostic pop
 

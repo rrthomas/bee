@@ -23,23 +23,23 @@
 
 // Memory access
 
-// Return value is 0 if OK, or exception code for invalid or unaligned address
+// Return value is 0 if OK, or error code for invalid or unaligned address
 bee_WORD bee_reverse_word(bee_WORD value);
 int bee_reverse(bee_UWORD start, bee_UWORD length);
 
 #define bee__LOAD_WORD(a, temp)                                             \
-    ((exception = exception ? exception : bee_load_word((a), &temp)), temp)
+    ((error = error ? error : bee_load_word((a), &temp)), temp)
 #define bee_LOAD_WORD(a) bee__LOAD_WORD(a, temp)
 #define bee_STORE_WORD(a, v)                                                \
-    (exception = exception ? exception : bee_store_word((a), (v)))
+    (error = error ? error : bee_store_word((a), (v)))
 #define bee_LOAD_BYTE(a)                                                    \
-    ((exception = exception ? exception : bee_load_byte((a), &byte)), byte)
+    ((error = error ? error : bee_load_byte((a), &byte)), byte)
 #define bee_STORE_BYTE(a, v)                                                \
-    (exception = exception ? exception : bee_store_byte((a), (v)))
+    (error = error ? error : bee_store_byte((a), (v)))
 #define bee_PUSH(v)                             \
-    (exception = exception ? exception : bee_push_stack(S0, SSIZE, &SP, v))
+    (error = error ? error : bee_push_stack(S0, SSIZE, &SP, v))
 #define bee_POP                                 \
-    (exception = exception ? exception : bee_pop_stack(S0, SSIZE, &SP, &temp), temp)
+    (error = error ? error : bee_pop_stack(S0, SSIZE, &SP, &temp), temp)
 #define bee_PUSH_DOUBLE(ud)                                             \
     bee_PUSH((bee_UWORD)(ud & bee_WORD_MASK));                          \
     bee_PUSH((bee_UWORD)((ud >> bee_WORD_BIT) & bee_WORD_MASK));
@@ -49,9 +49,9 @@ int bee_reverse(bee_UWORD start, bee_UWORD length);
      tempd)
 
 #define bee_PUSH_RETURN(v)                                              \
-    (exception = exception ? exception : bee_push_stack(R0, RSIZE, &RP, v))
+    (error = error ? error : bee_push_stack(R0, RSIZE, &RP, v))
 #define bee_POP_RETURN                                                  \
-    (exception = exception ? exception : bee_pop_stack(R0, RSIZE, &RP, &temp), temp)
+    (error = error ? error : bee_pop_stack(R0, RSIZE, &RP, &temp), temp)
 
 uint8_t *native_address_of_range(bee_UWORD start, bee_UWORD length);
 

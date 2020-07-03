@@ -1,6 +1,6 @@
 // Test the branch instructions. Also uses other instructions with lower
 // opcodes than the instructions tested (i.e. those already tested).
-// See exceptions.c for address exception handling tests.
+// See errors.c for address error handling tests.
 // The test program contains an infinite loop, but this is only executed
 // once.
 //
@@ -27,7 +27,7 @@ unsigned correct[] = {
 int main(void)
 {
     WORD temp = 0;
-    int exception = 0;
+    int error = 0;
 
     size_t size = 4096;
     init_defaults((WORD *)calloc(size, WORD_BYTES), size);

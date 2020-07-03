@@ -1,4 +1,4 @@
-// Test the VM-generated exceptions and HALT codes.
+// Test the VM-generated errors and HALT codes.
 //
 // (c) Reuben Thomas 1995-2020
 //
@@ -73,7 +73,7 @@ int main(void)
         WORD res = run();
 
         if (result[i] != res) {
-             printf("Error in exceptions tests: test %zu failed; PC = %"PRIu32"\n", i + 1, PC);
+             printf("Error in errors tests: test %zu failed; PC = %"PRIu32"\n", i + 1, PC);
              printf("Return code is %d (%s); should be %d (%s)\n",
                     res, error_to_msg(res), result[i], error_to_msg(result[i]));
              error++;
@@ -82,6 +82,6 @@ int main(void)
     }
 
     if (error == 0)
-        printf("Exceptions tests ran OK\n");
+        printf("Errors tests ran OK\n");
     return error;
 }

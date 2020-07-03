@@ -1,5 +1,5 @@
 // Test the memory operators. Also uses previously tested instructions.
-// See exceptions.c for address exception handling tests.
+// See errors.c for address error handling tests.
 //
 // (c) Reuben Thomas 1994-2020
 //
@@ -25,7 +25,7 @@ const char *correct[] = {
 int main(void)
 {
     WORD temp = 0;
-    int exception = 0;
+    int error = 0;
 
     size_t size = 4096;
     init_defaults((WORD *)calloc(size, WORD_BYTES), size);

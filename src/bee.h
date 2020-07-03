@@ -67,7 +67,7 @@ int bee_push_stack(WORD *s0, UWORD ssize, UWORD *sp, WORD val);
 
 // Memory access
 
-// Return value is 0 if OK, or exception code for invalid or unaligned address
+// Return value is 0 if OK, or error code for invalid or unaligned address
 int bee_load_word(bee_UWORD addr, bee_WORD *value);
 int bee_store_word(bee_UWORD addr, bee_WORD value);
 int bee_load_byte(bee_UWORD addr, uint8_t *value);
