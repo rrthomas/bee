@@ -287,11 +287,43 @@ static WORD run_or_step(bool run)
                     STORE_BYTE(addr, value);
                 }
                 break;
-            case X_LOAD2:
-            case X_STORE2:
-            case X_LOAD4:
-            case X_STORE4:
-                exception = ERROR_INVALID_OPCODE;
+            case O_LOAD2:
+                {
+                    WORD addr = POP;
+                    if (addr % 2 != 0)
+                        exception = ERROR_UNALIGNED_ADDRESS;
+                    else {
+                        uint8_t byte1 = LOAD_BYTE(addr);
+                        uint8_t byte2 = LOAD_BYTE(addr + 1);
+                        PUSH((WORD)(uint16_t)(byte1 | (byte2 << 8)));
+                    }
+                }
+                break;
+            case O_STORE2:
+                {
+                    WORD addr = POP;
+                    if (addr % 2 != 0)
+                        exception = ERROR_UNALIGNED_ADDRESS;
+                    else {
+                        uint16_t value = (uint16_t)POP;
+                        STORE_BYTE(addr, (uint8_t)value);
+                        STORE_BYTE(addr + 1, (uint8_t)(value >> 8));
+                    }
+                }
+                break;
+            case O_LOAD4:
+                {
+                    WORD addr = POP;
+                    WORD value = LOAD_WORD(addr);
+                    PUSH(value);
+                }
+                break;
+            case O_STORE4:
+                {
+                    WORD addr = POP;
+                    WORD value = POP;
+                    STORE_WORD(addr, value);
+                }
                 break;
             case O_NEGATE:
                 {

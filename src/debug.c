@@ -85,7 +85,7 @@ static const char *mnemonic[UINT8_MAX + 1] = {
     "NOP", "NOT", "AND", "OR", "XOR", "LSHIFT", "RSHIFT", "ARSHIFT",
     "POP", "DUP", "SET", "SWAP", "JUMP", "JUMPZ", "CALL", "RET",
 // 0x10
-    "LOAD", "STORE", "LOAD1", "STORE1", "(LOAD2)", "(STORE2)", "(LOAD4)", "(STORE4)",
+    "LOAD", "STORE", "LOAD1", "STORE1", "LOAD2", "STORE2", "LOAD4", "STORE4",
     "NEGATE", "ADD", "MUL", "DIVMOD", "UDIVMOD", "EQ", "LT", "ULT",
 // 0x20
     "PUSHR", "POPR", "DUPR", "CATCH", "THROW", NULL, NULL, NULL,
