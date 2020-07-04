@@ -59,6 +59,7 @@ enum {
     O_DUPR,
     O_CATCH,
     O_THROW,
+    O_BREAK,
 
     O_GET_SP = 0x40,
     O_SET_SP,

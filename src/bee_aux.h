@@ -23,6 +23,10 @@
 
 // Memory access
 
+// Check whether a VM address points to a native word-aligned word
+#define IS_VALID(a)                                     \
+    (native_address_of_range((a), WORD_BYTES) != NULL)
+
 // Return value is 0 if OK, or error code for invalid or unaligned address
 bee_WORD bee_reverse_word(bee_WORD value);
 int bee_reverse(bee_UWORD start, bee_UWORD length);

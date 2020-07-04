@@ -307,6 +307,9 @@ static void do_assign(char *token)
         case r_RP:
             RP = value;
             break;
+        case r_HANDLER_RP:
+            HANDLER_RP = value;
+            break;
         case r_SP:
             SP = value;
             break;
@@ -348,6 +351,9 @@ static void do_display(size_t no, const char *format)
             break;
         case r_RP:
             display = xasprintf("RP = $%"PRIX32" (%"PRIu32")", RP, RP);
+            break;
+        case r_HANDLER_RP:
+            display = xasprintf("HANDLER_RP = $%"PRIX32" (%"PRIu32")", HANDLER_RP, HANDLER_RP);
             break;
         case r_SP:
             display = xasprintf("SP = $%"PRIX32" (%"PRIu32")", SP, SP);
@@ -482,7 +488,7 @@ static void do_command(int no)
     case c_TRACE:
         {
             char *arg = strtok(NULL, " ");
-            WORD ret = ERROR_STEP;
+            WORD ret = ERROR_BREAK;
 
             if (arg == NULL) {
                 if (no == c_TRACE) do_info();
@@ -494,7 +500,7 @@ static void do_command(int no)
                     unsigned long long limit = (unsigned long long)single_arg(strtok(NULL, " "));
                     check_range(limit, limit, "Address");
                     check_aligned(limit);
-                    while ((unsigned long)PC != limit && ret == ERROR_STEP) {
+                    while ((unsigned long)PC != limit && ret == ERROR_BREAK) {
                         if (no == c_TRACE) do_info();
                         ret = single_step();
                     }
@@ -503,7 +509,7 @@ static void do_command(int no)
                                ret, error_to_msg(ret), PC);
                 } else {
                     unsigned long long limit = (unsigned long long)single_arg(arg), i;
-                    for (i = 0; i < limit && ret == ERROR_STEP; i++) {
+                    for (i = 0; i < limit && ret == ERROR_BREAK; i++) {
                         if (no == c_TRACE) do_info();
                         ret = single_step();
                     }

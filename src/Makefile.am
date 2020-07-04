@@ -11,7 +11,7 @@
 AM_CPPFLAGS = -I$(top_builddir)/lib -I$(top_srcdir)/lib $(WARN_CFLAGS)
 
 lib_LTLIBRARIES = libbee.la
-libbee_la_SOURCES = storage.c step.c debug.c loadobj.c \
+libbee_la_SOURCES = storage.c run.c debug.c loadobj.c \
 	private.h stringify.h
 libbee_la_LIBADD = $(top_builddir)/lib/libgnu.la
 
@@ -58,7 +58,7 @@ CLOC = cloc --force-lang="C",h
 loc:
 	$(CLOC) $(libbee_la_SOURCES) $(bee_SOURCES)
 
-EXTRA_DIST = beei.in beei.1 bee-dump bee-dump.1 completions.h tbl_opts.h.in step.c external_syms.h
+EXTRA_DIST = beei.in beei.1 bee-dump bee-dump.1 completions.h tbl_opts.h.in external_syms.h
 
 DISTCLEANFILES = beei bee.1 completions tbl_opts.h $(include_HEADERS)
 # Ignore built files that are part of the distribution (specifically,

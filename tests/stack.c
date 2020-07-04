@@ -39,7 +39,7 @@ int main(void)
     ass(O_DUPR);
     ass(O_POPR);
 
-    for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
+    for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]) - 1; i++) {
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {
@@ -47,7 +47,7 @@ int main(void)
             exit(1);
         }
         printf("Instruction = %s\n", disass(LOAD_WORD(PC), PC));
-        assert(single_step() == ERROR_STEP);
+        assert(single_step() == ERROR_BREAK);
     }
 
     assert(error == 0);

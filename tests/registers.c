@@ -14,9 +14,7 @@
 
 #define SIZE 1024
 
-const char *correct[] = {
-    str(SIZE), "",
-};
+const char *correct[] = { str(SIZE) };
 
 
 int main(void)
@@ -27,10 +25,10 @@ int main(void)
     init_defaults((WORD *)malloc(SIZE), SIZE / WORD_BYTES);
 
     ass_goto(PC);
-    ass(O_GET_MEMORY); ass(O_POP);
+    ass(O_GET_MEMORY);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
-        assert(single_step() == ERROR_STEP);
+        assert(single_step() == ERROR_BREAK);
         printf("Instruction = %s\n", disass(LOAD_WORD(PC), PC));
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);

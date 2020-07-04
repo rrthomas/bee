@@ -44,19 +44,19 @@ extern bee_UWORD bee_PC;
 extern bee_WORD *bee_M0, *bee_R0, *bee_S0;
 extern bee_UWORD bee_RSIZE, bee_SSIZE;
 extern bee_UWORD bee_MEMORY;
-extern bee_UWORD bee_SP, bee_RP;
+extern bee_UWORD bee_SP, bee_RP, bee_HANDLER_RP;
 
 // Error codes
 enum {
-    BEE_ERROR_OK = 0,
-    BEE_ERROR_INVALID_OPCODE = -1,
-    BEE_ERROR_STACK_UNDERFLOW = -2,
-    BEE_ERROR_STACK_OVERFLOW = -3,
-    BEE_ERROR_INVALID_MEMORY_READ = -5,
-    BEE_ERROR_INVALID_MEMORY_WRITE = -6,
-    BEE_ERROR_UNALIGNED_ADDRESS = -7,
-    BEE_ERROR_DIVISION_BY_ZERO = -8,
-    BEE_ERROR_STEP = -257,
+    bee_ERROR_OK = 0,
+    bee_ERROR_INVALID_OPCODE = -1,
+    bee_ERROR_STACK_UNDERFLOW = -2,
+    bee_ERROR_STACK_OVERFLOW = -3,
+    bee_ERROR_INVALID_LOAD = -4,
+    bee_ERROR_INVALID_STORE = -5,
+    bee_ERROR_UNALIGNED_ADDRESS = -6,
+    bee_ERROR_DIVISION_BY_ZERO = -7,
+    bee_ERROR_BREAK = -256,
 };
 
 // Stack access
@@ -79,7 +79,6 @@ int bee_post_dma(bee_UWORD from, bee_UWORD to);
 // Interface calls
 uint8_t *native_address_of_range(bee_UWORD addr, bee_UWORD length);
 bee_WORD bee_run(void);
-bee_WORD bee_single_step(void);
 int bee_load_object(FILE *file, bee_UWORD address);
 
 // Default stacks size in words

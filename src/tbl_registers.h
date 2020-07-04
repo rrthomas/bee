@@ -1,6 +1,6 @@
 // List of VM register names.
 //
-// (c) Reuben Thomas 2020
+// (c) Reuben Thomas 2018-2020
 //
 // The package is distributed under the GNU Public License version 3, or,
 // at your option, any later version.
@@ -9,6 +9,7 @@
 // RISK.
 
 R(ENDISM)
+R(HANDLER_RP)
 R(PC)
 R(M0)
 R(MEMORY)

@@ -1,4 +1,4 @@
-// The interface calls run() : integer and single_step() : integer.
+// The interface call run() : integer.
 //
 // (c) Reuben Thomas 1994-2020
 //
@@ -33,12 +33,8 @@
 verify(sizeof(int) <= sizeof(WORD));
 
 
-// Check whether a VM address points to a native word-aligned word
-#define IS_VALID(a)                                     \
-    (native_address_of_range((a), WORD_BYTES) != NULL)
-
 #define CHECK_VALID_WORD(a)                                           \
-    CHECK_ADDRESS(a, IS_ALIGNED(a), ERROR_UNALIGNED_ADDRESS, error)     \
+    CHECK_ADDRESS(a, IS_ALIGNED(a), ERROR_UNALIGNED_ADDRESS, error)   \
     CHECK_ADDRESS(a, IS_VALID(a), ERROR_INVALID_LOAD, error)
 
 
@@ -115,10 +111,11 @@ int register_args(int argc, const char *argv[])
     return 0;
 }
 
-// Inner execution function
-static WORD run_or_step(bool run)
+// Execution function
+WORD run(void)
 {
     int error = 0;
+    HANDLER_RP = (UWORD)-1;
     do {
         WORD temp = 0;
         DUWORD tempd = 0;
@@ -255,9 +252,9 @@ static WORD run_or_step(bool run)
             case O_RET:
                 {
                     WORD addr = POP_RETURN;
-                    if (addr & 1) {
-                        PUSH_RETURN(addr & ~1);
-                        return BEE_ERROR_OK;
+                    if ((addr & 1) == 1) {
+                        HANDLER_RP = POP_RETURN;
+                        addr = addr & ~1;
                     }
                     CHECK_VALID_WORD(addr);
                     PC = addr;
@@ -411,16 +408,27 @@ static WORD run_or_step(bool run)
                 break;
             case O_CATCH:
                 {
-                    WORD addr = POP;
+                    UWORD addr = POP;
                     CHECK_VALID_WORD(addr);
-                    PC = addr;
+                    PUSH_RETURN(HANDLER_RP);
                     PUSH_RETURN(PC | 1);
-                    PUSH(run_or_step(run));
-                    PC = POP;
+                    HANDLER_RP = RP;
+                    PC = addr;
                 }
                 break;
             case O_THROW:
-                return POP;
+                {
+                    if (HANDLER_RP == (UWORD)-1)
+                        return POP;
+                    RP = HANDLER_RP;
+                    UWORD addr = POP_RETURN;
+                    HANDLER_RP = POP_RETURN;
+                    PC = addr & ~1;
+                }
+                break;
+            case O_BREAK:
+                return ERROR_BREAK;
+                break;
 
             case O_GET_SP:
                 {
@@ -627,21 +635,8 @@ static WORD run_or_step(bool run)
             }
             break;
         }
-    } while (run == true && error == 0);
+    } while (error == 0);
 
  error:
-    if (error == 0 && run == false)
-        error = ERROR_STEP; // single_step terminated OK
     return error;
-}
-
-// Perform one pass of the execution cycle
-WORD single_step(void)
-{
-    return run_or_step(false);
-}
-
-WORD run(void)
-{
-    return run_or_step(true);
 }

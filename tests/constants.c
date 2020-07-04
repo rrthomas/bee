@@ -11,7 +11,7 @@
 #include "tests.h"
 
 
-const char *correct[] = { "-257", "-257 12345678", "-257 12345678" };
+const char *correct[] = { "-256", "-256 12345678" };
 
 
 int main(void)
@@ -22,11 +22,11 @@ int main(void)
     init_defaults((WORD *)calloc(1024, 1), 256);
 
     ass_goto(PC);
-    push(ERROR_STEP); push(12345678);
+    push(ERROR_BREAK); push(12345678);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
         printf("Instruction = %s\n", disass(LOAD_WORD(PC), PC));
-        assert(single_step() == ERROR_STEP);
+        assert(single_step() == ERROR_BREAK);
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {

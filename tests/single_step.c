@@ -20,7 +20,7 @@ int main(void)
         // Assemble the test as we go!
         ass(O_WORD_BYTES);
         printf("PC = %"PRIu32"\n", PC);
-        assert(single_step() == ERROR_STEP);
+        assert(single_step() == ERROR_BREAK);
     }
 
     UWORD final_PC = steps * WORD_BYTES;

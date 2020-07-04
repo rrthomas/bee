@@ -54,7 +54,7 @@ int main(void)
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
         printf("Instruction = %s\n", disass(LOAD_WORD(PC), PC));
-        assert(single_step() == ERROR_STEP);
+        assert(single_step() == ERROR_BREAK);
         printf("Instruction %zu: PC = %u; should be %u\n\n", i, PC, correct[i]);
         if (correct[i] != PC) {
             printf("Error in branch tests: PC = %"PRIu32"\n", PC);
