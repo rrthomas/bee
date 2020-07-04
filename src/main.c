@@ -270,15 +270,8 @@ static int save_object(FILE *file, UWORD address, UWORD length)
     if (!IS_ALIGNED(address) || ptr == NULL)
         return -1;
 
-    if (fputs("BEE", file) == EOF ||
-        putc('\0', file) == EOF ||
-        putc('\0', file) == EOF ||
-        putc('\0', file) == EOF ||
-        putc('\0', file) == EOF ||
-        putc((char)ENDISM, file) == EOF ||
-        fwrite(&length, WORD_BYTES, 1, file) != 1 ||
-        fwrite(ptr, WORD_BYTES, length, file) != length)
-        return -3;
+    if (fwrite(ptr, WORD_BYTES, length, file) != length)
+        return -2;
 
     return 0;
 }
@@ -295,7 +288,6 @@ static void do_assign(char *token)
 
     int no = search(token, regist, registers);
     switch (no) {
-        case r_ENDISM:
         case r_M0:
         case r_MEMORY:
             fatal("cannot assign to %s", regist[no]);
@@ -337,9 +329,6 @@ static void do_display(size_t no, const char *format)
     char *display;
 
     switch (no) {
-        case r_ENDISM:
-            display = xasprintf("ENDISM = %d", ENDISM);
-            break;
         case r_PC:
             display = xasprintf("PC = $%"PRIX32" (%"PRIu32")", PC, PC);
             break;
@@ -453,16 +442,12 @@ static void do_command(int no)
             if (handle == NULL)
                 fatal("cannot open file '%s'", file);
             int ret = load_object(handle, adr);
-            fclose(handle);
 
             switch (ret) {
             case -1:
                 fatal("address out of range or unaligned, or module too large");
                 break;
             case -2:
-                fatal("module header invalid");
-                break;
-            case -3:
                 fatal("error while loading module");
                 break;
             default:
@@ -536,7 +521,7 @@ static void do_command(int no)
             case -1:
                 fatal("save area contains an invalid address");
                 break;
-            case -3:
+            case -2:
                 fatal("error while saving module");
                 break;
             default:
@@ -802,9 +787,7 @@ int main(int argc, char *argv[])
         FILE *handle = fopen(argv[optind], "rb");
         if (handle == NULL)
             die("cannot not open file %s", argv[optind]);
-        int ret = load_object(handle, 0);
-        fclose(handle);
-        if (ret != 0)
+        if (load_object(handle, 0) != 0)
             die("could not read file %s, or file is invalid", argv[optind]);
 
         int res = run();

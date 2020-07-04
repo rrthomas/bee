@@ -70,13 +70,6 @@ _GL_ATTRIBUTE_PURE uint8_t *native_address_of_range(UWORD start, UWORD length)
     return ((uint8_t *)M0) + start;
 }
 
-// Macro for byte addressing
-#ifdef WORDS_BIGENDIAN
-#define FLIP(addr) ((addr) ^ (WORD_BYTES - 1))
-#else
-#define FLIP(addr) (addr)
-#endif
-
 int load_word(UWORD addr, WORD *value)
 {
     if (!IS_ALIGNED(addr))
@@ -95,7 +88,7 @@ int load_word(UWORD addr, WORD *value)
 
 int load_byte(UWORD addr, uint8_t *value)
 {
-    uint8_t *ptr = native_address_of_range(FLIP(addr), 1);
+    uint8_t *ptr = native_address_of_range(addr, 1);
     if (ptr == NULL)
         return ERROR_INVALID_LOAD;
     *value = *ptr;
@@ -120,59 +113,11 @@ int store_word(UWORD addr, WORD value)
 
 int store_byte(UWORD addr, uint8_t value)
 {
-    uint8_t *ptr = native_address_of_range(FLIP(addr), 1);
+    uint8_t *ptr = native_address_of_range(addr, 1);
     if (ptr == NULL)
         return ERROR_INVALID_STORE;
     *ptr = value;
     return ERROR_OK;
-}
-
-
-_GL_ATTRIBUTE_CONST WORD reverse_word(WORD value)
-{
-    WORD res = 0;
-    for (unsigned i = 0; i < WORD_BYTES / 2; i++) {
-        unsigned lopos = CHAR_BIT * i;
-        unsigned hipos = CHAR_BIT * (WORD_BYTES - 1 - i);
-        unsigned move = hipos - lopos;
-        res |= ((((UWORD)value) & (CHAR_MASK << hipos)) >> move)
-            | ((((UWORD)value) & (CHAR_MASK << lopos)) << move);
-    }
-    return res;
-}
-
-int reverse(UWORD start, UWORD length)
-{
-    int ret = 0;
-    for (UWORD i = 0; ret == 0 && i < length; i ++) {
-        WORD c;
-        ret = load_word(start + i * WORD_BYTES, &c)
-            || store_word(start + i, reverse_word(c));
-    }
-    return ret;
-}
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wsuggest-attribute=pure"
-int pre_dma(UWORD from, UWORD to)
-{
-    int error = 0;
-
-    // Expand range to words
-    from &= -WORD_BYTES;
-    to = ALIGN(to);
-
-    if (to < from || native_address_of_range(from, to - from) == NULL)
-        error = -1;
-    if (error == 0 && ENDISM)
-        error = reverse(from, to - from);
-    return error;
-}
-#pragma GCC diagnostic pop
-
-int post_dma(UWORD from, UWORD to)
-{
-    return pre_dma(from, to);
 }
 
 

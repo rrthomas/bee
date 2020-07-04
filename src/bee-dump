@@ -23,7 +23,7 @@ if grep '^#!' $base.tmp >/dev/null; then
     tail -n +2 $file > $base.tmp
     size_file=$base.tmp
 fi
-size=$((`wc -c < $size_file` - 12))
+size=$((`wc -c < $size_file`))
 rm -f $base.tmp
 
 echo "load $file\ndump 0+$size\nquit" | bee > $base.hex

@@ -1,7 +1,7 @@
 // Public data structures and interface calls specified in the VM definition.
 // This is the header file to include in programs using an embedded VM.
 //
-// (c) Reuben Thomas 1994-2018
+// (c) Reuben Thomas 1994-2020
 //
 // The package is distributed under the GNU Public License version 3, or,
 // at your option, any later version.
@@ -31,14 +31,6 @@ typedef uint64_t bee_DUWORD;
 #define bee_WORD_MASK bee_WORD_MAX
 
 // VM registers
-
-// bee_ENDISM is fixed at compile-time, which seems reasonable, as
-// machines rarely change endianness while switched on!
-#ifdef WORDS_BIGENDIAN
-#define bee_ENDISM ((uint8_t)1)
-#else
-#define bee_ENDISM ((uint8_t)0)
-#endif
 
 extern bee_UWORD bee_PC;
 extern bee_WORD *bee_M0, *bee_R0, *bee_S0;
@@ -72,9 +64,6 @@ int bee_load_word(bee_UWORD addr, bee_WORD *value);
 int bee_store_word(bee_UWORD addr, bee_WORD value);
 int bee_load_byte(bee_UWORD addr, uint8_t *value);
 int bee_store_byte(bee_UWORD addr, uint8_t value);
-
-int bee_pre_dma(bee_UWORD from, bee_UWORD to);
-int bee_post_dma(bee_UWORD from, bee_UWORD to);
 
 // Interface calls
 uint8_t *native_address_of_range(bee_UWORD addr, bee_UWORD length);

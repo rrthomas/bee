@@ -125,12 +125,8 @@ WORD extra_instruction(WORD opcode)
             if (narg < (UWORD)main_argc) {
                 UWORD len = (UWORD)main_argv_len[narg];
                 char *ptr = (char *)native_address_of_range(addr, len);
-                if (ptr != NULL) {
-                    UWORD end = ALIGN(addr + len);
-                    pre_dma(addr, end);
+                if (ptr != NULL)
                     strncpy(ptr, main_argv[narg], len);
-                    post_dma(addr, end);
-                }
             }
         }
         break;
@@ -170,13 +166,8 @@ WORD extra_instruction(WORD opcode)
             UWORD buf = POP;
 
             ssize_t res = 0;
-            if (error == 0) {
-                error = pre_dma(buf, buf + nbytes);
-                if (error == 0) {
-                    res = read(fd, native_address_of_range(buf, 0), nbytes);
-                    error = post_dma(buf, buf + nbytes);
-                }
-            }
+            if (error == 0)
+                res = read(fd, native_address_of_range(buf, 0), nbytes);
 
             PUSH(res);
             PUSH((error == 0 && res >= 0) ? 0 : -1);
@@ -189,13 +180,8 @@ WORD extra_instruction(WORD opcode)
             UWORD buf = POP;
 
             ssize_t res = 0;
-            if (error == 0) {
-                error = pre_dma(buf, buf + nbytes);
-                if (error == 0) {
-                    res = write(fd, native_address_of_range(buf, 0), nbytes);
-                    error = post_dma(buf, buf + nbytes);
-                }
-            }
+            if (error == 0)
+                res = write(fd, native_address_of_range(buf, 0), nbytes);
 
             PUSH((error == 0 && res >= 0) ? 0 : -1);
         }

@@ -10,7 +10,6 @@
 #define DEFAULT_STACK_SIZE bee_DEFAULT_STACK_SIZE
 #define disass bee_disass
 #define DUWORD bee_DUWORD
-#define ENDISM bee_ENDISM
 #define ERROR_BREAK bee_ERROR_BREAK
 #define ERROR_DIVISION_BY_ZERO bee_ERROR_DIVISION_BY_ZERO
 #define ERROR_INVALID_LOAD bee_ERROR_INVALID_LOAD
@@ -44,8 +43,6 @@
 #define POP_DOUBLE bee_POP_DOUBLE
 #define POP_RETURN bee_POP_RETURN
 #define pop_stack bee_pop_stack
-#define post_dma bee_post_dma
-#define pre_dma bee_pre_dma
 #define PUSH bee_PUSH
 #define PUSH_DOUBLE bee_PUSH_DOUBLE
 #define PUSH_RETURN bee_PUSH_RETURN
@@ -54,8 +51,6 @@
 #define push_stack bee_push_stack
 #define R0 bee_R0
 #define register_args bee_register_args
-#define reverse bee_reverse
-#define reverse_word bee_reverse_word
 #define RP bee_RP
 #define RSIZE bee_RSIZE
 #define run bee_run

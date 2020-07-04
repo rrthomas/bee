@@ -1,6 +1,6 @@
 // Test load_object().
 //
-// (c) Reuben Thomas 1995-2018
+// (c) Reuben Thomas 1995-2020
 //
 // The package is distributed under the GNU Public License version 3, or,
 // at your option, any later version.
@@ -11,7 +11,7 @@
 #include "tests.h"
 
 
-static int correct[] = { -2, -2, -1, -3, 0, 0, 0 };
+static int correct[] = { 0, 0, 0 };
 
 
 static int try(char *file, UWORD address)
@@ -20,7 +20,6 @@ static int try(char *file, UWORD address)
     int ret = load_object(fp, address);
 
     printf("load_object(\"%s\", 0) returns %d", file, ret);
-    fclose(fp);
 
     return ret;
 }
@@ -35,10 +34,15 @@ static char *obj_name(const char *prefix, const char *file)
     return s;
 }
 
+#ifdef WORDS_BIGENDIAN
+#define suffix "be"
+#else
+#define suffix "le"
+#endif
+
 int main(int argc, char *argv[])
 {
-    const char *files[] = {
-        "badobj1", "badobj2", "badobj3", "badobj4", "testobj1", "testobj2", "testobj3" };
+    const char *files[] = { "testobj1-"suffix, "testobj2-"suffix };
     char *prefix = argv[1];
     int res;
 
@@ -50,19 +54,7 @@ int main(int argc, char *argv[])
     WORD *memory = (WORD *)calloc(1024, 1);
     init_defaults(memory, 256);
 
-    size_t i;
-    for (i = 0; i < 4; i++) {
-        char *s = obj_name(prefix, files[i]);
-        res = try(s, 0);
-        free(s);
-        printf(" should be %d\n", correct[i]);
-        if (res != correct[i]) {
-            printf("Error in load_object() tests: file %s\n", files[i]);
-            exit(1);
-        }
-    }
-
-    for (; i < sizeof(files) / sizeof(files[0]); i++) {
+    for (size_t i = 0; i < sizeof(files) / sizeof(files[0]); i++) {
         char *s = obj_name(prefix, files[i]);
         WORD c;
         res = try(s, 0);

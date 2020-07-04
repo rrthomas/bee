@@ -32,6 +32,14 @@ do_load_object: load_object
 
 check-local: do_load_object test-parser
 
-EXTRA_DIST = run-test tests.h badobj1 badobj2 badobj3 badobj4 testobj1 testobj2 testobj3 hello.txt hello.correct
+EXTRA_DIST = \
+	run-test \
+	tests.h \
+	testobj1-le \
+	testobj2-le \
+	testobj1-be \
+	testobj2-be \
+	hello.txt \
+	hello.correct
 
 DISTCLEANFILES = hello.obj hello.output
