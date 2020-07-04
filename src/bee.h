@@ -94,13 +94,5 @@ int bee_register_args(int argc, const char *argv[]);
 #define BEE_FALSE ((bee_WORD)0)           // VM FALSE flag
 
 #define bee_WORD_BYTES 4    // the width of a word in bytes
-#define bee_POINTER_W (sizeof(void *) / bee_WORD_BYTES)   // the width of a machine pointer in words
-
-// bee_A union to allow storage of machine pointers in VM bee_memory
-union _WORD_pointer {
-    bee_WORD words[bee_POINTER_W];
-    void (*pointer)(void);
-};
-typedef union _WORD_pointer bee_WORD_pointer;
 
 #endif
