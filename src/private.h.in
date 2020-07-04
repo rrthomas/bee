@@ -39,4 +39,8 @@
     CHECK_ADDRESS(a, IS_ALIGNED(a), ERROR_UNALIGNED_ADDRESS, error)
 
 
+// Extra instructions
+WORD extra_instruction(WORD opcode);
+
+
 #endif
