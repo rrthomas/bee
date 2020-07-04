@@ -155,7 +155,7 @@ WORD run(void)
             case O_JUMPZ:
                 {
                     WORD addr = POP;
-                    if (POP == BEE_FALSE) {
+                    if (POP == 0) {
                         CHECK_VALID_WORD(addr);
                         PC = addr;
                     }
@@ -286,21 +286,21 @@ WORD run(void)
                 {
                     WORD a = POP;
                     WORD b = POP;
-                    PUSH(a == b ? BEE_TRUE : BEE_FALSE);
+                    PUSH(a == b);
                 }
                 break;
             case O_LT:
                 {
                     WORD a = POP;
                     WORD b = POP;
-                    PUSH(b < a ? BEE_TRUE : BEE_FALSE);
+                    PUSH(b < a);
                 }
                 break;
             case O_ULT:
                 {
                     UWORD a = POP;
                     UWORD b = POP;
-                    PUSH(b < a ? BEE_TRUE : BEE_FALSE);
+                    PUSH(b < a);
                 }
                 break;
             case O_PUSHR:

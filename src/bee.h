@@ -89,9 +89,6 @@ int bee_init(bee_WORD *c_array, WORD memory_size, WORD stack_size, WORD return_s
 int bee_init_defaults(bee_WORD *c_array, WORD memory_size);
 int bee_register_args(int argc, const char *argv[]);
 
-#define BEE_TRUE bee_WORD_MASK            // VM TRUE flag
-#define BEE_FALSE ((bee_WORD)0)           // VM FALSE flag
-
 #define bee_WORD_BYTES 4    // the width of a word in bytes
 
 #endif

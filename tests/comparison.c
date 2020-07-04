@@ -15,7 +15,7 @@
 int error = 0;
 WORD temp;
 
-WORD correct[] = { 0, -1, 0, -1, -1, 0, 0, -1, 0, 0 };
+WORD correct[] = { 0, 1, 0, 1, 1, 0, 0, 1, 0, 0 };
 
 
 static void stack1(void)

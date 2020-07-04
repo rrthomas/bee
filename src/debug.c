@@ -318,7 +318,7 @@ static UWORD compute_next_PC(WORD inst)
             {
                 if (SP < 2)
                     return next_PC_error;
-                return S0[SP - 2] == BEE_FALSE ? (UWORD)S0[SP - 1] : PC + WORD_BYTES;
+                return S0[SP - 2] == 0 ? (UWORD)S0[SP - 1] : PC + WORD_BYTES;
             }
             break;
         case O_CALL:
