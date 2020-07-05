@@ -71,6 +71,7 @@
 #define UWORD bee_UWORD
 #define val_data_stack bee_val_data_stack
 #define WORD bee_WORD
+#define word bee_word
 #define WORD_BIT bee_WORD_BIT
 #define WORD_MIN bee_WORD_MIN
 #define WORD_MAX bee_WORD_MAX

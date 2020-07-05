@@ -16,6 +16,7 @@
 int bee_byte_size(bee_WORD v); // return number of significant bytes in a bee_WORD quantity
 
 void bee_align(void);		// align assembly pointer to next word
+void bee_word(bee_WORD value);	// assemble the given word
 void bee_ass(bee_UWORD instr);	// assemble an instruction
 void bee_ass_byte(uint8_t b);	// assemble a byte
 void bee_call(bee_WORD addr);	// assemble a call

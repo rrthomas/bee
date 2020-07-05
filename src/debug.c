@@ -30,11 +30,16 @@
 static UWORD current; // where we assemble the next instruction word or literal
 
 
-void ass(UWORD instr)
+void word(WORD value)
 {
     current = ALIGN(current);
-    store_word(current, instr << 2 | OP_INSTRUCTION);
+    store_word(current, value);
     current += WORD_BYTES;
+}
+
+void ass(UWORD instr)
+{
+    word(instr << 2 | OP_INSTRUCTION);
 }
 
 void ass_byte(uint8_t b)
@@ -44,20 +49,16 @@ void ass_byte(uint8_t b)
 
 void push(WORD literal)
 {
-    current = ALIGN(current);
     WORD temp = literal << 2;
     ARSHIFT(temp, 2);
     assert(temp == literal);
-    store_word(current, literal << 2 | OP_PUSH);
-    current += WORD_BYTES;
+    word(literal << 2 | OP_PUSH);
 }
 
 static void addr_op(int op, WORD addr)
 {
-    current = ALIGN(current);
     assert(IS_ALIGNED(addr));
-    store_word(current, (addr - current) | op);
-    current += WORD_BYTES;
+    word((addr - current) | op);
 }
 
 void call(WORD addr)
