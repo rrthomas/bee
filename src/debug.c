@@ -142,7 +142,7 @@ _GL_ATTRIBUTE_CONST const char *disass(WORD opcode, UWORD addr)
             mnemonic[(UWORD)opcode] != NULL)
             text = xasprintf("%s", mnemonic[(UWORD)opcode]);
         else
-            text = strdup("");
+            text = strdup("(invalid instruction!)");
         break;
     }
     return text;

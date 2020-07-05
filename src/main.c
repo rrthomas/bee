@@ -253,13 +253,7 @@ static void disassemble(UWORD start, UWORD end)
         printf("$%08"PRIX32": ", p);
         WORD a;
         load_word(p, &a);
-
-        const char *text = disass(a, p);
-        if (strcmp(text, "") == 0)
-            printf("Undefined instruction");
-        else
-            printf("%s", text);
-        printf("\n");
+        printf("%s\n", disass(a, p));
     }
 }
 
