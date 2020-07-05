@@ -29,14 +29,12 @@
 // Memory access
 
 // Address checking
-#define CHECK_ADDRESS(a, cond, code, label)     \
-    if (!(cond)) {                              \
-        error = code;                           \
-        goto label;                             \
-    }
+#define CHECK_ADDRESS(a, cond, code)            \
+    if (!(cond))                                \
+        THROW(code);
 
-#define CHECK_ALIGNED(a)                                \
-    CHECK_ADDRESS(a, IS_ALIGNED(a), ERROR_UNALIGNED_ADDRESS, error)
+#define CHECK_ALIGNED(a)                                        \
+    CHECK_ADDRESS(a, IS_ALIGNED(a), ERROR_UNALIGNED_ADDRESS)
 
 
 // Extra instructions

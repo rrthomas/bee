@@ -41,7 +41,7 @@ int main(void)
 
     init_defaults((WORD *)malloc(1024), 256);
 
-    PUSH(0xff000000); PUSH(8); PUSH(0xff); PUSH(8);
+    S0[SP++] = 0xff000000; S0[SP++] = 8; S0[SP++] = 0xff; S0[SP++] = 8;
 
     ass_goto(PC);
     ass(O_LSHIFT);
@@ -60,7 +60,8 @@ int main(void)
     ass(O_AND);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
-        printf("Instruction = %s\n", disass(LOAD_WORD(PC), PC));
+        assert(load_word(PC, &temp) == ERROR_OK);
+        printf("Instruction = %s\n", disass(temp, PC));
         assert(single_step() == ERROR_BREAK);
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);

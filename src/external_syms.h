@@ -9,6 +9,7 @@
 #define CHAR_MASK bee_CHAR_MASK
 #define DEFAULT_STACK_SIZE bee_DEFAULT_STACK_SIZE
 #define disass bee_disass
+#define DOUBLE_WORD bee_DOUBLE_WORD
 #define DUWORD bee_DUWORD
 #define ERROR_BREAK bee_ERROR_BREAK
 #define ERROR_INVALID_LOAD bee_ERROR_INVALID_LOAD
@@ -28,10 +29,8 @@
 #define IS_ALIGNED bee_IS_ALIGNED
 #define label bee_label
 #define load_byte bee_load_byte
-#define LOAD_BYTE bee_LOAD_BYTE
 #define load_object bee_load_object
 #define load_word bee_load_word
-#define LOAD_WORD bee_LOAD_WORD
 #define M0 bee_M0
 #define memory bee_memory
 #define MEMORY bee_MEMORY
@@ -40,7 +39,6 @@
 #define plit bee_plit
 #define POINTER_W bee_POINTER_W
 #define POP bee_POP
-#define POP_DOUBLE bee_POP_DOUBLE
 #define POP_RETURN bee_POP_RETURN
 #define pop_stack bee_pop_stack
 #define push bee_push
@@ -64,9 +62,7 @@
 #define stack_position bee_stack_position
 #define STACK_UNDERFLOW bee_STACK_UNDERFLOW
 #define store_byte bee_store_byte
-#define STORE_BYTE bee_STORE_BYTE
 #define store_word bee_store_word
-#define STORE_WORD bee_STORE_WORD
 #define toass bee_toass
 #define UWORD bee_UWORD
 #define val_data_stack bee_val_data_stack

@@ -24,7 +24,7 @@ int main(void)
 
     init_defaults((WORD *)malloc(1024), 256);
 
-    PUSH(3); PUSH(2); PUSH(1);	// initialise the stack
+    S0[SP++] = 3; S0[SP++] =2; S0[SP++] = 1;	// initialise the stack
 
     ass_goto(PC);
     ass(O_DUP);
@@ -46,7 +46,8 @@ int main(void)
             printf("Error in stack tests: PC = %"PRIu32"\n", PC);
             exit(1);
         }
-        printf("Instruction = %s\n", disass(LOAD_WORD(PC), PC));
+        assert(load_word(PC, &temp) == ERROR_OK);
+        printf("Instruction = %s\n", disass(temp, PC));
         assert(single_step() == ERROR_BREAK);
     }
 

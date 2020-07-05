@@ -364,25 +364,39 @@ static UWORD compute_next_PC(WORD inst)
 
 WORD single_step(void)
 {
-    WORD temp = 0;
-    int error = 0;
-    WORD inst = LOAD_WORD(PC), next_inst;
-    if (error != ERROR_OK)
+    WORD error = 0;
+    WORD inst, next_inst;
+    if ((error = load_word(PC, &inst)) != ERROR_OK)
         return error;
     UWORD next_PC = compute_next_PC(inst);
     int next_PC_valid = IS_ALIGNED(next_PC) && IS_VALID(next_PC);
     if (next_PC_valid) {
-        next_inst = LOAD_WORD(next_PC);
-        assert(error == ERROR_OK);
-        STORE_WORD(next_PC, (O_BREAK << 2) | OP_INSTRUCTION);
-        assert(error == ERROR_OK);
+        assert(load_word(next_PC, &next_inst) == ERROR_OK);
+        assert(store_word(next_PC, (O_BREAK << 2) | OP_INSTRUCTION) == ERROR_OK);
     }
-    WORD ret = run();
+    UWORD save_HANDLER_RP = HANDLER_RP;
+    HANDLER_RP = -1;
+    error = run();
     if (next_PC_valid) {
-        STORE_WORD(next_PC, next_inst);
-        assert(error == ERROR_OK);
-        if (ret == ERROR_BREAK)
+        assert(store_word(next_PC, next_inst) == ERROR_OK);
+        if (error == ERROR_BREAK)
             PC = next_PC;
     }
-    return ret;
+    // Restore HANDLER_RP if it wasn't set by CATCH
+    if (HANDLER_RP == (UWORD)-1)
+        HANDLER_RP = save_HANDLER_RP;
+    if ((error != ERROR_BREAK || inst == ((O_THROW << 2) | OP_INSTRUCTION)) &&
+        HANDLER_RP != (UWORD)-1) {
+        // If an error occurred or THROW was executed, and there's a saved
+        // error handler, execute it.
+        if (SP < SSIZE)
+            S0[SP++] = error;
+        RP = HANDLER_RP;
+        UWORD addr;
+        POP_RETURN((WORD *)&addr);
+        POP_RETURN((WORD *)&HANDLER_RP);
+        PC = addr & ~1;
+    }
+ error:
+    return error;
 }

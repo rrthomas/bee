@@ -139,6 +139,7 @@ int init(WORD *buf, WORD memory_size, WORD stack_size, WORD return_stack_size)
     if (S0 == NULL)
         return -1;
     RP = 0;
+    HANDLER_RP = (UWORD)-1;
 
     RSIZE = return_stack_size;
     R0 = (WORD *)calloc(RSIZE, WORD_BYTES);

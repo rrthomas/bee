@@ -14,9 +14,6 @@
 
 int main(void)
 {
-    int error = 0;
-    WORD temp = 0;
-
     // Data for ARGC/ARGLEN/ARGCOPY tests
     int argc = 3;
     UWORD buf = 32;
@@ -32,15 +29,17 @@ int main(void)
 
     assert(single_step() == ERROR_BREAK);
     printf("argc is %"PRId32", and should be %d\n\n", *stack_position(S0, SP, 0), argc);
-    if (POP != argc) {
-       printf("Error in extra instructions tests: PC = %"PRIu32"\n", PC);
+    assert(SP > 0);
+    if (S0[--SP] != argc) {
+        printf("Error in extra instructions tests: PC = %"PRIu32"\n", PC);
         exit(1);
     }
 
     assert(single_step() == ERROR_BREAK);
     assert(single_step() == ERROR_BREAK);
     printf("arg 1's length is %"PRId32", and should be %zu\n", *stack_position(S0, SP, 0), strlen(argv[1]));
-    if ((UWORD)POP != strlen(argv[1])) {
+    assert(SP > 0);
+    if ((UWORD)S0[--SP] != strlen(argv[1])) {
         printf("Error in extra instructions tests: PC = %"PRIu32"\n", PC);
         exit(1);
     }

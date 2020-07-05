@@ -25,7 +25,6 @@ const char *correct[] = {
 int main(void)
 {
     WORD temp = 0;
-    int error = 0;
 
     size_t size = 4096;
     init_defaults((WORD *)calloc(size, WORD_BYTES), size);
@@ -69,7 +68,8 @@ int main(void)
     ass(O_GET_RP);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
-        printf("Instruction = %s\n", disass(LOAD_WORD(PC), PC));
+        assert(load_word(PC, &temp) == ERROR_OK);
+        printf("Instruction = %s\n", disass(temp, PC));
         assert(single_step() == ERROR_BREAK);
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);

@@ -22,25 +22,26 @@ static void stack1(void)
 {
     SP = 0;	// empty the stack
 
-    PUSH(-4); PUSH(3);
-    PUSH(2); PUSH(2);
-    PUSH(1); PUSH(3);
-    PUSH(3); PUSH(1);
+    S0[SP++] = -4; S0[SP++] = 3;
+    S0[SP++] = 2; S0[SP++] = 2;
+    S0[SP++] = 1; S0[SP++] = 3;
+    S0[SP++] = 3; S0[SP++] = 1;
 }
 
 static void stack2(void)
 {
     SP = 0;	// empty the stack
 
-    PUSH(1); PUSH(-1);
-    PUSH(237); PUSH(237);
+    S0[SP++] = 1; S0[SP++] = -1;
+    S0[SP++] = 237; S0[SP++] = 237;
 }
 
 static void step(unsigned start, unsigned end)
 {
     if (end > start)
         for (unsigned i = start; i < end; i++) {
-            printf("Instruction = %s\n", disass(LOAD_WORD(PC), PC));
+            assert(load_word(PC, &temp) == ERROR_OK);
+            printf("Instruction = %s\n", disass(temp, PC));
             assert(single_step() == ERROR_BREAK);
             show_data_stack();
             printf("Result: %d; correct result: %d\n\n", *stack_position(S0, SP, 0),
@@ -49,7 +50,7 @@ static void step(unsigned start, unsigned end)
                 printf("Error in comparison tests: PC = %"PRIu32"\n", PC);
                 exit(1);
             }
-            (void)POP;	// drop result of comparison
+            SP--;	// drop result of comparison
         }
 }
 

@@ -102,7 +102,6 @@ int register_args(int argc, const char *argv[])
 WORD extra_instruction(WORD opcode)
 {
     WORD temp = 0;
-    DUWORD tempd = 0;
 
     int error = ERROR_OK;
     switch (opcode) {
@@ -111,7 +110,8 @@ WORD extra_instruction(WORD opcode)
         break;
     case OX_ARGLEN: // ( u1 -- u2 )
         {
-            UWORD narg = POP;
+            UWORD narg;
+            POP((WORD *)&narg);
             if (narg >= (UWORD)main_argc)
                 PUSH(0);
             else
@@ -120,8 +120,9 @@ WORD extra_instruction(WORD opcode)
         break;
     case OX_ARGCOPY: // ( u1 addr -- )
         {
-            UWORD addr = POP;
-            UWORD narg = POP;
+            UWORD addr, narg;
+            POP((WORD *)&addr);
+            POP((WORD *)&narg);
             if (narg < (UWORD)main_argc) {
                 UWORD len = (UWORD)main_argv_len[narg];
                 char *ptr = (char *)native_address_of_range(addr, len);
@@ -142,9 +143,11 @@ WORD extra_instruction(WORD opcode)
     case OX_OPEN_FILE:
         {
             bool binary = false;
-            int perm = getflags(POP, &binary);
-            UWORD len = POP;
-            UWORD str = POP;
+            POP(&temp);
+            int perm = getflags(temp, &binary);
+            UWORD len, str;
+            POP((WORD *)&len);
+            POP((WORD *)&str);
             char *file;
             error = getstr(str, len, &file);
             int fd = error == 0 ? open(file, perm, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH) : -1;
@@ -155,15 +158,18 @@ WORD extra_instruction(WORD opcode)
         break;
     case OX_CLOSE_FILE:
         {
-            int fd = POP;
+            POP(&temp);
+            int fd = temp;
             PUSH((WORD)close(fd));
         }
         break;
     case OX_READ_FILE:
         {
-            int fd = POP;
-            UWORD nbytes = POP;
-            UWORD buf = POP;
+            POP(&temp);
+            int fd = temp;
+            UWORD nbytes, buf;
+            POP((WORD *)&nbytes);
+            POP((WORD *)&buf);
 
             ssize_t res = 0;
             if (error == 0)
@@ -175,9 +181,11 @@ WORD extra_instruction(WORD opcode)
         break;
     case OX_WRITE_FILE:
         {
-            int fd = POP;
-            UWORD nbytes = POP;
-            UWORD buf = POP;
+            POP(&temp);
+            int fd = temp;
+            UWORD nbytes, buf;
+            POP((WORD *)&nbytes);
+            POP((WORD *)&buf);
 
             ssize_t res = 0;
             if (error == 0)
@@ -188,7 +196,8 @@ WORD extra_instruction(WORD opcode)
         break;
     case OX_FILE_POSITION:
         {
-            int fd = POP;
+            POP(&temp);
+            int fd = temp;
             off_t res = lseek(fd, 0, SEEK_CUR);
             PUSH_DOUBLE((DUWORD)res);
             PUSH(res >= 0 ? 0 : -1);
@@ -196,25 +205,31 @@ WORD extra_instruction(WORD opcode)
         break;
     case OX_REPOSITION_FILE:
         {
-            int fd = POP;
-            DUWORD ud = POP_DOUBLE;
+            POP(&temp);
+            int fd = temp;
+            WORD pop1, pop2;
+            POP(&pop1);
+            POP(&pop2);
+            DUWORD ud = DOUBLE_WORD(pop1, pop2);
             off_t res = lseek(fd, (off_t)ud, SEEK_SET);
             PUSH(res >= 0 ? 0 : -1);
         }
         break;
     case OX_FLUSH_FILE:
         {
-            int fd = POP;
+            POP(&temp);
+            int fd = temp;
             int res = fdatasync(fd);
             PUSH(res);
         }
         break;
     case OX_RENAME_FILE:
         {
-            UWORD len1 = POP;
-            UWORD str1 = POP;
-            UWORD len2 = POP;
-            UWORD str2 = POP;
+            UWORD len1, str1, len2, str2;
+            POP((WORD *)&len1);
+            POP((WORD *)&str1);
+            POP((WORD *)&len2);
+            POP((WORD *)&str2);
             char *from;
             char *to = NULL;
             error = getstr(str2, len2, &from) ||
@@ -227,8 +242,9 @@ WORD extra_instruction(WORD opcode)
         break;
     case OX_DELETE_FILE:
         {
-            UWORD len = POP;
-            UWORD str = POP;
+            UWORD len, str;
+            POP((WORD *)&len);
+            POP((WORD *)&str);
             char *file;
             error = getstr(str, len, &file) ||
                 remove(file);
@@ -239,7 +255,8 @@ WORD extra_instruction(WORD opcode)
     case OX_FILE_SIZE:
         {
             struct stat st;
-            int fd = POP;
+            POP(&temp);
+            int fd = temp;
             int res = fstat(fd, &st);
             PUSH_DOUBLE((DUWORD)st.st_size);
             PUSH(res);
@@ -247,8 +264,12 @@ WORD extra_instruction(WORD opcode)
         break;
     case OX_RESIZE_FILE:
         {
-            int fd = POP;
-            DUWORD ud = POP_DOUBLE;
+            POP(&temp);
+            int fd = temp;
+            WORD pop1, pop2;
+            POP(&pop1);
+            POP(&pop2);
+            DUWORD ud = DOUBLE_WORD(pop1, pop2);
             int res = ftruncate(fd, (off_t)ud);
             PUSH(res);
         }
@@ -256,7 +277,8 @@ WORD extra_instruction(WORD opcode)
     case OX_FILE_STATUS:
         {
             struct stat st;
-            int fd = POP;
+            POP(&temp);
+            int fd = temp;
             int res = fstat(fd, &st);
             PUSH(st.st_mode);
             PUSH(res);
@@ -264,5 +286,6 @@ WORD extra_instruction(WORD opcode)
         break;
     }
 
+ error:
     return error;
 }

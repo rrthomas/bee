@@ -366,7 +366,6 @@ static void do_info(void)
 static void do_command(int no)
 {
     int error = 0;
-    WORD temp = 0;
 
     switch (no) {
     case c_TOD:
@@ -393,7 +392,9 @@ static void do_command(int no)
         break;
     case c_DFROM:
         {
-            WORD value = POP;
+            if (SP == 0)
+                fatal("data stack is empty");
+            WORD value = S0[--SP];
             printf("%"PRId32" ($%"PRIX32")\n", value, (UWORD)value);
         }
         break;
@@ -454,7 +455,8 @@ static void do_command(int no)
         exit(0);
     case c_RFROM:
         {
-            WORD value = POP_RETURN;
+            WORD value;
+            POP_RETURN(&value);
             printf("$%"PRIX32" (%"PRId32")\n", (UWORD)value, value);
         }
         break;
@@ -563,6 +565,7 @@ static void do_command(int no)
         break;
     }
 
+ error:
     switch (error) {
     case ERROR_INVALID_LOAD:
     case ERROR_INVALID_STORE:
