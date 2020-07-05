@@ -270,16 +270,16 @@ WORD run(void)
                 {
                     WORD divisor = POP;
                     WORD dividend = POP;
-                    PUSH(MOD_WITH_OVERFLOW(dividend, divisor));
                     PUSH(DIV_WITH_OVERFLOW(dividend, divisor));
+                    PUSH(MOD_WITH_OVERFLOW(dividend, divisor));
                 }
                 break;
             case O_UDIVMOD:
                 {
                     UWORD divisor = POP;
                     UWORD dividend = POP;
-                    PUSH(MOD_CATCH_ZERO(dividend, divisor));
                     PUSH(DIV_CATCH_ZERO(dividend, divisor));
+                    PUSH(MOD_CATCH_ZERO(dividend, divisor));
                 }
                 break;
             case O_EQ:
