@@ -673,7 +673,7 @@ struct option longopts[] = {
   {longname, arg, NULL, shortname},
 #define ARG(argstring, docstring)
 #define DOC(docstring)
-#include "tbl_opts.h"
+#include "cmdline.h"
 #undef OPT
 #undef ARG
 #undef DOC
@@ -699,7 +699,7 @@ static void usage(void)
     printf("  %-26s%s\n", argstring, docstring);
 #define DOC(text)                                 \
     printf(text "\n");
-#include "tbl_opts.h"
+#include "cmdline.h"
 #undef OPT
 #undef ARG
 #undef DOC

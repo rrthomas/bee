@@ -1,6 +1,6 @@
-// Table of command-line options
+// Command-line help.
 //
-// Copyright (c) 2009-2018 Reuben Thomas
+// Copyright (c) 2009-2020 Reuben Thomas
 //
 // The package is distributed under the GNU Public License version 3, or,
 // at your option, any later version.
@@ -31,8 +31,7 @@ ARG("OBJECT-FILE", "load and run object OBJECT-FILE")
 DOC("")
 DOC("The ARGUMENTs are available to Bee.")
 DOC("")
-DOC("If no non-option arguments are given, Bee starts in the debugger,")
-DOC("which is documented in @docdir@/shell.pdf.")
+DOC("If no non-option arguments are given, Bee starts in the debugger.")
 DOC("Debugger commands may be supplied on standard input.")
 DOC("")
 DOC("Report bugs to " PACKAGE_BUGREPORT ".")
