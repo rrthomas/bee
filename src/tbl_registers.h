@@ -9,8 +9,7 @@
 // RISK.
 
 R(HANDLER_RP)
-R(PC)
-R(M0)
 R(MEMORY)
+R(PC)
 R(RP)
 R(SP)
