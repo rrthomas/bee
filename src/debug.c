@@ -126,7 +126,31 @@ _GL_ATTRIBUTE_CONST const char *disass(WORD opcode, UWORD addr)
     free(text);
     switch (opcode & OP_MASK) {
     case OP_CALL:
-        text = xasprintf("CALL $%"PRIX32, (addr + (opcode & ~OP_MASK)));
+        {
+            UWORD dest = addr + (opcode & ~OP_MASK);
+            text = xasprintf("CALL $%"PRIX32, dest);
+
+            // Look up pForth word name, if available
+            // : CHARS ;
+            // : >LINK   3 CELLS - ;
+            // : >INFO   CELL- ;
+            // : >NAME   DUP >INFO 3 + C@  31 AND 1+ CHARS ALIGNED  SWAP >LINK  >-< ;
+            uint8_t len;
+            if (load_byte(dest - WORD_BYTES + 3, &len) == ERROR_OK) {
+                len &= 0x1f;
+                if (len > 0) {
+                    UWORD offset = ALIGN(len + 1);
+                    UWORD link = dest - 3 * WORD_BYTES;
+                    UWORD name = link - offset;
+                    uint8_t len2;
+                    if (load_byte(name, &len2) == ERROR_OK && len2 == len) {
+                        char *s = (char *)native_address_of_range(name + 1, len);
+                        if (s != NULL)
+                            text = xasprintf("%.*s ($%"PRIX32")", len, s, dest);
+                    }
+                }
+            }
+        }
         break;
     case OP_PUSH:
         {
