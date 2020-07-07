@@ -51,9 +51,9 @@ enum {
 };
 
 // Stack access
-_GL_ATTRIBUTE_PURE WORD *bee_stack_position(WORD *s0, UWORD sp, UWORD pos);
-int bee_pop_stack(WORD *s0, UWORD ssize, UWORD *sp, WORD *val_ptr);
-int bee_push_stack(WORD *s0, UWORD ssize, UWORD *sp, WORD val);
+_GL_ATTRIBUTE_PURE bee_WORD *bee_stack_position(bee_WORD *s0, bee_UWORD sp, bee_UWORD pos);
+int bee_pop_stack(bee_WORD *s0, bee_UWORD ssize, bee_UWORD *sp, bee_WORD *val_ptr);
+int bee_push_stack(bee_WORD *s0, bee_UWORD ssize, bee_UWORD *sp, bee_WORD val);
 
 
 // Memory access
@@ -73,8 +73,8 @@ int bee_load_object(FILE *file, bee_UWORD address);
 #define bee_DEFAULT_STACK_SIZE   4096
 
 // Additional implementation-specific routines, macros, types and quantities
-int bee_init(bee_WORD *c_array, WORD memory_size, WORD stack_size, WORD return_stack_size);
-int bee_init_defaults(bee_WORD *c_array, WORD memory_size);
+int bee_init(bee_WORD *c_array, bee_WORD memory_size, bee_WORD stack_size, bee_WORD return_stack_size);
+int bee_init_defaults(bee_WORD *c_array, bee_WORD memory_size);
 int bee_register_args(int argc, const char *argv[]);
 
 #define bee_WORD_BYTES 4    // the width of a word in bytes
