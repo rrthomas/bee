@@ -2,7 +2,7 @@
 *.trs
 /.deps
 /.libs
-/hello.obj
+/hello.bin
 /hello.output
 /arithmetic
 /catch

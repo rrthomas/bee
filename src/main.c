@@ -16,8 +16,7 @@
 #include <stdbool.h>
 #include <stdarg.h>
 #include <inttypes.h>
-#include <errno.h>
-#include <ctype.h>
+#include <limits.h>
 #include <string.h>
 #include <unistd.h>
 #include <getopt.h>
@@ -29,6 +28,7 @@
 #include "bee_aux.h"
 #include "bee_debug.h"
 #include "bee_opcodes.h"
+#include "gdb-stub.h"
 
 
 #define DEFAULT_MEMORY 1048576 // Default size of VM memory in words (4MB)
@@ -36,6 +36,8 @@
 static UWORD memory_size = DEFAULT_MEMORY; // Size of VM memory in words
 WORD *memory;
 
+static bool gdb_target = false;
+static int gdb_fdin = STDIN_FILENO, gdb_fdout = STDOUT_FILENO;
 
 static _GL_ATTRIBUTE_FORMAT_PRINTF(1, 0) void verror(const char *format, va_list args)
 {
@@ -78,8 +80,8 @@ static void usage(void)
             "\n",
             program_name);
 #define OPT(longname, shortname, arg, argstring, docstring)             \
-    shortopt = xasprintf(", -%c", shortname);                           \
-    buf = xasprintf("--%s%s %s", longname, shortname ? shortopt : "", argstring); \
+    shortopt = xasprintf(", -%c ", shortname);                           \
+    buf = xasprintf("--%s%s%s", longname, shortname ? shortopt : (arg == optional_argument ? "=" : ""), argstring); \
     printf("  %-26s%s\n", buf, docstring);                              \
     free(buf);                                                          \
     free(shortopt);
@@ -93,14 +95,16 @@ static void usage(void)
 #undef DOC
 }
 
-static WORD parse_size(UWORD max)
+static UWORD parse_number(UWORD min, UWORD max, char **end, const char *type)
 {
     char *endptr;
-    errno = 0;
-    long size = (WORD)strtol(optarg, &endptr, 10);
-    if (*optarg == '\0' || *endptr != '\0' || size <= 0 || (UWORD)size > max)
-        die("memory size must be a positive number up to %"PRIu32, max);
-    return size;
+    unsigned long size = strtoul(optarg, &endptr, 10);
+    if (*optarg == '\0' || (end == NULL && *endptr != '\0') ||
+        (UWORD)size < min || (UWORD)size > max)
+        die("%s must be a positive number between %"PRIu32 " and %"PRIu32, type, min, max);
+    if (end != NULL)
+        *end = endptr;
+    return (UWORD)size;
 }
 
 int main(int argc, char *argv[])
@@ -131,18 +135,34 @@ int main(int argc, char *argv[])
 
         switch (longindex) {
             case 0:
-                memory_size = parse_size((UWORD)MAX_MEMORY);
+                memory_size = parse_number(1, (UWORD)MAX_MEMORY, NULL, "memory size");
                 break;
             case 1:
-                stack_size = parse_size((UWORD)MAX_MEMORY);
+                stack_size = parse_number(1, (UWORD)MAX_MEMORY, NULL, "stack size");
                 break;
             case 2:
-                return_stack_size = parse_size((UWORD)MAX_MEMORY);
+                return_stack_size = parse_number(1, (UWORD)MAX_MEMORY, NULL, "stack size");
                 break;
             case 3:
+                gdb_target = true;
+                if (optarg != NULL) {
+                    char *end;
+                    gdb_fdin = (int)parse_number(0, (UWORD)INT_MAX, &end, "file descriptor");
+                    if (*end == ',') {
+                        optarg = end + 1;
+                        gdb_fdout = (int)parse_number(0, (UWORD)INT_MAX, NULL, "file descriptor");
+                    } else
+                        die("option '--gdb' takes two comma-separated file descriptors");
+                    if (gdb_fdin == gdb_fdout)
+                        die("file descriptors given to option '--gdb' must be different");
+                }
+                if (gdb_init(gdb_fdin, gdb_fdout))
+                    die("option '--gdb': could not open file descriptors");
+                break;
+            case 4:
                 usage();
                 exit(EXIT_SUCCESS);
-            case 4:
+            case 5:
                 printf("Bee " VERSION "\n"
                        COPYRIGHT_STRING "\n"
                        "Bee comes with ABSOLUTELY NO WARRANTY.\n"
@@ -173,5 +193,10 @@ int main(int argc, char *argv[])
     if (load_object(handle, M0) != 0)
         die("could not read file %s, or file is invalid", argv[optind]);
 
-    return run();
+    if (gdb_target == true) {
+        for (int res = ERROR_BREAK; handle_exception(res); res = run())
+            ;
+        exit(EXIT_SUCCESS);
+    } else
+        return run();
 }

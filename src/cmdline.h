@@ -24,6 +24,8 @@
 OPT("memory", 'm', required_argument, "NUMBER", MEMORY_MESSAGE("memory", MAX_MEMORY, DEFAULT_MEMORY))
 OPT("stack", 's', required_argument, "NUMBER", MEMORY_MESSAGE("data stack", MAX_MEMORY, DEFAULT_STACK_SIZE))
 OPT("return-stack", 'r', required_argument, "NUMBER", MEMORY_MESSAGE("return stack", MAX_MEMORY, DEFAULT_STACK_SIZE))
+OPT("gdb", '\0', optional_argument, "IN,OUT", "start as remote target for GDB; use file descriptors\n"
+  "                            IN and OUT [default stdin and stdout]")
 OPT("help", '\0', no_argument, "", "display this help message and exit")
 OPT("version", '\0', no_argument, "", "display version information and exit")
 ARG("OBJECT-FILE", "load and run object OBJECT-FILE")

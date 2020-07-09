@@ -21,16 +21,18 @@ TESTS = arithmetic catch comparison constants init jump logic memory \
 TESTS_ENVIRONMENT = \
 	export LIBTOOL=$(top_builddir)/libtool;
 
-# FIXME: replace with use of assembler
-# test-parser:
-#	( $(TESTS_ENVIRONMENT) $(LOG_COMPILER) $(top_builddir)/src/bee$(EXEEXT) < $(srcdir)/hello.txt ) && \
-#	( $(TESTS_ENVIRONMENT) $(LOG_COMPILER) $(top_builddir)/src/bee$(EXEEXT) ./hello.obj > hello.output ) && \
-#	diff hello.output $(srcdir)/hello.correct
+# Test binutils support. Assumes binutils for Bee configured with
+# --program-prefix=bee- is installed on PATH.
+test-binutils:
+	bee-as -R -o hello.o hello.S && \
+	bee-objcopy -O binary hello.o hello.bin && \
+	( $(TESTS_ENVIRONMENT) $(LOG_COMPILER) $(top_builddir)/src/bee$(EXEEXT) ./hello.bin > hello.output ) && \
+	diff hello.output $(srcdir)/hello.correct
 
 do_load_object: load_object
 	$(TESTS_ENVIRONMENT) $(LOG_COMPILER) $(builddir)/load_object $(srcdir)
 
-check-local: do_load_object # test-parser
+check-local: do_load_object
 
 EXTRA_DIST = \
 	run-test \
@@ -39,7 +41,7 @@ EXTRA_DIST = \
 	testobj2-le \
 	testobj1-be \
 	testobj2-be \
-	hello.txt \
+	hello.S \
 	hello.correct
 
 DISTCLEANFILES = hello.obj hello.output
