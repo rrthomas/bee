@@ -348,7 +348,7 @@ static UWORD compute_next_PC(WORD inst)
                 return next_PC_error;
             return R0[RP - 1] & ~1;
         case O_THROW:
-            if (HANDLER_RP == (UWORD)-1)
+            if (HANDLER_RP == (UWORD)-1 || HANDLER_RP < 2)
                 return next_PC_error;
             return R0[HANDLER_RP - 1] & ~1;
         case O_BREAK:
