@@ -334,48 +334,23 @@ static UWORD compute_next_PC(WORD inst)
         case OX_FILE_STATUS:
             return PC + WORD_BYTES;
         case O_JUMP:
-            {
-                if (SP < 1)
-                    return next_PC_error;
-                return S0[SP - 1];
-            }
-            break;
-        case O_JUMPZ:
-            {
-                if (SP < 2)
-                    return next_PC_error;
-                return S0[SP - 2] == 0 ? (UWORD)S0[SP - 1] : PC + WORD_BYTES;
-            }
-            break;
         case O_CALL:
-            {
-                if (SP < 1)
-                    return next_PC_error;
-                return S0[SP - 1];
-            }
-            break;
-        case O_RET:
-            {
-                if (RP < 1)
-                    return next_PC_error;
-                return R0[RP - 1] & ~1;
-            }
-            break;
         case O_CATCH:
-            {
-                if (SP < 1)
-                    return next_PC_error;
-                return S0[SP - 1];
-            }
-            break;
+            if (SP < 1)
+                return next_PC_error;
+            return S0[SP - 1];
+        case O_JUMPZ:
+            if (SP < 2)
+                return next_PC_error;
+            return S0[SP - 2] == 0 ? (UWORD)S0[SP - 1] : PC + WORD_BYTES;
+        case O_RET:
+            if (RP < 1)
+                return next_PC_error;
+            return R0[RP - 1] & ~1;
         case O_THROW:
-            {
-                if (HANDLER_RP == (UWORD)-1)
-                    return next_PC_error;
-                return R0[HANDLER_RP - 1] & ~1;
-            }
-            break;
-
+            if (HANDLER_RP == (UWORD)-1)
+                return next_PC_error;
+            return R0[HANDLER_RP - 1] & ~1;
         case O_BREAK:
         default:
             return next_PC_error;
