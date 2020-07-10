@@ -400,8 +400,8 @@ WORD run(void)
                     }
                     break;
                 case O_BREAK:
+                    PC -= WORD_BYTES;
                     return ERROR_BREAK;
-                    break;
 
                 case O_GET_SP:
                     {
