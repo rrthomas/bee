@@ -16,18 +16,10 @@ libbee_la_SOURCES = storage.c run.c extra.c debug.c loadobj.c \
 libbee_la_LIBADD = $(top_builddir)/lib/libgnu.la
 
 bin_PROGRAMS = bee
-bin_SCRIPTS = bee-dump
-if HAVE_RLWRAP
-bin_SCRIPTS += beei
-endif
-man_MANS = bee.1 beei.1 bee-dump.1
-pkgdata_DATA = completions
+man_MANS = bee.1
 bee_LDADD = libbee.la $(top_builddir)/lib/libgnu.la
-bee_SOURCES = main.c cmdline.h tbl_commands.h tbl_registers.h $(include_HEADERS)
+bee_SOURCES = main.c cmdline.h tbl_registers.h $(include_HEADERS)
 include_HEADERS = bee.h bee_aux.h bee_debug.h bee_opcodes.h
-
-completions: tbl_registers.h tbl_commands.h
-	$(CPP) -I$(srcdir) $(srcdir)/completions.h | grep -v "^#" > $@
 
 # Depend on bee$(EXEEXT) rather than explicitly make-ing it, as otherwise
 # we break parallel builds, as libbee.la can be built twice in parallel,
@@ -40,21 +32,14 @@ bee.1: bee$(EXEEXT)
 		--output=$@ ./bee$(EXEEXT); \
 	fi
 
-do_subst = sed -e 's,[@]pkgdatadir[@],$(pkgdatadir),g' \
-	-e 's,[@]RLWRAP[@],$(RLWRAP),g'
-
-beei: beei.in Makefile
-	$(do_subst) < $(srcdir)/beei.in > $@
-	chmod +x $@
-
 CLOC = cloc --force-lang="C",h
 
 loc:
 	$(CLOC) $(libbee_la_SOURCES) $(bee_SOURCES)
 
-EXTRA_DIST = beei.in beei.1 bee-dump bee-dump.1 completions.h external_syms.h
+EXTRA_DIST = external_syms.h
 
-DISTCLEANFILES = beei bee.1 completions $(include_HEADERS)
+DISTCLEANFILES = bee.1 $(include_HEADERS)
 # Ignore built files that are part of the distribution (specifically,
 # bee.1)
 distcleancheck_listfiles = \

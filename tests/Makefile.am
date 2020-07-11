@@ -21,15 +21,16 @@ TESTS = arithmetic catch comparison constants init jump logic memory \
 TESTS_ENVIRONMENT = \
 	export LIBTOOL=$(top_builddir)/libtool;
 
-test-parser:
-	( $(TESTS_ENVIRONMENT) $(LOG_COMPILER) $(top_builddir)/src/bee$(EXEEXT) < $(srcdir)/hello.txt ) && \
-	( $(TESTS_ENVIRONMENT) $(LOG_COMPILER) $(top_builddir)/src/bee$(EXEEXT) ./hello.obj > hello.output ) && \
-	diff hello.output $(srcdir)/hello.correct
+# FIXME: replace with use of assembler
+# test-parser:
+#	( $(TESTS_ENVIRONMENT) $(LOG_COMPILER) $(top_builddir)/src/bee$(EXEEXT) < $(srcdir)/hello.txt ) && \
+#	( $(TESTS_ENVIRONMENT) $(LOG_COMPILER) $(top_builddir)/src/bee$(EXEEXT) ./hello.obj > hello.output ) && \
+#	diff hello.output $(srcdir)/hello.correct
 
 do_load_object: load_object
 	$(TESTS_ENVIRONMENT) $(LOG_COMPILER) $(builddir)/load_object $(srcdir)
 
-check-local: do_load_object test-parser
+check-local: do_load_object # test-parser
 
 EXTRA_DIST = \
 	run-test \

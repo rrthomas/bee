@@ -128,26 +128,6 @@ _GL_ATTRIBUTE_CONST const char *disass(WORD opcode, WORD *addr)
         {
             WORD *dest = addr + (opcode >> 2);
             text = xasprintf("CALL $%"PRIX32, (UWORD)dest);
-
-            // Look up pForth word name, if available
-            // : CHARS ;
-            // : >LINK   3 CELLS - ;
-            // : >INFO   CELL- ;
-            // : >NAME   DUP >INFO 3 + C@  31 AND 1+ CHARS ALIGNED  SWAP >LINK  >-< ;
-            uint8_t len;
-            if (load_byte((uint8_t *)dest - WORD_BYTES + 3, &len) == ERROR_OK) {
-                len &= 0x1f;
-                if (len > 0) {
-                    UWORD offset = ALIGN(len + 1);
-                    uint8_t *link = (uint8_t *)dest - 3 * WORD_BYTES;
-                    uint8_t *name = link - offset;
-                    uint8_t len2;
-                    if (load_byte(name, &len2) == ERROR_OK && len2 == len) {
-                        if (!address_range_valid(name + 1, len))
-                            text = xasprintf("%.*s ($%"PRIX32")", len, name + 1, (UWORD)dest);
-                    }
-                }
-            }
         }
         break;
     case OP_PUSH:
