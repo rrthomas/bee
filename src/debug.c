@@ -50,10 +50,10 @@ void ass_byte(uint8_t b)
 
 void push(WORD literal)
 {
-    WORD temp = literal << 2;
-    ARSHIFT(temp, 2);
+    WORD temp = LSHIFT(literal, 2);
+    temp = ARSHIFT(temp, 2);
     assert(temp == literal);
-    word(literal << 2 | OP_PUSH);
+    word(LSHIFT(literal, 2) | OP_PUSH);
 }
 
 static void addr_op(int op, WORD addr)
@@ -154,7 +154,7 @@ _GL_ATTRIBUTE_CONST const char *disass(WORD opcode, UWORD addr)
         break;
     case OP_PUSH:
         {
-            ARSHIFT(opcode, 2);
+            opcode = ARSHIFT(opcode, 2);
             text = xasprintf("PUSH %"PRIi32"=$%"PRIX32, opcode, (UWORD)opcode);
         }
         break;

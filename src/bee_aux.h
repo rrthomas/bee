@@ -68,9 +68,13 @@ uint8_t *native_address_of_range(bee_UWORD start, bee_UWORD length);
 // Check whether a VM address is aligned
 #define bee_IS_ALIGNED(a)     (((a) & (bee_WORD_BYTES - 1)) == 0)
 
+// Portable left shift (the behaviour of << with overflow (including on any
+// negative number) is undefined)
+#define bee_LSHIFT(n, p) (((n) & ((UWORD)-1 >> p)) << p)
+
 // Portable arithmetic right shift (the behaviour of >> on signed
 // quantities is implementation-defined in C99)
-#define bee_ARSHIFT(n, p) ((n) = ((n) >> (p)) | (-((n) < 0) << (bee_WORD_BIT - p)))
+#define bee_ARSHIFT(n, p) (((n) >> (p)) | (LSHIFT(-((n) < 0), (bee_WORD_BIT - p))))
 
 
 #endif

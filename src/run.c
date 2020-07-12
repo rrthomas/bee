@@ -48,7 +48,7 @@ WORD run(void)
             PC += IR - WORD_BYTES;
             break;
         case OP_PUSH:
-            ARSHIFT(IR, 2);
+            IR = ARSHIFT(IR, 2);
             PUSH(IR);
             break;
         case OP_PUSHREL:
@@ -96,7 +96,7 @@ WORD run(void)
                         WORD shift, value;
                         POP(&shift);
                         POP(&value);
-                        PUSH(shift < (WORD)WORD_BIT ? value << shift : 0);
+                        PUSH(shift < (WORD)WORD_BIT ? LSHIFT(value, shift) : 0);
                     }
                     break;
                 case O_RSHIFT:
@@ -112,8 +112,7 @@ WORD run(void)
                         WORD shift, value;
                         POP(&shift);
                         POP(&value);
-                        WORD result = ARSHIFT(value, shift);
-                        PUSH(result);
+                        PUSH(ARSHIFT(value, shift));
                     }
                     break;
                 case O_POP:

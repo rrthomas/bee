@@ -544,8 +544,7 @@ static void do_command(int no)
     case c_PUSH:
         {
             long long value = single_arg(strtok(NULL, " "));
-            WORD stored_val = (WORD)value << 2;
-            ARSHIFT(stored_val, 2);
+            WORD stored_val = ARSHIFT((WORD)value << 2, 2);
             if ((long long)stored_val != value)
                 fatal("invalid argument to PUSH");
             push(value);
