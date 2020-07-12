@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
             printf("Error in load_object() tests: file %s\n", files[i]);
             exit(1);
         }
-        memset(_memory, 0, MEMORY); // Zero memory for next test
+        memset(_memory, 0, MSIZE); // Zero memory for next test
     }
 
     printf("load_object() tests ran OK\n");

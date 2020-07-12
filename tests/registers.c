@@ -25,8 +25,8 @@ int main(void)
     correct[steps++] = xasprintf("%"PRIi32, (WORD)M0);
     ass(O_POP);
     correct[steps++] = xasprintf("%s", "");
-    ass(O_GET_MEMORY);
-    correct[steps++] = xasprintf("%"PRIi32, (WORD)MEMORY);
+    ass(O_GET_MSIZE);
+    correct[steps++] = xasprintf("%"PRIi32, (WORD)MSIZE);
     ass(O_POP);
     correct[steps++] = xasprintf("%s", "");
     ass(O_GET_RSIZE);

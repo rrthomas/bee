@@ -21,7 +21,7 @@ int main(void)
     init_defaults((WORD *)calloc(size, WORD_BYTES), size);
 
     ass_goto(M0);
-    pushrel(M0 + MEMORY / WORD_BYTES);
+    pushrel(M0 + MSIZE / WORD_BYTES);
     correct[steps++] = xasprintf("%"PRIi32, m0 + memory);
     ass(O_WORD_BYTES);
     correct[steps++] = xasprintf("%"PRIi32" %d", m0 + memory, WORD_BYTES);

@@ -65,8 +65,8 @@ int push_stack(WORD *s0, UWORD ssize, UWORD *sp, WORD val)
 _GL_ATTRIBUTE_PURE bool address_range_valid(uint8_t *start, UWORD length)
 {
     return (start >= (uint8_t *)M0 &&
-            start <= (uint8_t *)M0 + MEMORY &&
-            length <= (UWORD)((uint8_t *)M0 + MEMORY - start));
+            start <= (uint8_t *)M0 + MSIZE &&
+            length <= (UWORD)((uint8_t *)M0 + MSIZE - start));
 }
 
 int load_word(WORD *ptr, WORD *value)
@@ -117,8 +117,8 @@ int init(WORD *buf, WORD memory_size, WORD stack_size, WORD return_stack_size)
     if (buf == NULL)
         return -1;
     M0 = buf;
-    MEMORY = memory_size * WORD_BYTES;
-    memset(M0, 0, MEMORY);
+    MSIZE = memory_size * WORD_BYTES;
+    memset(M0, 0, MSIZE);
 
     PC = M0;
     SP = 0;

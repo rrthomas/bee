@@ -271,7 +271,7 @@ static void do_assign(char *token)
 
     int no = search(token, regist, registers);
     switch (no) {
-        case r_MEMORY:
+        case r_MSIZE:
             fatal("cannot assign to %s", regist[no]);
             break;
         case r_PC:
@@ -314,8 +314,8 @@ static void do_display(size_t no, const char *format)
         case r_PC:
             display = xasprintf("PC = $%p", PC);
             break;
-        case r_MEMORY:
-            display = xasprintf("MEMORY = $%"PRIX32" (%"PRIu32")", MEMORY, MEMORY);
+        case r_MSIZE:
+            display = xasprintf("MSIZE = $%"PRIX32" (%"PRIu32")", MSIZE, MSIZE);
             break;
         case r_RP:
             display = xasprintf("RP = $%"PRIX32" (%"PRIu32")", RP, RP);

@@ -45,7 +45,7 @@ int main(void)
     push(1); ass(O_CALL);
     // test 5: allow execution to run off the end of memory
     test[4] = label();
-    push(MEMORY - WORD_BYTES); ass(O_JUMP);
+    push(MSIZE - WORD_BYTES); ass(O_JUMP);
     // test 6: load from an invalid address
     test[5] = label();
     push(0);
@@ -66,7 +66,7 @@ int main(void)
         if (i + 1 == 6) {
             // test 6: code to run at end of memory
             // Assemble now because it was overwritten by an earlier test
-            ass_goto(M0 + (MEMORY / WORD_BYTES) - 1);
+            ass_goto(M0 + (MSIZE / WORD_BYTES) - 1);
             ass(O_WORD_BYTES);
         }
 

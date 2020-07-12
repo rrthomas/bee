@@ -94,7 +94,7 @@ static const char *mnemonic[UINT8_MAX + 1] = {
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
 // 0x40
-    "WORD_BYTES", "GET_M0", "GET_MEMORY", "GET_RSIZE", "GET_RP", "SET_RP", "GET_SSIZE", "GET_SP",
+    "WORD_BYTES", "GET_M0", "GET_MSIZE", "GET_RSIZE", "GET_RP", "SET_RP", "GET_SSIZE", "GET_SP",
     "SET_SP", "GET_HANDLER_RP", NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -308,7 +308,7 @@ static WORD *compute_next_PC(WORD inst)
 
         case O_WORD_BYTES:
         case O_GET_M0:
-        case O_GET_MEMORY:
+        case O_GET_MSIZE:
         case O_GET_RSIZE:
         case O_GET_RP:
         case O_SET_RP:

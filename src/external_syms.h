@@ -33,8 +33,8 @@
 #define load_word bee_load_word
 #define LSHIFT bee_LSHIFT
 #define M0 bee_M0
-#define MEMORY bee_MEMORY
 #define mem_realloc bee_mem_realloc
+#define MSIZE bee_MSIZE
 #define PC bee_PC
 #define plit bee_plit
 #define POINTER_W bee_POINTER_W

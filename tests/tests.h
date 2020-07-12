@@ -34,7 +34,7 @@
 // Helper macros for test data, used to generate absolute addresses without
 // too many casts.
 #define m0 ((WORD)M0)
-#define memory ((WORD)MEMORY)
+#define memory ((WORD)MSIZE)
 
 
 #endif

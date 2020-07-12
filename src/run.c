@@ -416,8 +416,8 @@ WORD run(void)
                 case O_GET_M0:
                     PUSH((UWORD)M0);
                     break;
-                case O_GET_MEMORY:
-                    PUSH(MEMORY);
+                case O_GET_MSIZE:
+                    PUSH(MSIZE);
                     break;
                 case O_GET_RSIZE:
                     PUSH(RSIZE);

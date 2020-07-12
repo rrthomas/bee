@@ -63,7 +63,7 @@ enum {
 
     O_WORD_BYTES = 0x40,
     O_GET_M0,
-    O_GET_MEMORY,
+    O_GET_MSIZE,
     O_GET_RSIZE,
     O_GET_RP,
     O_SET_RP,
