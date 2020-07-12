@@ -97,12 +97,12 @@ enum commands {
 static int commands = sizeof(command) / sizeof(*command);
 
 static const char *regist[] = {
-#define R(reg) #reg,
+#define R(reg, type) #reg,
 #include "tbl_registers.h"
 #undef R
 };
 enum registers {
-#define R(reg) r_##reg,
+#define R(reg, type) r_##reg,
 #include "tbl_registers.h"
 #undef R
 };

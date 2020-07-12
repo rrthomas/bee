@@ -23,10 +23,10 @@
 
 // VM registers
 
-WORD *M0, *R0, *S0, *PC;
-UWORD RSIZE, SSIZE;
-UWORD SP, RP, HANDLER_RP;
-UWORD MEMORY;
+#define R(name, type) \
+    type name;
+#include "tbl_registers.h"
+#undef R
 
 
 // Stacks
