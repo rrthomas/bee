@@ -6,7 +6,6 @@ addons:
       - ubuntu-toolchain-r-test
     packages: &default_deps
       - help2man
-      - valgrind
 
 # env:
 #   global:
