@@ -15,18 +15,20 @@ int main(void)
 {
     init_defaults((WORD *)calloc(1024, 1), 256);
 
+    ass_goto(M0);
+
     const UWORD steps = 10;
     for (UWORD i = 0; i < steps; i++) {
         // Assemble the test as we go!
         ass(O_WORD_BYTES);
-        printf("PC = %"PRIu32"\n", PC);
+        printf("PC = %p\n", PC);
         assert(single_step() == ERROR_BREAK);
     }
 
-    UWORD final_PC = steps * WORD_BYTES;
-    printf("PC should now be %"PRIu32"\n", final_PC);
+    WORD *final_PC = M0 + steps;
+    printf("PC should now be %p\n", final_PC);
     if (PC != final_PC) {
-        printf("Error in single_step() tests: PC = %"PRIu32"\n", PC);
+        printf("Error in single_step() tests: PC = %p\n", PC);
         exit(1);
     }
 

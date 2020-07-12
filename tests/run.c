@@ -20,9 +20,12 @@ int main(void)
         exit(1);
     }
 
+    ass_goto(M0);
+
     int ret_code = 37;
     push(ret_code);
     ass(O_THROW);
+    WORD *final_PC = label();
 
     WORD ret = run();
 
@@ -32,10 +35,9 @@ int main(void)
         exit(1);
     }
 
-    UWORD final_PC = 2 * WORD_BYTES;
-    printf("PC should now be %"PRIu32"\n", final_PC);
-    if (PC != final_PC) {
-        printf("Error in run() tests: PC = %"PRIu32"\n", PC);
+    printf("PC should now be %p\n", final_PC);
+    if (PC != (WORD *)final_PC) {
+        printf("Error in run() tests: PC = %p\n", PC);
         exit(1);
     }
 

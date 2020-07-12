@@ -11,71 +11,71 @@
 #include "tests.h"
 
 
-const char *correct[] = {
-    "8",
-    "8 5",
-    "8 5 512",
-    "8 5",
-    "1 3",
-    "1 3 0",
-    "1 3 0 1024",
-    "1 3 0",
-    "1 3 0 -1",
-    "1 3 0",
-    "1 3",
-    "1",
-    "",
-    "1536",
-    "",
-    "-1",
-    "-1",
-    "-1 0",
-};
-
 
 int main(void)
 {
-    WORD temp = 0;
-    int error = 0;
+    const char *correct[64];
+    unsigned steps = 0;
 
     init_defaults((WORD *)malloc(4096), 1024);
 
+    ass_goto(M0);
     push(8);
+    correct[steps++] = xasprintf("%d", 8);
     push(5);
-    pushrel(0x200);
+    correct[steps++] = xasprintf("%d %d", 8, 5);
+    pushrel(M0 + (0x200 / WORD_BYTES));
+    correct[steps++] = xasprintf("%d %d %"PRIi32, 8, 5, m0 + 0x200);
     ass(O_CATCH);
-    UWORD ret_addr = label();
-    ass_goto(0x200);
+    WORD *ret_addr = label();
+    ass_goto(M0 + (0x200 / WORD_BYTES));
 
+    correct[steps++] = xasprintf("%d %d", 8, 5);
     ass(O_DIVMOD);
+    correct[steps++] = xasprintf("%d %d", 1, 3);
     ass(O_RET);
+    correct[steps++] = xasprintf("%d %d %d", 1, 3, 0);
     ass_goto(ret_addr);
 
-    pushrel(0x400);
+    pushrel(M0 + (0x400 / WORD_BYTES));
+    correct[steps++] = xasprintf("%d %d %d %"PRIi32, 1, 3, 0, m0 + 0x400);
     ass(O_CATCH);
+    correct[steps++] = xasprintf("%d %d %d", 1, 3, 0);
     ret_addr = label();
-    ass_goto(0x400);
+    ass_goto(M0 + (0x400 / WORD_BYTES));
 
     ass(O_UNDEFINED);
     ass_goto(ret_addr);
+    correct[steps++] = xasprintf("%d %d %d %d", 1, 3, 0, -1);
 
     ass(O_POP);
+    correct[steps++] = xasprintf("%d %d %d", 1, 3, 0);
     ass(O_POP);
+    correct[steps++] = xasprintf("%d %d", 1, 3);
     ass(O_POP);
+    correct[steps++] = xasprintf("%d", 1);
     ass(O_POP);
-    pushrel(0x600);
+    correct[steps++] = xasprintf("%s", "");
+    pushrel(M0 + (0x600 / WORD_BYTES));
+    correct[steps++] = xasprintf("%"PRIi32, m0 + 0x600);
     ass(O_CATCH);
+    correct[steps++] = xasprintf("%s", "");
     ret_addr = label();
-    ass_goto(0x600);
+    ass_goto(M0 + (0x600 / WORD_BYTES));
 
     push(ERROR_INVALID_OPCODE);
+    correct[steps++] = xasprintf("%d", -1);
     ass(O_THROW);
+    correct[steps++] = xasprintf("%d", -1);
     ass_goto(ret_addr);
 
     push(ERROR_OK);
+    correct[steps++] = xasprintf("%d %d", -1, 0);
     ass(O_THROW);
+    correct[steps++] = xasprintf("%d", -1);
 
-    for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
+    for (unsigned i = 0; i < steps; i++) {
+        WORD temp = 0;
         assert(load_word(PC, &temp) == ERROR_OK);
         printf("Instruction = %s\n", disass(temp, PC));
         WORD ret = single_step();
@@ -83,12 +83,11 @@ int main(void)
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {
-            printf("Error in logic tests: PC = %"PRIu32"\n", PC);
+            printf("Error in catch tests: PC = %p\n", PC);
             exit(1);
         }
     }
 
-    assert(error == 0);
     printf("Catch tests ran OK\n");
     return 0;
 }

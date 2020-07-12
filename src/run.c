@@ -39,20 +39,23 @@ WORD run(void)
     for (;;) {
         WORD error = ERROR_OK, IR;
         THROW_IF_ERROR(load_word(PC, &IR));
-        PC += WORD_BYTES;
+        PC++;
 
         switch (IR & OP_MASK) {
         case OP_CALL:
-            PUSH_RETURN(PC);
-            CHECK_VALID_WORD(PC + IR);
-            PC += IR - WORD_BYTES;
+            {
+                PUSH_RETURN((UWORD)PC);
+                uint8_t *dest = (uint8_t *)PC + IR - WORD_BYTES;
+                CHECK_VALID_WORD(dest);
+                PC = (WORD *)dest;
+            }
             break;
         case OP_PUSH:
             IR = ARSHIFT(IR, 2);
             PUSH(IR);
             break;
         case OP_PUSHREL:
-            PUSH(PC - WORD_BYTES + (IR & ~OP_MASK));
+            PUSH((UWORD)(PC - 1) + (IR & ~OP_MASK));
             break;
         case OP_INSTRUCTION:
             {
@@ -157,7 +160,7 @@ WORD run(void)
                     break;
                 case O_JUMP:
                     {
-                        UWORD addr;
+                        WORD *addr;
                         POP((WORD *)&addr);
                         CHECK_VALID_WORD(addr);
                         PC = addr;
@@ -165,7 +168,7 @@ WORD run(void)
                     break;
                 case O_JUMPZ:
                     {
-                        UWORD addr;
+                        WORD *addr;
                         POP((WORD *)&addr);
                         WORD flag;
                         POP(&flag);
@@ -177,10 +180,10 @@ WORD run(void)
                     break;
                 case O_CALL:
                     {
-                        UWORD addr;
+                        WORD *addr;
                         POP((WORD *)&addr);
                         CHECK_VALID_WORD(addr);
-                        PUSH_RETURN(PC);
+                        PUSH_RETURN((UWORD)PC);
                         PC = addr;
                     }
                     break;
@@ -188,7 +191,7 @@ WORD run(void)
                     {
                         UWORD addr;
                         POP_RETURN((WORD *)&addr);
-                        WORD real_addr = addr & ~1;
+                        WORD *real_addr = (WORD *)(addr & ~1);
                         CHECK_VALID_WORD(real_addr);
                         if ((addr & 1) == 1) {
                             POP_RETURN((WORD *)&HANDLER_RP);
@@ -199,8 +202,10 @@ WORD run(void)
                     break;
                 case O_LOAD:
                     {
-                        UWORD addr;
+                        WORD *addr;
                         POP((WORD *)&addr);
+                        if (!IS_ALIGNED(addr))
+                            THROW(ERROR_UNALIGNED_ADDRESS);
                         WORD value;
                         THROW_IF_ERROR(load_word(addr, &value));
                         PUSH(value);
@@ -208,8 +213,10 @@ WORD run(void)
                     break;
                 case O_STORE:
                     {
-                        UWORD addr;
+                        WORD *addr;
                         POP((WORD *)&addr);
+                        if (!IS_ALIGNED(addr))
+                            THROW(ERROR_UNALIGNED_ADDRESS);
                         WORD value;
                         POP(&value);
                         THROW_IF_ERROR(store_word(addr, value));
@@ -217,7 +224,7 @@ WORD run(void)
                     break;
                 case O_LOAD1:
                     {
-                        UWORD addr;
+                        uint8_t *addr;
                         POP((WORD *)&addr);
                         uint8_t value;
                         THROW_IF_ERROR(load_byte(addr, &value));
@@ -226,7 +233,7 @@ WORD run(void)
                     break;
                 case O_STORE1:
                     {
-                        UWORD addr;
+                        uint8_t *addr;
                         POP((WORD *)&addr);
                         WORD value;
                         POP(&value);
@@ -235,49 +242,50 @@ WORD run(void)
                     break;
                 case O_LOAD2:
                     {
-                        UWORD addr;
+                        uint16_t *addr;
                         POP((WORD *)&addr);
-                        if (addr % 2 != 0)
+                        if ((UWORD)addr % 2 != 0)
                             THROW(ERROR_UNALIGNED_ADDRESS);
-                        else {
-                            uint8_t byte1;
-                            THROW_IF_ERROR(load_byte(addr, &byte1));
-                            uint8_t byte2;
-                            THROW_IF_ERROR(load_byte(addr + 1, &byte2));
-                            PUSH((WORD)(uint16_t)(byte1 | (byte2 << 8)));
-                        }
+                        if (!address_range_valid((uint8_t *)addr, 2))
+                            THROW(ERROR_INVALID_LOAD);
+                        PUSH(*addr);
                     }
                     break;
                 case O_STORE2:
                     {
-                        UWORD addr;
+                        uint16_t *addr;
                         POP((WORD *)&addr);
-                        if (addr % 2 != 0)
+                        if ((UWORD)addr % 2 != 0)
                             THROW(ERROR_UNALIGNED_ADDRESS);
-                        else {
-                            WORD value;
-                            POP(&value);
-                            THROW_IF_ERROR(store_byte(addr, (uint8_t)value));
-                            THROW_IF_ERROR(store_byte(addr + 1, (uint8_t)(value >> 8)));
-                        }
+                        if (!address_range_valid((uint8_t *)addr, 2))
+                            THROW(ERROR_INVALID_LOAD);
+                        WORD value;
+                        POP(&value);
+                        *addr = (uint16_t)value;
                     }
                     break;
                 case O_LOAD4:
                     {
-                        UWORD addr;
+                        uint32_t *addr;
                         POP((WORD *)&addr);
-                        WORD value;
-                        THROW_IF_ERROR(load_word(addr, &value));
-                        PUSH(value);
+                        if ((UWORD)addr % 4 != 0)
+                            THROW(ERROR_UNALIGNED_ADDRESS);
+                        if (!address_range_valid((uint8_t *)addr, 2))
+                            THROW(ERROR_INVALID_LOAD);
+                        PUSH(*addr);
                     }
                     break;
                 case O_STORE4:
                     {
-                        UWORD addr;
+                        uint32_t *addr;
                         POP((WORD *)&addr);
+                        if ((UWORD)addr % 4 != 0)
+                            THROW(ERROR_UNALIGNED_ADDRESS);
+                        if (!address_range_valid((uint8_t *)addr, 2))
+                            THROW(ERROR_INVALID_LOAD);
                         WORD value;
                         POP(&value);
-                        THROW_IF_ERROR(store_word(addr, value));
+                        *addr = (uint32_t)value;
                     }
                     break;
                 case O_NEGATE:
@@ -370,11 +378,11 @@ WORD run(void)
                     break;
                 case O_CATCH:
                     {
-                        UWORD addr;
+                        WORD *addr;
                         POP((WORD *)&addr);
                         CHECK_VALID_WORD(addr);
                         PUSH_RETURN(HANDLER_RP);
-                        PUSH_RETURN(PC | 1);
+                        PUSH_RETURN((UWORD)PC | 1);
                         HANDLER_RP = RP;
                         PC = addr;
                     }
@@ -395,11 +403,11 @@ WORD run(void)
                         UWORD addr;
                         POP_RETURN((WORD *)&addr);
                         POP_RETURN((WORD *)&HANDLER_RP);
-                        PC = addr & ~1;
+                        PC = (WORD *)(addr & ~1);
                     }
                     break;
                 case O_BREAK:
-                    PC -= WORD_BYTES;
+                    PC --;
                     return ERROR_BREAK;
 
                 case O_GET_SP:
@@ -420,6 +428,9 @@ WORD run(void)
                     break;
                 case O_SET_RP:
                     POP((WORD *)&RP);
+                    break;
+                case O_GET_M0:
+                    PUSH((UWORD)M0);
                     break;
                 case O_GET_MEMORY:
                     PUSH(MEMORY);

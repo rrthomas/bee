@@ -65,6 +65,7 @@ enum {
     O_SET_SP,
     O_GET_RP,
     O_SET_RP,
+    O_GET_M0,
     O_GET_MEMORY,
     O_WORD_BYTES,
 

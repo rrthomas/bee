@@ -28,13 +28,13 @@
 #include "bee_opcodes.h"
 
 
-static UWORD current; // where we assemble the next instruction word or literal
+static uint8_t *current; // where we assemble the next instruction word or literal
 
 
 void word(WORD value)
 {
-    current = ALIGN(current);
-    store_word(current, value);
+    current = (uint8_t *)ALIGN(current);
+    store_word((WORD *)current, value);
     current += WORD_BYTES;
 }
 
@@ -56,30 +56,29 @@ void push(WORD literal)
     word(LSHIFT(literal, 2) | OP_PUSH);
 }
 
-static void addr_op(int op, WORD addr)
+static void addr_op(int op, WORD *addr)
 {
-    assert(IS_ALIGNED(addr));
-    word((addr - current) | op);
+    word(((uint8_t *)addr - current) | op);
 }
 
-void call(WORD addr)
+void call(WORD *addr)
 {
     addr_op(OP_CALL, addr);
 }
 
-void pushrel(UWORD addr)
+void pushrel(WORD *addr)
 {
     addr_op(OP_PUSHREL, addr);
 }
 
-void ass_goto(UWORD addr)
+void ass_goto(WORD *addr)
 {
-    current = addr;
+    current = (uint8_t *)addr;
 }
 
-_GL_ATTRIBUTE_PURE UWORD label(void)
+_GL_ATTRIBUTE_PURE WORD *label(void)
 {
-    return current;
+    return (WORD *)current;
 }
 
 static const char *mnemonic[UINT8_MAX + 1] = {
@@ -95,7 +94,7 @@ static const char *mnemonic[UINT8_MAX + 1] = {
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
 // 0x40
-    "GET_SP", "SET_SP", "GET_RP", "SET_RP", "GET_MEMORY", "WORD_BYTES", NULL, NULL,
+    "GET_SP", "SET_SP", "GET_RP", "SET_RP", "GET_M0", "GET_MEMORY", "WORD_BYTES", NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -119,7 +118,7 @@ static const char *mnemonic[UINT8_MAX + 1] = {
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, };
 
-_GL_ATTRIBUTE_CONST const char *disass(WORD opcode, UWORD addr)
+_GL_ATTRIBUTE_CONST const char *disass(WORD opcode, WORD *addr)
 {
     static char *text = NULL;
 
@@ -127,8 +126,8 @@ _GL_ATTRIBUTE_CONST const char *disass(WORD opcode, UWORD addr)
     switch (opcode & OP_MASK) {
     case OP_CALL:
         {
-            UWORD dest = addr + (opcode & ~OP_MASK);
-            text = xasprintf("CALL $%"PRIX32, dest);
+            WORD *dest = addr + (opcode >> 2);
+            text = xasprintf("CALL $%"PRIX32, (UWORD)dest);
 
             // Look up pForth word name, if available
             // : CHARS ;
@@ -136,17 +135,16 @@ _GL_ATTRIBUTE_CONST const char *disass(WORD opcode, UWORD addr)
             // : >INFO   CELL- ;
             // : >NAME   DUP >INFO 3 + C@  31 AND 1+ CHARS ALIGNED  SWAP >LINK  >-< ;
             uint8_t len;
-            if (load_byte(dest - WORD_BYTES + 3, &len) == ERROR_OK) {
+            if (load_byte((uint8_t *)dest - WORD_BYTES + 3, &len) == ERROR_OK) {
                 len &= 0x1f;
                 if (len > 0) {
                     UWORD offset = ALIGN(len + 1);
-                    UWORD link = dest - 3 * WORD_BYTES;
-                    UWORD name = link - offset;
+                    uint8_t *link = (uint8_t *)dest - 3 * WORD_BYTES;
+                    uint8_t *name = link - offset;
                     uint8_t len2;
                     if (load_byte(name, &len2) == ERROR_OK && len2 == len) {
-                        char *s = (char *)native_address_of_range(name + 1, len);
-                        if (s != NULL)
-                            text = xasprintf("%.*s ($%"PRIX32")", len, s, dest);
+                        if (!address_range_valid(name + 1, len))
+                            text = xasprintf("%.*s ($%"PRIX32")", len, name + 1, (UWORD)dest);
                     }
                 }
             }
@@ -159,7 +157,7 @@ _GL_ATTRIBUTE_CONST const char *disass(WORD opcode, UWORD addr)
         }
         break;
     case OP_PUSHREL:
-        text = xasprintf("PUSHREL $%"PRIX32, (addr + (opcode & ~OP_MASK)));
+        text = xasprintf("PUSHREL $%"PRIX32, (UWORD)(addr + (opcode & ~OP_MASK)));
         break;
     case OP_INSTRUCTION:
         opcode >>= 2;
@@ -264,17 +262,16 @@ _GL_ATTRIBUTE_PURE const char *error_to_msg(int code)
 }
 
 // Return value of PC after successful execution of the next instruction,
-// which may not be valid, or some invalid value if the new value of PC
-// cannot be computed.
-static UWORD compute_next_PC(WORD inst)
+// which may not be valid, or NULL if the new value of PC cannot be
+// computed.
+static WORD *compute_next_PC(WORD inst)
 {
-    const UWORD next_PC_error = 1;
     switch (inst & OP_MASK) {
     case OP_CALL:
-        return PC + inst;
+        return (WORD *)((uint8_t *)PC + inst);
     case OP_PUSH:
     case OP_PUSHREL:
-        return PC + WORD_BYTES;
+        return PC + 1;
     case OP_INSTRUCTION:
         switch (inst >> 2) {
         case O_NOP:
@@ -312,6 +309,7 @@ static UWORD compute_next_PC(WORD inst)
         case O_SET_SP:
         case O_GET_RP:
         case O_SET_RP:
+        case O_GET_M0:
         case O_GET_MEMORY:
         case O_WORD_BYTES:
         case OX_ARGC:
@@ -332,32 +330,32 @@ static UWORD compute_next_PC(WORD inst)
         case OX_FILE_SIZE:
         case OX_RESIZE_FILE:
         case OX_FILE_STATUS:
-            return PC + WORD_BYTES;
+            return PC + 1;
         case O_JUMP:
         case O_CALL:
         case O_CATCH:
             if (SP < 1)
-                return next_PC_error;
-            return S0[SP - 1];
+                return NULL;
+            return (WORD *)(S0[SP - 1]);
         case O_JUMPZ:
             if (SP < 2)
-                return next_PC_error;
-            return S0[SP - 2] == 0 ? (UWORD)S0[SP - 1] : PC + WORD_BYTES;
+                return NULL;
+            return S0[SP - 2] == 0 ? (WORD *)S0[SP - 1] : PC + 1;
         case O_RET:
             if (RP < 1)
-                return next_PC_error;
-            return R0[RP - 1] & ~1;
+                return NULL;
+            return (WORD *)(R0[RP - 1] & ~1);
         case O_THROW:
             if (HANDLER_RP == (UWORD)-1 || HANDLER_RP < 2)
-                return next_PC_error;
-            return R0[HANDLER_RP - 1] & ~1;
+                return NULL;
+            return (WORD *)(R0[HANDLER_RP - 1] & ~1);
         case O_BREAK:
         default:
-            return next_PC_error;
+            return NULL;
         }
         break;
     default:
-        return next_PC_error;
+        return NULL;
     }
 }
 
@@ -367,7 +365,7 @@ WORD single_step(void)
     WORD inst, next_inst;
     if ((error = load_word(PC, &inst)) != ERROR_OK)
         return error;
-    UWORD next_PC = compute_next_PC(inst);
+    WORD *next_PC = compute_next_PC(inst);
     int next_PC_valid = IS_ALIGNED(next_PC) && IS_VALID(next_PC);
     if (next_PC_valid) {
         assert(load_word(next_PC, &next_inst) == ERROR_OK);
@@ -394,7 +392,7 @@ WORD single_step(void)
         UWORD addr;
         POP_RETURN((WORD *)&addr);
         POP_RETURN((WORD *)&HANDLER_RP);
-        PC = addr & ~1;
+        PC = (WORD *)(addr & ~1);
     }
  error:
     return error;

@@ -33,7 +33,6 @@
 #define load_word bee_load_word
 #define LSHIFT bee_LSHIFT
 #define M0 bee_M0
-#define memory bee_memory
 #define MEMORY bee_MEMORY
 #define mem_realloc bee_mem_realloc
 #define PC bee_PC

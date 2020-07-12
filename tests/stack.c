@@ -19,14 +19,11 @@ const char *correct[] = {
 
 int main(void)
 {
-    WORD temp = 0;
-    int error = 0;
-
     init_defaults((WORD *)malloc(1024), 256);
 
     S0[SP++] = 3; S0[SP++] =2; S0[SP++] = 1;	// initialise the stack
 
-    ass_goto(PC);
+    ass_goto(M0);
     ass(O_DUP);
     push(1);
     ass(O_DUP);
@@ -43,15 +40,15 @@ int main(void)
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {
-            printf("Error in stack tests: PC = %"PRIu32"\n", PC);
+            printf("Error in stack tests: PC = %p\n", PC);
             exit(1);
         }
+        WORD temp = 0;
         assert(load_word(PC, &temp) == ERROR_OK);
         printf("Instruction = %s\n", disass(temp, PC));
         assert(single_step() == ERROR_BREAK);
     }
 
-    assert(error == 0);
     printf("Stack tests ran OK\n");
     return 0;
 }

@@ -145,18 +145,18 @@ static const char *globdirname(const char *file)
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsuggest-attribute=pure"
-static void check_aligned(UWORD adr)
+static void check_aligned(uint8_t *adr)
 {
     if (!IS_ALIGNED(adr))
         fatal("Address must be word-aligned");
 }
 #pragma GCC diagnostic pop
 
-static void check_range(UWORD start, UWORD end, const char *quantity)
+static void check_range(uint8_t *start, uint8_t *end, const char *quantity)
 {
     if (start > end)
         fatal("start address cannot be greater than end address");
-    if (native_address_of_range(start, end - start) == NULL)
+    if (!address_range_valid((uint8_t *)start, end - start))
         fatal("%s is invalid", quantity);
 }
 
@@ -194,24 +194,23 @@ static uint8_t parse_instruction(const char *token)
     return opcode;
 }
 
-static long long parse_number(const char *s, char **endp)
+static unsigned long parse_number(const char *s, char **endp)
 {
-    return s[0] == '$' ? strtoll(s + 1, endp, 16) :
-        strtoll(s, endp, 10);
+    return s[0] == '$' ? strtoul(s + 1, endp, 16) : strtoul(s, endp, 10);
 }
 
-static int is_byte(long long value)
+static int is_byte(long value)
 {
-    return (long long)(uint8_t)value == value;
+    return (long)(uint8_t)value == value;
 }
 
-static long long single_arg(const char *s)
+static long single_arg(const char *s)
 {
     if (s == NULL)
         fatal("too few arguments");
 
     char *endp;
-    long long n = parse_number(s, &endp);
+    long n = parse_number(s, &endp);
 
     if (endp != &s[strlen(s)])
         fatal("invalid number");
@@ -219,42 +218,29 @@ static long long single_arg(const char *s)
     return n;
 }
 
-static void double_arg(char *s, long long *start, long long *end, bool default_args)
+static void double_arg(char *s, long *start, long *len)
 {
-    bool plus = default_args;
-
     char *token;
     static char *copy = NULL;
     free(copy);
     copy = NULL;
-    if (s == NULL || (token = strtok((copy = xstrdup(s)), " +")) == NULL) {
-        if (!default_args)
-            fatal("too few arguments");
-    } else {
+    if (s != NULL && (token = strtok((copy = xstrdup(s)), " +")) != NULL) {
         size_t i;
         for (i = strlen(token); s[i] == ' ' && i < strlen(s); i++)
             ;
 
-        plus = plus || (i < strlen(s) && s[i] == '+');
-
         *start = single_arg(token);
 
-        if ((token = strtok(NULL, " +")) == NULL) {
-            if (!default_args)
-                fatal("too few arguments");
-        } else
-            *end = single_arg(token);
+        if ((token = strtok(NULL, " +")) != NULL)
+            *len = single_arg(token);
     }
-
-    if (plus)
-        *end += *start;
 }
 
 
-static void disassemble(UWORD start, UWORD end)
+static void disassemble(WORD *start, WORD *end)
 {
-    for (UWORD p = start; p < end && p < (UWORD)-1 - WORD_BYTES + 1; p += WORD_BYTES) {
-        printf("$%08"PRIX32": ", p);
+    for (WORD *p = start; p < end && p <= (WORD *)-1 - 1; p ++) {
+        printf("$%08"PRIX32": ", (UWORD)p);
         WORD a;
         load_word(p, &a);
         printf("%s\n", disass(a, p));
@@ -262,10 +248,9 @@ static void disassemble(UWORD start, UWORD end)
 }
 
 
-static int save_object(FILE *file, UWORD address, UWORD length)
+static int save_object(FILE *file, WORD *ptr, UWORD length)
 {
-    uint8_t *ptr = native_address_of_range(address, length);
-    if (!IS_ALIGNED(address) || ptr == NULL)
+    if (!IS_ALIGNED(ptr) || !address_range_valid((uint8_t *)ptr, length))
         return -1;
 
     if (fwrite(ptr, WORD_BYTES, length, file) != length)
@@ -278,7 +263,7 @@ static int save_object(FILE *file, UWORD address, UWORD length)
 static void do_assign(char *token)
 {
     char *number = strtok(NULL, " ");
-    long long value;
+    long value;
 
     upper(number);
     value = parse_instruction(number);
@@ -290,7 +275,7 @@ static void do_assign(char *token)
             fatal("cannot assign to %s", regist[no]);
             break;
         case r_PC:
-            PC = value;
+            PC = (WORD *)value;
             ass_goto(PC);
             break;
         case r_RP:
@@ -304,7 +289,7 @@ static void do_assign(char *token)
             break;
         default:
             {
-                WORD adr = (WORD)single_arg(token);
+                uint8_t *adr = (uint8_t *)(unsigned long)single_arg(token);
 
                 if (!IS_ALIGNED(adr) && !is_byte(value))
                     fatal("only a byte can be assigned to an unaligned address");
@@ -313,9 +298,9 @@ static void do_assign(char *token)
                     store_byte(adr, value);
                 } else {
                     check_range(adr, adr + WORD_BYTES, "Address");
-                    if ((unsigned long long)value > (UWORD)-1)
+                    if ((unsigned long)value > (UWORD)-1)
                         fatal("the value assigned to a word must fit in a word");
-                    store_word(adr, value);
+                    store_word((WORD *)adr, value);
                 }
             }
     }
@@ -327,7 +312,7 @@ static void do_display(size_t no, const char *format)
 
     switch (no) {
         case r_PC:
-            display = xasprintf("PC = $%"PRIX32" (%"PRIu32")", PC, PC);
+            display = xasprintf("PC = $%p", PC);
             break;
         case r_MEMORY:
             display = xasprintf("MEMORY = $%"PRIX32" (%"PRIu32")", MEMORY, MEMORY);
@@ -369,24 +354,25 @@ static void do_command(int no)
     switch (no) {
     case c_TOD:
         {
-            long long value = single_arg(strtok(NULL, " "));
+            long value = single_arg(strtok(NULL, " "));
             PUSH(value);
         }
         break;
     case c_TOR:
         {
-            long long value = single_arg(strtok(NULL, " "));
+            long value = single_arg(strtok(NULL, " "));
             PUSH_RETURN(value);
         }
         break;
     case c_DISASSEMBLE:
         {
-            long long start = (PC <= 16 ? 0 : PC - 16), end = 64;
-            double_arg(strtok(NULL, ""), &start, &end, true);
-            check_aligned(start);
-            check_aligned(end);
-            check_range(start, end, "Address");
-            disassemble((UWORD)start, (UWORD)end);
+            long start = (long)(((PC - M0) * WORD_BYTES <= 16 ? (uint8_t *)M0 : (uint8_t *)PC - 16));
+            long len = 64;
+            double_arg(strtok(NULL, ""), &start, &len);
+            check_aligned((uint8_t *)start);
+            check_aligned((uint8_t *)len);
+            check_range((uint8_t *)start, (uint8_t *)start + len, "Address");
+            disassemble((WORD *)start, (WORD *)((uint8_t *)start + len));
         }
         break;
     case c_DFROM:
@@ -399,9 +385,11 @@ static void do_command(int no)
         break;
     case c_DUMP:
         {
-            long long start = (PC <= 64 ? 0 : PC - 64), end = 256;
-            double_arg(strtok(NULL, ""), &start, &end, true);
-            check_range(start, end, "Address");
+            long start = (long)(((PC - M0) * WORD_BYTES <= 64 ? (uint8_t*)M0 : (uint8_t *)PC - 64));
+            long len = 256;
+            double_arg(strtok(NULL, ""), &start, &len);
+            long end = start + len;
+            check_range((uint8_t *)start, (uint8_t *)end, "Address");
             while (start < end) {
                 printf("$%08lX ", (unsigned long)start);
                 // Use #define to avoid a variable-length array
@@ -409,7 +397,7 @@ static void do_command(int no)
                 char ascii[chunk];
                 for (int i = 0; i < chunk && start < end; i++) {
                     uint8_t byte;
-                    load_byte(start + i, &byte);
+                    load_byte((uint8_t *)start + i, &byte);
                     if (i % 8 == 0)
                         putchar(' ');
                     printf("%02X ", byte);
@@ -428,7 +416,7 @@ static void do_command(int no)
             const char *file = strtok(NULL, " ");
             if (file == NULL)
                 fatal("LOAD requires a file name");
-            UWORD adr = 0;
+            UWORD adr = (UWORD)M0;
             char *arg = strtok(NULL, " ");
             if (arg != NULL)
                 adr = single_arg(arg);
@@ -436,7 +424,7 @@ static void do_command(int no)
             FILE *handle = fopen(globfile(file), "rb");
             if (handle == NULL)
                 fatal("cannot open file '%s'", file);
-            int ret = load_object(handle, adr);
+            int ret = load_object(handle, (WORD *)adr);
 
             switch (ret) {
             case -1:
@@ -478,24 +466,24 @@ static void do_command(int no)
             } else {
                 upper(arg);
                 if (strcmp(arg, "TO") == 0) {
-                    unsigned long long limit = (unsigned long long)single_arg(strtok(NULL, " "));
-                    check_range(limit, limit, "Address");
-                    check_aligned(limit);
+                    unsigned long limit = (unsigned long)single_arg(strtok(NULL, " "));
+                    check_range((uint8_t *)limit, (uint8_t *)limit, "Address");
+                    check_aligned((uint8_t *)limit);
                     while ((unsigned long)PC != limit && ret == ERROR_BREAK) {
                         if (no == c_TRACE) do_info();
                         ret = single_step();
                     }
                     if (ret != 0)
-                        printf("HALT code %"PRId32" (%s) was returned at PC = $%X\n",
+                        printf("HALT code %"PRId32" (%s) was returned at PC = $%p\n",
                                ret, error_to_msg(ret), PC);
                 } else {
-                    unsigned long long limit = (unsigned long long)single_arg(arg), i;
+                    unsigned long limit = (unsigned long)single_arg(arg), i;
                     for (i = 0; i < limit && ret == ERROR_BREAK; i++) {
                         if (no == c_TRACE) do_info();
                         ret = single_step();
                     }
                     if (ret != 0)
-                        printf("HALT code %"PRId32" (%s) was returned after %llu "
+                        printf("HALT code %"PRId32" (%s) was returned after %lu "
                                "steps\n", ret, error_to_msg(ret), i);
                 }
             }
@@ -504,13 +492,17 @@ static void do_command(int no)
     case c_SAVE:
         {
             const char *file = strtok(NULL, " ");
-            long long start, end;
-            double_arg(strtok(NULL, ""), &start, &end, false);
+            long start = 0, len = 0;
+            double_arg(strtok(NULL, ""), &start, &len);
+            if (len == 0) {
+                len = start;
+                start = (long)M0;
+            }
 
             FILE *handle;
             if ((handle = fopen(globdirname(file), "wb")) == NULL)
                 fatal("cannot open file %s", file);
-            int ret = save_object(handle, start, (UWORD)((end - start) / WORD_BYTES));
+            int ret = save_object(handle, (WORD *)start, (UWORD)(len / WORD_BYTES));
             fclose(handle);
 
             switch (ret) {
@@ -527,7 +519,7 @@ static void do_command(int no)
         break;
     case c_BLITERAL:
         {
-            long long value = single_arg(strtok(NULL, " "));
+            long value = single_arg(strtok(NULL, " "));
             if (!is_byte(value))
                 fatal("the argument to BLITERAL must fit in a byte");
             ass_byte((uint8_t)value);
@@ -535,28 +527,27 @@ static void do_command(int no)
         }
     case c_CALL:
         {
-            unsigned long long adr = (unsigned long long)single_arg(strtok(NULL, " "));
-            check_aligned(adr);
-            check_range(adr, adr + 1, "Address");
-            call(adr);
+            unsigned long adr = (unsigned long)single_arg(strtok(NULL, " "));
+            check_aligned((uint8_t *)adr);
+            check_range((uint8_t *)adr, (uint8_t *)adr + 1, "Address");
+            call((WORD *)adr);
             break;
         }
     case c_PUSH:
         {
-            long long value = single_arg(strtok(NULL, " "));
+            long value = single_arg(strtok(NULL, " "));
             WORD stored_val = ARSHIFT((WORD)value << 2, 2);
-            if ((long long)stored_val != value)
+            if ((long)stored_val != value)
                 fatal("invalid argument to PUSH");
             push(value);
             break;
         }
     case c_PUSHREL:
         {
-            unsigned long long adr = (unsigned long long)single_arg(strtok(NULL, " "));
-
-            check_aligned(adr);
-            check_range(adr, adr + 1, "Address");
-            pushrel(adr);
+            unsigned long adr = (unsigned long)single_arg(strtok(NULL, " "));
+            check_aligned((uint8_t *)M0 + adr);
+            check_range((uint8_t *)M0 + adr, (uint8_t *)M0 + adr + WORD_BYTES, "Address");
+            pushrel((WORD *)((uint8_t *)M0 + adr));
             break;
         }
     default: // This cannot happen
@@ -633,15 +624,15 @@ static void parse(char *input)
                     fatal("unknown command or register '%s'", token);
 
                 if (!IS_ALIGNED(adr)) {
-                    check_range(adr, adr + 1, "Address");
+                    check_range((uint8_t *)adr, (uint8_t *)adr + 1, "Address");
                     uint8_t b;
-                    load_byte(adr, &b);
+                    load_byte((uint8_t *)adr, &b);
                     display = xasprintf("$%"PRIX32": $%X (%d) (byte)", (UWORD)adr,
                                         b, b);
                 } else {
-                    check_range(adr, adr + WORD_BYTES, "Address");
+                    check_range((uint8_t *)adr, (uint8_t *)adr + WORD_BYTES, "Address");
                     WORD c;
-                    load_word(adr, &c);
+                    load_word((WORD *)adr, &c);
                     display = xasprintf("$%"PRIX32": $%"PRIX32" (%"PRId32") (word)", (UWORD)adr,
                                         (UWORD)c, c);
                 }
@@ -785,7 +776,7 @@ int main(int argc, char *argv[])
         FILE *handle = fopen(argv[optind], "rb");
         if (handle == NULL)
             die("cannot not open file %s", argv[optind]);
-        if (load_object(handle, 0) != 0)
+        if (load_object(handle, M0) != 0)
             die("could not read file %s, or file is invalid", argv[optind]);
 
         int res = run();

@@ -16,22 +16,22 @@ int main(void)
 {
     // Data for ARGC/ARGLEN/ARGCOPY tests
     int argc = 3;
-    UWORD buf = 32;
     const char *argv[] = {"foo", "bard", "basilisk"};
 
     init_defaults((WORD *)malloc(4096), 1024);
     assert(register_args(argc, argv) == 0);
+    uint8_t *buf = (uint8_t *)M0 + 32;
 
-    ass_goto(PC);
+    ass_goto(M0);
     ass(OX_ARGC);
     push(1); ass(OX_ARGLEN);
-    push(1); push(buf); ass(OX_ARGCOPY);
+    push(1); pushrel((WORD *)buf); ass(OX_ARGCOPY);
 
     assert(single_step() == ERROR_BREAK);
     printf("argc is %"PRId32", and should be %d\n\n", *stack_position(S0, SP, 0), argc);
     assert(SP > 0);
     if (S0[--SP] != argc) {
-        printf("Error in extra instructions tests: PC = %"PRIu32"\n", PC);
+        printf("Error in extra instructions tests: PC = %p\n", PC);
         exit(1);
     }
 
@@ -40,17 +40,17 @@ int main(void)
     printf("arg 1's length is %"PRId32", and should be %zu\n", *stack_position(S0, SP, 0), strlen(argv[1]));
     assert(SP > 0);
     if ((UWORD)S0[--SP] != strlen(argv[1])) {
-        printf("Error in extra instructions tests: PC = %"PRIu32"\n", PC);
+        printf("Error in extra instructions tests: PC = %p\n", PC);
         exit(1);
     }
 
     assert(single_step() == ERROR_BREAK);
     assert(single_step() == ERROR_BREAK);
     assert(single_step() == ERROR_BREAK);
-    const char *arg = (char *)native_address_of_range(buf, 0), *correct_arg = argv[1];
-    printf("arg is %s, and should be %s\n", arg, correct_arg);
-    if (strcmp(arg, correct_arg) != 0) {
-        printf("Error in extra instructions tests: PC = %"PRIu32"\n", PC);
+    const char *correct_arg = argv[1];
+    printf("arg is %s, and should be %s\n", buf, correct_arg);
+    if (strcmp((char *)buf, correct_arg) != 0) {
+        printf("Error in extra instructions tests: PC = %p\n", PC);
         exit(1);
     }
 

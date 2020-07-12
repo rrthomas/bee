@@ -6,10 +6,16 @@ addons:
   apt:
     packages: &default_deps
       - help2man
+      - gcc-7-multilib
+      - linux-libc-dev:i386
 
 # env:
 #   global:
 #     - VERBOSE=1
+
+env:
+  global:
+    - CC="gcc -m32"
 
 matrix:
   include:
@@ -21,8 +27,8 @@ matrix:
           packages:
             - *default_deps
     - env:
-        - ASAN=yes
-        - LSAN_OPTIONS="verbosity=1:log_threads=1"
+      - ASAN=yes
+      - LSAN_OPTIONS="verbosity=1:log_threads=1"
 
 script:
   - ./bootstrap

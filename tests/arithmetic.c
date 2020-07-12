@@ -28,11 +28,9 @@ const char *correct[] = {
 
 int main(void)
 {
-    WORD temp = 0;
-
     init_defaults((WORD *)calloc(1024, 1), 256);
 
-    ass_goto(PC);
+    ass_goto(M0);
     push(1); ass(O_NEGATE);
     ass(O_WORD_BYTES);
     push(-WORD_BYTES);
@@ -47,13 +45,14 @@ int main(void)
     ass(O_UDIVMOD);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
+        WORD temp = 0;
         assert(load_word(PC, &temp) == ERROR_OK);
         printf("Instruction = %s\n", disass(temp, PC));
         assert(single_step() == ERROR_BREAK);
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {
-            printf("Error in arithmetic tests: PC = %"PRIu32"\n", PC);
+            printf("Error in arithmetic tests: PC = %p\n", PC);
             exit(1);
         }
     }

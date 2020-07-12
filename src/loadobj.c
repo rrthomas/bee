@@ -43,17 +43,14 @@ static int skip_hashbang(FILE *fp)
     return 0;
 }
 
-int load_object(FILE *fp, UWORD address)
+int load_object(FILE *fp, WORD *ptr)
 {
-    if (!IS_ALIGNED(address))
-        return -1;
     if (fp == NULL || skip_hashbang(fp) == -1)
         return -2;
     off_t len = fleno(fp);
     if (len == -1)
         return -2;
-    uint8_t *ptr = native_address_of_range(address, len);
-    if (ptr == NULL)
+    if (!address_range_valid((uint8_t *)ptr, len))
         return -1;
     if ((off_t)fread(ptr, 1, len, fp) != len || fclose(fp) == EOF)
         return -2;

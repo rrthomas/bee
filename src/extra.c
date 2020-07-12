@@ -12,6 +12,7 @@
 
 #include "external_syms.h"
 
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -34,8 +35,8 @@ verify(sizeof(int) <= sizeof(WORD));
 
 // I/O support
 
-// Copy a string from VM to native memory
-static int getstr(UWORD adr, UWORD len, char **res)
+// Make a NUL-terminated string from a counted string
+static int getstr(char *adr, UWORD len, char **res)
 {
     int error = 0;
 
@@ -43,9 +44,7 @@ static int getstr(UWORD adr, UWORD len, char **res)
     if (*res == NULL)
         error = -511;
     else
-        for (size_t i = 0; error == 0 && i < len; i++, adr++) {
-            error = load_byte(adr, (uint8_t *)((*res) + i));
-        }
+        strncpy(*res, adr, len);
 
     return error;
 }
@@ -119,14 +118,16 @@ WORD extra_instruction(WORD opcode)
         break;
     case OX_ARGCOPY: // ( u1 addr -- )
         {
-            UWORD addr, narg;
+            char *addr;
             POP((WORD *)&addr);
+            UWORD narg;
             POP((WORD *)&narg);
             if (narg < (UWORD)main_argc) {
                 UWORD len = (UWORD)main_argv_len[narg];
-                char *ptr = (char *)native_address_of_range(addr, len);
-                if (ptr != NULL)
-                    strncpy(ptr, main_argv[narg], len);
+                if (address_range_valid((uint8_t *)addr, len))
+                    strncpy(addr, main_argv[narg], len);
+                else
+                    error = ERROR_INVALID_LOAD;
             }
         }
         break;
@@ -144,8 +145,9 @@ WORD extra_instruction(WORD opcode)
             bool binary = false;
             POP(&temp);
             int perm = getflags(temp, &binary);
-            UWORD len, str;
+            UWORD len;
             POP((WORD *)&len);
+            char *str;
             POP((WORD *)&str);
             char *file;
             error = getstr(str, len, &file);
@@ -166,31 +168,29 @@ WORD extra_instruction(WORD opcode)
         {
             POP(&temp);
             int fd = temp;
-            UWORD nbytes, buf;
+            UWORD nbytes;
             POP((WORD *)&nbytes);
+            uint8_t *buf;
             POP((WORD *)&buf);
-
-            ssize_t res = 0;
-            if (error == 0)
-                res = read(fd, native_address_of_range(buf, 0), nbytes);
-
-            PUSH(res);
-            PUSH((error == 0 && res >= 0) ? 0 : -1);
+            if (address_range_valid((uint8_t *)buf, nbytes)) {
+                ssize_t res = read(fd, buf, nbytes);
+                PUSH(res);
+                PUSH(res >= 0 ? 0 : -1);
+            }
         }
         break;
     case OX_WRITE_FILE:
         {
             POP(&temp);
             int fd = temp;
-            UWORD nbytes, buf;
+            UWORD nbytes;
             POP((WORD *)&nbytes);
+            uint8_t *buf;
             POP((WORD *)&buf);
-
-            ssize_t res = 0;
-            if (error == 0)
-                res = write(fd, native_address_of_range(buf, 0), nbytes);
-
-            PUSH((error == 0 && res >= 0) ? 0 : -1);
+            if (address_range_valid((uint8_t *)buf, nbytes)) {
+                ssize_t res = write(fd, buf, nbytes);
+                PUSH(res >= 0 ? 0 : -1);
+            }
         }
         break;
     case OX_FILE_POSITION:
@@ -224,7 +224,8 @@ WORD extra_instruction(WORD opcode)
         break;
     case OX_RENAME_FILE:
         {
-            UWORD len1, str1, len2, str2;
+            UWORD len1, len2;
+            char *str1, *str2;
             POP((WORD *)&len1);
             POP((WORD *)&str1);
             POP((WORD *)&len2);
@@ -241,12 +242,12 @@ WORD extra_instruction(WORD opcode)
         break;
     case OX_DELETE_FILE:
         {
-            UWORD len, str;
+            UWORD len;
             POP((WORD *)&len);
+            char *str;
             POP((WORD *)&str);
             char *file;
-            error = getstr(str, len, &file) ||
-                remove(file);
+            error = getstr(str, len, &file) || remove(file);
             free(file);
             PUSH(error);
         }

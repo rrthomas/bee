@@ -36,14 +36,11 @@ const char *correct[] = {
 
 int main(void)
 {
-    WORD temp = 0;
-    int error = 0;
-
     init_defaults((WORD *)malloc(1024), 256);
 
     S0[SP++] = 0xff000000; S0[SP++] = 8; S0[SP++] = 0xff; S0[SP++] = 8;
 
-    ass_goto(PC);
+    ass_goto(M0);
     ass(O_LSHIFT);
     push(1); ass(O_SWAP);
     push(0); ass(O_SWAP);
@@ -60,18 +57,18 @@ int main(void)
     ass(O_AND);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
+        WORD temp = 0;
         assert(load_word(PC, &temp) == ERROR_OK);
         printf("Instruction = %s\n", disass(temp, PC));
         assert(single_step() == ERROR_BREAK);
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {
-            printf("Error in logic tests: PC = %"PRIu32"\n", PC);
+            printf("Error in logic tests: PC = %p\n", PC);
             exit(1);
         }
     }
 
-    assert(error == 0);
     printf("Logic tests ran OK\n");
     return 0;
 }

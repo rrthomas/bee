@@ -1,5 +1,4 @@
-// Test the branch instructions. Also uses other instructions with lower
-// opcodes than the instructions tested (i.e. those already tested).
+// Test the branch instructions.
 // See errors.c for address error handling tests.
 // The test program contains an infinite loop, but this is only executed
 // once.
@@ -15,51 +14,64 @@
 #include "tests.h"
 
 
-unsigned correct[] = {
-    WORD_BYTES, 48, 48 + WORD_BYTES,
-    10000, 10000 + WORD_BYTES, 10000 + WORD_BYTES * 2, 10000 + WORD_BYTES * 3,
-    10000 + WORD_BYTES * 4, 10000 + WORD_BYTES * 5,
-    11000, 11000 + WORD_BYTES,
-    64, 300, 64 + WORD_BYTES,
-};
-
-
 int main(void)
 {
-    WORD temp = 0;
+    WORD *correct[64];
+    unsigned steps = 0;
 
     size_t size = 4096;
     init_defaults((WORD *)calloc(size, WORD_BYTES), size);
 
-    ass_goto(PC);
-    pushrel(48); ass(O_JUMP);
+    ass_goto(M0);
+    correct[steps++] = label();
+    pushrel(M0 + 48 / WORD_BYTES);
+    correct[steps++] = label();
+    ass(O_JUMP);
 
-    ass_goto(48);
-    push(10000); ass(O_JUMP);
+    ass_goto(M0 + 48 / WORD_BYTES);
+    correct[steps++] = label();
+    pushrel(M0 + 10000 / WORD_BYTES);
+    correct[steps++] = label();
+    ass(O_JUMP);
 
-    ass_goto(10000);
-    push(1); push(0); ass(O_JUMPZ);
-    push(0); push(11000); ass(O_JUMPZ);
+    ass_goto(M0 + 10000 / WORD_BYTES);
+    correct[steps++] = label();
+    push(1);
+    correct[steps++] = label();
+    push(0);
+    correct[steps++] = label();
+    ass(O_JUMPZ);
+    correct[steps++] = label();
+    push(0);
+    correct[steps++] = label();
+    pushrel(M0 + 11000 / WORD_BYTES);
+    correct[steps++] = label();
+    ass(O_JUMPZ);
 
-    ass_goto(11000);
-    push(64);
+    ass_goto(M0 + 11000 / WORD_BYTES);
+    correct[steps++] = label();
+    pushrel(M0 + 64 / WORD_BYTES);
+    correct[steps++] = label();
     ass(O_CALL);
 
-    ass_goto(64);
-    call(300);
+    ass_goto(M0 + 64 / WORD_BYTES);
+    correct[steps++] = label();
+    call(M0 + 400 / WORD_BYTES);
 
-    ass_goto(300);
+    ass_goto(M0 + 400 / WORD_BYTES);
+    correct[steps++] = label();
     ass(O_RET);
 
-    for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
+    for (unsigned i = 0; i < steps; i++) {
+        WORD temp = 0;
         assert(load_word(PC, &temp) == ERROR_OK);
         printf("Instruction = %s\n", disass(temp, PC));
-        assert(single_step() == ERROR_BREAK);
-        printf("Instruction %zu: PC = %u; should be %u\n\n", i, PC, correct[i]);
+        printf("Instruction %zu: PC = %p; should be %p\n\n", i, PC, correct[i]);
         if (correct[i] != PC) {
-            printf("Error in branch tests: PC = %"PRIu32"\n", PC);
+            printf("Error in branch tests: PC = %p\n", PC);
             exit(1);
         }
+        assert(single_step() == ERROR_BREAK);
     }
 
     printf("Branch tests ran OK\n");

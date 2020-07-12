@@ -56,25 +56,27 @@
 
 // Memory access
 
-// Check whether a VM address points to a native word-aligned word
-#define IS_VALID(a)                                     \
-    (native_address_of_range((a), WORD_BYTES) != NULL)
-
-uint8_t *native_address_of_range(bee_UWORD start, bee_UWORD length);
+// Check whether a given word is in the VM memory
+#define IS_VALID(a)                                             \
+    (address_range_valid((uint8_t *)(a), WORD_BYTES))
 
 // Align a VM address
-#define bee_ALIGN(a) ((a + bee_WORD_BYTES - 1) & (-bee_WORD_BYTES))
+#define bee_ALIGN(a)                                            \
+    (((UWORD)(a) + bee_WORD_BYTES - 1) & (-bee_WORD_BYTES))
 
 // Check whether a VM address is aligned
-#define bee_IS_ALIGNED(a)     (((a) & (bee_WORD_BYTES - 1)) == 0)
+#define bee_IS_ALIGNED(a)                                       \
+    ((uint8_t *)(((UWORD)(a) & (bee_WORD_BYTES - 1)) == 0))
 
 // Portable left shift (the behaviour of << with overflow (including on any
 // negative number) is undefined)
-#define bee_LSHIFT(n, p) (((n) & ((UWORD)-1 >> p)) << p)
+#define bee_LSHIFT(n, p)                        \
+    (((n) & ((UWORD)-1 >> p)) << p)
 
 // Portable arithmetic right shift (the behaviour of >> on signed
 // quantities is implementation-defined in C99)
-#define bee_ARSHIFT(n, p) (((n) >> (p)) | (LSHIFT(-((n) < 0), (bee_WORD_BIT - p))))
+#define bee_ARSHIFT(n, p)                                       \
+    (((n) >> (p)) | (LSHIFT(-((n) < 0), (bee_WORD_BIT - p))))
 
 
 #endif

@@ -14,10 +14,10 @@
 static int correct[] = { 0, 0, 0 };
 
 
-static int try(char *file, UWORD address)
+static int try(char *file, WORD *ptr)
 {
     FILE *fp = fopen(file, "r");
-    int ret = load_object(fp, address);
+    int ret = load_object(fp, ptr);
 
     printf("load_object(\"%s\", 0) returns %d", file, ret);
 
@@ -51,16 +51,16 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    WORD *memory = (WORD *)calloc(1024, 1);
-    init_defaults(memory, 256);
+    WORD *_memory = (WORD *)calloc(1024, 1);
+    init_defaults(_memory, 256);
 
     for (size_t i = 0; i < sizeof(files) / sizeof(files[0]); i++) {
         char *s = obj_name(prefix, files[i]);
         WORD c;
-        res = try(s, 0);
+        res = try(s, M0);
         free(s);
         printf(" should be %d\n", correct[i]);
-        printf("Word 0 of memory is %"PRIX32"; should be 1020304\n", (UWORD)(load_word(0, &c), c));
+        printf("Word 0 of memory is %"PRIX32"; should be 1020304\n", (UWORD)(load_word(M0, &c), c));
         if ((load_word(0, &c), c) != 0x1020304) {
             printf("Error in load_object() tests: file %s\n", files[i]);
             exit(1);
@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
             printf("Error in load_object() tests: file %s\n", files[i]);
             exit(1);
         }
-        memset(memory, 0, MEMORY); // Zero memory for next test
+        memset(_memory, 0, MEMORY); // Zero memory for next test
     }
 
     printf("load_object() tests ran OK\n");

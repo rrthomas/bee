@@ -16,6 +16,7 @@
 #include "config.h"
 
 #include <stdio.h>      // for the FILE type
+#include <stdbool.h>
 #include <stdint.h>
 #include <limits.h>
 
@@ -32,8 +33,7 @@ typedef uint64_t bee_DUWORD;
 
 // VM registers
 
-extern bee_UWORD bee_PC;
-extern bee_WORD *bee_M0, *bee_R0, *bee_S0;
+extern bee_WORD *bee_PC, *bee_M0, *bee_R0, *bee_S0;
 extern bee_UWORD bee_RSIZE, bee_SSIZE;
 extern bee_UWORD bee_MEMORY;
 extern bee_UWORD bee_SP, bee_RP, bee_HANDLER_RP;
@@ -58,16 +58,16 @@ int bee_push_stack(bee_WORD *s0, bee_UWORD ssize, bee_UWORD *sp, bee_WORD val);
 
 // Memory access
 
-// Return value is 0 if OK, or error code for invalid or unaligned address
-int bee_load_word(bee_UWORD addr, bee_WORD *value);
-int bee_store_word(bee_UWORD addr, bee_WORD value);
-int bee_load_byte(bee_UWORD addr, uint8_t *value);
-int bee_store_byte(bee_UWORD addr, uint8_t value);
+// Return value is 0 if OK, or error code for invalid address
+int bee_load_word(bee_WORD *ptr, bee_WORD *value);
+int bee_store_word(bee_WORD *ptr, bee_WORD value);
+int bee_load_byte(uint8_t *ptr, uint8_t *value);
+int bee_store_byte(uint8_t *ptr, uint8_t value);
 
 // Interface calls
-uint8_t *native_address_of_range(bee_UWORD addr, bee_UWORD length);
+bool address_range_valid(uint8_t *addr, bee_UWORD length);
 bee_WORD bee_run(void);
-int bee_load_object(FILE *file, bee_UWORD address);
+int bee_load_object(FILE *file, bee_WORD *ptr);
 
 // Default stacks size in words
 #define bee_DEFAULT_STACK_SIZE   4096

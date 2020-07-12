@@ -12,6 +12,7 @@
 
 #include "external_syms.h"
 
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -22,8 +23,7 @@
 
 // VM registers
 
-UWORD PC;
-WORD *M0, *R0, *S0;
+WORD *M0, *R0, *S0, *PC;
 UWORD RSIZE, SSIZE;
 UWORD SP, RP, HANDLER_RP;
 UWORD MEMORY;
@@ -62,21 +62,16 @@ int push_stack(WORD *s0, UWORD ssize, UWORD *sp, WORD val)
 // General memory access
 
 // Return native address of a range of VM memory, or NULL if invalid
-_GL_ATTRIBUTE_PURE uint8_t *native_address_of_range(UWORD start, UWORD length)
+_GL_ATTRIBUTE_PURE bool address_range_valid(uint8_t *start, UWORD length)
 {
-    if (start > MEMORY || MEMORY - start < length)
-        return NULL;
-
-    return ((uint8_t *)M0) + start;
+    return (start >= (uint8_t *)M0 &&
+            start <= (uint8_t *)M0 + MEMORY &&
+            length <= (UWORD)((uint8_t *)M0 + MEMORY - start));
 }
 
-int load_word(UWORD addr, WORD *value)
+int load_word(WORD *ptr, WORD *value)
 {
-    if (!IS_ALIGNED(addr))
-        return ERROR_UNALIGNED_ADDRESS;
-
-    uint8_t *ptr = native_address_of_range(addr, WORD_BYTES);
-    if (ptr == NULL || !IS_ALIGNED((size_t)ptr))
+    if (!address_range_valid((uint8_t *)ptr, WORD_BYTES))
         return ERROR_INVALID_LOAD;
 
 #pragma GCC diagnostic push
@@ -86,22 +81,17 @@ int load_word(UWORD addr, WORD *value)
     return ERROR_OK;
 }
 
-int load_byte(UWORD addr, uint8_t *value)
+int load_byte(uint8_t *ptr, uint8_t *value)
 {
-    uint8_t *ptr = native_address_of_range(addr, 1);
-    if (ptr == NULL)
+    if (!address_range_valid(ptr, 1))
         return ERROR_INVALID_LOAD;
     *value = *ptr;
     return ERROR_OK;
 }
 
-int store_word(UWORD addr, WORD value)
+int store_word(WORD *ptr, WORD value)
 {
-    if (!IS_ALIGNED(addr))
-        return ERROR_UNALIGNED_ADDRESS;
-
-    uint8_t *ptr = native_address_of_range(addr, WORD_BYTES);
-    if (ptr == NULL || !IS_ALIGNED((size_t)ptr))
+    if (!address_range_valid((uint8_t *)ptr, WORD_BYTES))
         return ERROR_INVALID_STORE;
 
 #pragma GCC diagnostic push
@@ -111,10 +101,9 @@ int store_word(UWORD addr, WORD value)
     return ERROR_OK;
 }
 
-int store_byte(UWORD addr, uint8_t value)
+int store_byte(uint8_t *ptr, uint8_t value)
 {
-    uint8_t *ptr = native_address_of_range(addr, 1);
-    if (ptr == NULL)
+    if (!address_range_valid(ptr, 1))
         return ERROR_INVALID_STORE;
     *ptr = value;
     return ERROR_OK;
@@ -131,7 +120,7 @@ int init(WORD *buf, WORD memory_size, WORD stack_size, WORD return_stack_size)
     MEMORY = memory_size * WORD_BYTES;
     memset(M0, 0, MEMORY);
 
-    PC = 0;
+    PC = M0;
     SP = 0;
 
     SSIZE = stack_size;

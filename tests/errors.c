@@ -17,7 +17,7 @@ WORD result[] = {
     ERROR_INVALID_LOAD, ERROR_INVALID_LOAD, ERROR_UNALIGNED_ADDRESS,
     ERROR_INVALID_OPCODE,
 };
-UWORD test[sizeof(result) / sizeof(result[0])];
+WORD *test[sizeof(result) / sizeof(result[0])];
 
 
 int main(void)
@@ -25,7 +25,8 @@ int main(void)
     size_t size = 4096;
     init_defaults((WORD *)calloc(size, WORD_BYTES), size);
 
-    ass_goto(0);
+    ass_goto(M0);
+
     // test 1: DUP with SP > SSIZE
     test[0] = label();
     push(SSIZE + 1);
@@ -47,7 +48,7 @@ int main(void)
     push(MEMORY - WORD_BYTES); ass(O_JUMP);
     // test 6: load from an invalid address
     test[5] = label();
-    push(0xffffffec);
+    push(0);
     ass(O_LOAD);
     // test 7: load from an unaligned address
     test[6] = label();
@@ -65,7 +66,7 @@ int main(void)
         if (i + 1 == 6) {
             // test 6: code to run at end of memory
             // Assemble now because it was overwritten by an earlier test
-            ass_goto(MEMORY - WORD_BYTES);
+            ass_goto(M0 + (MEMORY / WORD_BYTES) - 1);
             ass(O_WORD_BYTES);
         }
 
@@ -73,7 +74,7 @@ int main(void)
         WORD res = run();
 
         if (result[i] != res) {
-             printf("Error in errors tests: test %zu failed; PC = %"PRIu32"\n", i + 1, PC);
+             printf("Error in errors tests: test %zu failed; PC = %p\n", i + 1, PC);
              printf("Return code is %d (%s); should be %d (%s)\n",
                     res, error_to_msg(res), result[i], error_to_msg(result[i]));
              error++;

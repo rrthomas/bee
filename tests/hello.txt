@@ -1,5 +1,5 @@
 // 0
-PUSH 24
+PUSHREL 24
 
 // 4
 PUSH 13
@@ -28,4 +28,4 @@ BLITERAL $64
 // 36
 BLITERAL $21
 
-SAVE hello.obj 0 40
+SAVE hello.obj +40
