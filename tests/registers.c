@@ -14,17 +14,33 @@
 
 int main(void)
 {
-    const char *correct[2];
+    const char *correct[64];
     unsigned steps = 0;
 
     size_t size = 1024;
     init_defaults((WORD *)calloc(size, 1), size / WORD_BYTES);
 
     ass_goto(M0);
+    ass(O_GET_M0);
+    correct[steps++] = xasprintf("%"PRIi32, (WORD)M0);
+    ass(O_POP);
+    correct[steps++] = xasprintf("%s", "");
     ass(O_GET_MEMORY);
     correct[steps++] = xasprintf("%"PRIi32, (WORD)MEMORY);
-    ass(O_GET_M0);
-    correct[steps++] = xasprintf("%"PRIi32" %"PRIi32, (WORD)MEMORY, (WORD)M0);
+    ass(O_POP);
+    correct[steps++] = xasprintf("%s", "");
+    ass(O_GET_RSIZE);
+    correct[steps++] = xasprintf("%"PRIi32, (WORD)RSIZE);
+    ass(O_POP);
+    correct[steps++] = xasprintf("%s", "");
+    ass(O_GET_SSIZE);
+    correct[steps++] = xasprintf("%"PRIi32, (WORD)SSIZE);
+    ass(O_POP);
+    correct[steps++] = xasprintf("%s", "");
+    ass(O_GET_HANDLER_RP);
+    correct[steps++] = xasprintf("%"PRIi32, (WORD)HANDLER_RP);
+    ass(O_POP);
+    correct[steps++] = xasprintf("%s", "");
 
     for (unsigned i = 0; i < steps; i++) {
         WORD temp = 0;

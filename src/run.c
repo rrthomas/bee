@@ -410,6 +410,27 @@ WORD run(void)
                     PC --;
                     return ERROR_BREAK;
 
+                case O_WORD_BYTES:
+                    PUSH(WORD_BYTES);
+                    break;
+                case O_GET_M0:
+                    PUSH((UWORD)M0);
+                    break;
+                case O_GET_MEMORY:
+                    PUSH(MEMORY);
+                    break;
+                case O_GET_RSIZE:
+                    PUSH(RSIZE);
+                    break;
+                case O_GET_RP:
+                    PUSH(RP);
+                    break;
+                case O_SET_RP:
+                    POP((WORD *)&RP);
+                    break;
+                case O_GET_SSIZE:
+                    PUSH(SSIZE);
+                    break;
                 case O_GET_SP:
                     {
                         WORD value = SP;
@@ -423,20 +444,8 @@ WORD run(void)
                         SP = value;
                     }
                     break;
-                case O_GET_RP:
-                    PUSH(RP);
-                    break;
-                case O_SET_RP:
-                    POP((WORD *)&RP);
-                    break;
-                case O_GET_M0:
-                    PUSH((UWORD)M0);
-                    break;
-                case O_GET_MEMORY:
-                    PUSH(MEMORY);
-                    break;
-                case O_WORD_BYTES:
-                    PUSH(WORD_BYTES);
+                case O_GET_HANDLER_RP:
+                    PUSH(HANDLER_RP);
                     break;
 
                 default:
@@ -450,5 +459,5 @@ WORD run(void)
             }
             break;
         }
-    };
+    }
 }

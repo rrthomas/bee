@@ -61,13 +61,16 @@ enum {
     O_THROW,
     O_BREAK,
 
-    O_GET_SP = 0x40,
-    O_SET_SP,
-    O_GET_RP,
-    O_SET_RP,
+    O_WORD_BYTES = 0x40,
     O_GET_M0,
     O_GET_MEMORY,
-    O_WORD_BYTES,
+    O_GET_RSIZE,
+    O_GET_RP,
+    O_SET_RP,
+    O_GET_SSIZE,
+    O_GET_SP,
+    O_SET_SP,
+    O_GET_HANDLER_RP,
 
     O_UNDEFINED = 0x7f,
 
