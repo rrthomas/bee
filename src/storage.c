@@ -111,8 +111,7 @@ int store_byte(uint8_t *ptr, uint8_t value)
 }
 
 
-// Initialise registers that are not fixed
-
+// Initialise VM state.
 int init(WORD *buf, WORD memory_size, WORD stack_size, WORD return_stack_size)
 {
     if (buf == NULL)
