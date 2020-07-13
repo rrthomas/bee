@@ -18,6 +18,7 @@
 
 #include "bee.h"
 #include "bee_aux.h"
+
 #include "private.h"
 
 
@@ -33,16 +34,16 @@
 
 _GL_ATTRIBUTE_CONST WORD *stack_position(WORD *s0, UWORD sp, UWORD pos)
 {
-    if (pos >= sp)
+    if (unlikely(pos >= sp))
         return NULL;
     return &s0[sp - pos - 1];
 }
 
 int pop_stack(WORD *s0, UWORD ssize, UWORD *sp, WORD *val_ptr)
 {
-    if (*sp == 0)
+    if (unlikely(*sp == 0))
         return ERROR_STACK_UNDERFLOW;
-    else if (*sp > ssize)
+    else if (unlikely(*sp > ssize))
         return ERROR_STACK_OVERFLOW;
     (*sp)--;
     *val_ptr = s0[*sp];
@@ -64,9 +65,9 @@ int push_stack(WORD *s0, UWORD ssize, UWORD *sp, WORD val)
 // Return native address of a range of VM memory, or NULL if invalid
 _GL_ATTRIBUTE_PURE bool address_range_valid(uint8_t *start, UWORD length)
 {
-    return (start >= (uint8_t *)M0 &&
-            start <= (uint8_t *)M0 + MSIZE &&
-            length <= (UWORD)((uint8_t *)M0 + MSIZE - start));
+    return likely(start >= (uint8_t *)M0 &&
+                  start <= (uint8_t *)M0 + MSIZE &&
+                  length <= (UWORD)((uint8_t *)M0 + MSIZE - start));
 }
 
 int load_word(WORD *ptr, WORD *value)
