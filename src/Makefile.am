@@ -21,14 +21,12 @@ bee_LDADD = libbee.la $(top_builddir)/lib/libgnu.la
 bee_SOURCES = main.c cmdline.h tbl_registers.h $(include_HEADERS)
 include_HEADERS = bee.h bee_aux.h bee_debug.h bee_opcodes.h
 
-# Depend on bee$(EXEEXT) rather than explicitly make-ing it, as otherwise
-# we break parallel builds, as libbee.la can be built twice in parallel,
-# which can fail. Set distcleancheck_listfiles below to fix distcheck.
+# The man page depends on the binary because it is built by running the binary.
 bee.1: bee$(EXEEXT)
 ## Exit gracefully if bee.1 is not writeable, such as during distcheck!
 	$(AM_V_GEN)if ( touch $@.w && rm -f $@.w; ) >/dev/null 2>&1; then \
 	  $(top_srcdir)/build-aux/missing --run $(HELP2MAN) --no-info \
-		--name="Forth virtual machine" \
+		--name="Simple virtual machine" \
 		--output=$@ ./bee$(EXEEXT); \
 	fi
 
@@ -40,8 +38,3 @@ loc:
 EXTRA_DIST = external_syms.h
 
 DISTCLEANFILES = bee.1 $(include_HEADERS)
-# Ignore built files that are part of the distribution (specifically,
-# bee.1)
-distcleancheck_listfiles = \
-       find . -type f -exec sh -c 'test -f $(srcdir)/$$1 || echo $$1' \
-	    sh '{}' ';'
