@@ -20,11 +20,11 @@ int main(void)
     init_defaults((WORD *)malloc(4096), 1024);
 
     ass_goto(M0);
-    push(8);
+    pushi(8);
     correct[steps++] = xasprintf("%d", 8);
-    push(5);
+    pushi(5);
     correct[steps++] = xasprintf("%d %d", 8, 5);
-    pushrel(M0 + (0x200 / WORD_BYTES));
+    pushreli(M0 + (0x200 / WORD_BYTES));
     correct[steps++] = xasprintf("%d %d %"PRIi32, 8, 5, m0 + 0x200);
     ass(O_CATCH);
     WORD *ret_addr = label();
@@ -37,7 +37,7 @@ int main(void)
     correct[steps++] = xasprintf("%d %d %d", 1, 3, 0);
     ass_goto(ret_addr);
 
-    pushrel(M0 + (0x400 / WORD_BYTES));
+    pushreli(M0 + (0x400 / WORD_BYTES));
     correct[steps++] = xasprintf("%d %d %d %"PRIi32, 1, 3, 0, m0 + 0x400);
     ass(O_CATCH);
     correct[steps++] = xasprintf("%d %d %d", 1, 3, 0);
@@ -56,20 +56,20 @@ int main(void)
     correct[steps++] = xasprintf("%d", 1);
     ass(O_POP);
     correct[steps++] = xasprintf("%s", "");
-    pushrel(M0 + (0x600 / WORD_BYTES));
+    pushreli(M0 + (0x600 / WORD_BYTES));
     correct[steps++] = xasprintf("%"PRIi32, m0 + 0x600);
     ass(O_CATCH);
     correct[steps++] = xasprintf("%s", "");
     ret_addr = label();
     ass_goto(M0 + (0x600 / WORD_BYTES));
 
-    push(ERROR_INVALID_OPCODE);
+    pushi(ERROR_INVALID_OPCODE);
     correct[steps++] = xasprintf("%d", -1);
     ass(O_THROW);
     correct[steps++] = xasprintf("%d", -1);
     ass_goto(ret_addr);
 
-    push(ERROR_OK);
+    pushi(ERROR_OK);
     correct[steps++] = xasprintf("%d %d", -1, 0);
     ass(O_THROW);
     correct[steps++] = xasprintf("%d", -1);

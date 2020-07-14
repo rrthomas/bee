@@ -19,7 +19,7 @@ int main(void)
     init_defaults((WORD *)calloc(1024, 1), 256);
 
     ass_goto(M0);
-    push(ERROR_BREAK); push(12345678);
+    pushi(ERROR_BREAK); pushi(12345678);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
         WORD temp = 0;

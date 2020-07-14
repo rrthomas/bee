@@ -1,4 +1,4 @@
-// The extra instructions.
+// The traps.
 //
 // (c) Reuben Thomas 1994-2020
 //
@@ -27,6 +27,8 @@
 #include "bee_aux.h"
 #include "private.h"
 #include "bee_opcodes.h"
+
+#include "traps.h"
 
 
 // Assumption for file functions
@@ -97,16 +99,16 @@ int register_args(int argc, const char *argv[])
 }
 
 
-WORD extra_instruction(WORD opcode)
+WORD trap_libc(UWORD function)
 {
     WORD temp = 0;
 
     int error = ERROR_OK;
-    switch (opcode) {
-    case OX_ARGC: // ( -- u )
+    switch (function) {
+    case TRAP_LIBC_ARGC: // ( -- u )
         PUSH(main_argc);
         break;
-    case OX_ARGLEN: // ( u1 -- u2 )
+    case TRAP_LIBC_ARGLEN: // ( u1 -- u2 )
         {
             UWORD narg;
             POP((WORD *)&narg);
@@ -116,7 +118,7 @@ WORD extra_instruction(WORD opcode)
                 PUSH(main_argv_len[narg]);
         }
         break;
-    case OX_ARGCOPY: // ( u1 addr -- )
+    case TRAP_LIBC_ARGCOPY: // ( u1 addr -- )
         {
             char *addr;
             POP((WORD *)&addr);
@@ -131,16 +133,16 @@ WORD extra_instruction(WORD opcode)
             }
         }
         break;
-    case OX_STDIN:
+    case TRAP_LIBC_STDIN:
         PUSH((WORD)(STDIN_FILENO));
         break;
-    case OX_STDOUT:
+    case TRAP_LIBC_STDOUT:
         PUSH((WORD)(STDOUT_FILENO));
         break;
-    case OX_STDERR:
+    case TRAP_LIBC_STDERR:
         PUSH((WORD)(STDERR_FILENO));
         break;
-    case OX_OPEN_FILE:
+    case TRAP_LIBC_OPEN_FILE:
         {
             bool binary = false;
             POP(&temp);
@@ -157,14 +159,14 @@ WORD extra_instruction(WORD opcode)
             PUSH(fd < 0 || (binary && set_binary_mode(fd, O_BINARY) < 0) ? -1 : 0);
         }
         break;
-    case OX_CLOSE_FILE:
+    case TRAP_LIBC_CLOSE_FILE:
         {
             POP(&temp);
             int fd = temp;
             PUSH((WORD)close(fd));
         }
         break;
-    case OX_READ_FILE:
+    case TRAP_LIBC_READ_FILE:
         {
             POP(&temp);
             int fd = temp;
@@ -179,7 +181,7 @@ WORD extra_instruction(WORD opcode)
             }
         }
         break;
-    case OX_WRITE_FILE:
+    case TRAP_LIBC_WRITE_FILE:
         {
             POP(&temp);
             int fd = temp;
@@ -193,7 +195,7 @@ WORD extra_instruction(WORD opcode)
             }
         }
         break;
-    case OX_FILE_POSITION:
+    case TRAP_LIBC_FILE_POSITION:
         {
             POP(&temp);
             int fd = temp;
@@ -202,7 +204,7 @@ WORD extra_instruction(WORD opcode)
             PUSH(res >= 0 ? 0 : -1);
         }
         break;
-    case OX_REPOSITION_FILE:
+    case TRAP_LIBC_REPOSITION_FILE:
         {
             POP(&temp);
             int fd = temp;
@@ -214,7 +216,7 @@ WORD extra_instruction(WORD opcode)
             PUSH(res >= 0 ? 0 : -1);
         }
         break;
-    case OX_FLUSH_FILE:
+    case TRAP_LIBC_FLUSH_FILE:
         {
             POP(&temp);
             int fd = temp;
@@ -222,7 +224,7 @@ WORD extra_instruction(WORD opcode)
             PUSH(res);
         }
         break;
-    case OX_RENAME_FILE:
+    case TRAP_LIBC_RENAME_FILE:
         {
             UWORD len1, len2;
             char *str1, *str2;
@@ -240,7 +242,7 @@ WORD extra_instruction(WORD opcode)
             PUSH(error);
         }
         break;
-    case OX_DELETE_FILE:
+    case TRAP_LIBC_DELETE_FILE:
         {
             UWORD len;
             POP((WORD *)&len);
@@ -252,7 +254,7 @@ WORD extra_instruction(WORD opcode)
             PUSH(error);
         }
         break;
-    case OX_FILE_SIZE:
+    case TRAP_LIBC_FILE_SIZE:
         {
             struct stat st;
             POP(&temp);
@@ -262,7 +264,7 @@ WORD extra_instruction(WORD opcode)
             PUSH(res);
         }
         break;
-    case OX_RESIZE_FILE:
+    case TRAP_LIBC_RESIZE_FILE:
         {
             POP(&temp);
             int fd = temp;
@@ -274,7 +276,7 @@ WORD extra_instruction(WORD opcode)
             PUSH(res);
         }
         break;
-    case OX_FILE_STATUS:
+    case TRAP_LIBC_FILE_STATUS:
         {
             struct stat st;
             POP(&temp);
@@ -283,6 +285,29 @@ WORD extra_instruction(WORD opcode)
             PUSH(st.st_mode);
             PUSH(res);
         }
+        break;
+    default:
+        error = ERROR_INVALID_FUNCTION;
+        break;
+    }
+
+ error:
+    return error;
+}
+
+WORD trap(WORD code)
+{
+    int error = ERROR_OK;
+    switch (code) {
+    case TRAP_LIBC:
+        {
+            UWORD function = 0;
+            POP((WORD *)&function);
+            return trap_libc(function);
+        }
+        break;
+    default:
+        return ERROR_INVALID_LIBRARY;
         break;
     }
 

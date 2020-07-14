@@ -1,4 +1,4 @@
-        ## Define extra instruction codes
+        ## Define trap codes
         .set STDOUT_FILENO, 0x84
         .set WRITE_FILE, 0x89
 

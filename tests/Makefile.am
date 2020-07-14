@@ -17,7 +17,7 @@ LDADD = $(top_builddir)/src/libbee.la
 check_PROGRAMS = $(TESTS) load_object
 
 TESTS = arithmetic catch comparison constants init jump logic memory \
-	registers stack single_step run errors extra_instructions
+	registers stack single_step run errors traps
 TESTS_ENVIRONMENT = \
 	export LIBTOOL=$(top_builddir)/libtool;
 

@@ -46,6 +46,8 @@ enum {
     bee_ERROR_INVALID_LOAD = -4,
     bee_ERROR_INVALID_STORE = -5,
     bee_ERROR_UNALIGNED_ADDRESS = -6,
+    bee_ERROR_INVALID_LIBRARY = -16,
+    bee_ERROR_INVALID_FUNCTION = -17,
     bee_ERROR_BREAK = -256,
 };
 

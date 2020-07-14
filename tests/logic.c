@@ -42,17 +42,17 @@ int main(void)
 
     ass_goto(M0);
     ass(O_LSHIFT);
-    push(1); ass(O_SWAP);
-    push(0); ass(O_SWAP);
+    pushi(1); ass(O_SWAP);
+    pushi(0); ass(O_SWAP);
     ass(O_RSHIFT);
     ass(O_OR);
-    push(1);
+    pushi(1);
     ass(O_LSHIFT);
-    push(1);
+    pushi(1);
     ass(O_RSHIFT);
     ass(O_NOT);
-    push(1);
-    push(-1);
+    pushi(1);
+    pushi(-1);
     ass(O_XOR);
     ass(O_AND);
 

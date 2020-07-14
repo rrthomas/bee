@@ -25,12 +25,12 @@ int main(void)
 
     ass_goto(M0);
     ass(O_DUP);
-    push(1);
+    pushi(1);
     ass(O_DUP);
     ass(O_POP);
-    push(0);
+    pushi(0);
     ass(O_SWAP);
-    push(1);
+    pushi(1);
     ass(O_SWAP);
     ass(O_PUSHR);
     ass(O_DUPR);

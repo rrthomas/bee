@@ -23,7 +23,7 @@ int main(void)
     ass_goto(M0);
 
     int ret_code = 37;
-    push(ret_code);
+    pushi(ret_code);
     ass(O_THROW);
     WORD *final_PC = label();
 

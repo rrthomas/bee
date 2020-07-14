@@ -9,7 +9,6 @@
 /comparison
 /constants
 /errors
-/extra_instructions
 /init
 /jump
 /link
@@ -20,6 +19,7 @@
 /run
 /single_step
 /stack
+/traps
 /_Noreturn.h
 /arg-nonnull.h
 /c++defs.h

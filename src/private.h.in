@@ -37,8 +37,9 @@
     CHECK_ADDRESS(a, IS_ALIGNED(a), ERROR_UNALIGNED_ADDRESS)
 
 
-// Extra instructions
-WORD extra_instruction(WORD opcode);
+// Traps
+WORD trap(WORD code);
+WORD trap_libc(UWORD function);
 
 
 #endif

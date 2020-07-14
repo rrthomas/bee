@@ -29,30 +29,30 @@ int main(void)
 
     // test 1: DUP with SP > SSIZE
     test[0] = label();
-    push(SSIZE + 1);
+    pushi(SSIZE + 1);
     ass(O_SET_SP); ass(O_DUP);
     // test 2: set SP to SSIZE + 1, then try to pop (PUSHR) the stack
     test[1] = label();
-    push(SSIZE + 1);
+    pushi(SSIZE + 1);
     ass(O_SET_SP); ass(O_PUSHR);
     // test 3: test SP can be SSIZE
     test[2] = label();
-    push(SSIZE);
+    pushi(SSIZE);
     ass(O_SET_SP); ass(O_PUSHR);
-    push(0); ass(O_THROW);
+    pushi(0); ass(O_THROW);
     // test 4: test CALL of unaligned address
     test[3] = label();
-    push(1); ass(O_CALL);
+    pushi(1); ass(O_CALL);
     // test 5: allow execution to run off the end of memory
     test[4] = label();
-    push(MSIZE - WORD_BYTES); ass(O_JUMP);
+    pushi(MSIZE - WORD_BYTES); ass(O_JUMP);
     // test 6: load from an invalid address
     test[5] = label();
-    push(0);
+    pushi(0);
     ass(O_LOAD);
     // test 7: load from an unaligned address
     test[6] = label();
-    push(1); ass(O_LOAD);
+    pushi(1); ass(O_LOAD);
     // test 8: test invalid opcode
     test[7] = label();
     ass(O_UNDEFINED);

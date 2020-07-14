@@ -31,17 +31,17 @@ int main(void)
     init_defaults((WORD *)calloc(1024, 1), 256);
 
     ass_goto(M0);
-    push(1); ass(O_NEGATE);
+    pushi(1); ass(O_NEGATE);
     ass(O_WORD_BYTES);
-    push(-WORD_BYTES);
-    push(0); ass(O_SWAP);
-    push(1); ass(O_SWAP);
+    pushi(-WORD_BYTES);
+    pushi(0); ass(O_SWAP);
+    pushi(1); ass(O_SWAP);
     ass(O_ADD); ass(O_ADD);
     ass(O_WORD_BYTES);
     ass(O_MUL);
-    push(3);
+    pushi(3);
     ass(O_DIVMOD); ass(O_POP);
-    push(-2);
+    pushi(-2);
     ass(O_UDIVMOD);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {

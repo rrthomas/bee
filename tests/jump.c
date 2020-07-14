@@ -24,39 +24,35 @@ int main(void)
 
     ass_goto(M0);
     correct[steps++] = label();
-    pushrel(M0 + 48 / WORD_BYTES);
-    correct[steps++] = label();
-    ass(O_JUMP);
+    jumpi(M0 + 48 / WORD_BYTES);
 
     ass_goto(M0 + 48 / WORD_BYTES);
     correct[steps++] = label();
-    pushrel(M0 + 10000 / WORD_BYTES);
+    pushreli(M0 + 10000 / WORD_BYTES);
     correct[steps++] = label();
     ass(O_JUMP);
 
     ass_goto(M0 + 10000 / WORD_BYTES);
     correct[steps++] = label();
-    push(1);
+    pushi(1);
     correct[steps++] = label();
-    push(0);
-    correct[steps++] = label();
-    ass(O_JUMPZ);
-    correct[steps++] = label();
-    push(0);
-    correct[steps++] = label();
-    pushrel(M0 + 11000 / WORD_BYTES);
+    pushi(0);
     correct[steps++] = label();
     ass(O_JUMPZ);
+    correct[steps++] = label();
+    pushi(0);
+    correct[steps++] = label();
+    jumpzi(M0 + 11000 / WORD_BYTES);
 
     ass_goto(M0 + 11000 / WORD_BYTES);
     correct[steps++] = label();
-    pushrel(M0 + 64 / WORD_BYTES);
+    pushreli(M0 + 64 / WORD_BYTES);
     correct[steps++] = label();
     ass(O_CALL);
 
     ass_goto(M0 + 64 / WORD_BYTES);
     correct[steps++] = label();
-    call(M0 + 400 / WORD_BYTES);
+    calli(M0 + 400 / WORD_BYTES);
 
     ass_goto(M0 + 400 / WORD_BYTES);
     correct[steps++] = label();

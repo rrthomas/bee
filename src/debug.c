@@ -38,9 +38,14 @@ void word(WORD value)
     current += WORD_BYTES;
 }
 
-void ass(UWORD instr)
+void ass(UWORD inst)
 {
-    word(instr << 2 | OP_INSTRUCTION);
+    word((((inst << 2) | OP2_INSN) << 2) | OP_LEVEL2);
+}
+
+void ass_trap(UWORD code)
+{
+    word((((code << 2) | OP2_TRAP) << 2) | OP_LEVEL2);
 }
 
 void ass_byte(uint8_t b)
@@ -48,27 +53,44 @@ void ass_byte(uint8_t b)
     store_byte(current++, b);
 }
 
-void push(WORD literal)
+void pushi(WORD literal)
 {
     WORD temp = LSHIFT(literal, 2);
-    temp = ARSHIFT(temp, 2);
-    assert(temp == literal);
-    word(LSHIFT(literal, 2) | OP_PUSH);
+    assert(ARSHIFT(temp, 2) == (UWORD)literal);
+    word(temp | OP_PUSHI);
 }
 
 static void addr_op(int op, WORD *addr)
 {
-    word(((uint8_t *)addr - current) | op);
+    word(LSHIFT(addr - (WORD *)current, 2) | op);
 }
 
-void call(WORD *addr)
+void calli(WORD *addr)
 {
-    addr_op(OP_CALL, addr);
+    addr_op(OP_CALLI, addr);
 }
 
-void pushrel(WORD *addr)
+void pushreli(WORD *addr)
 {
-    addr_op(OP_PUSHREL, addr);
+    addr_op(OP_PUSHRELI, addr);
+}
+
+static void addr_op2(int op, WORD *addr)
+{
+    WORD offset = LSHIFT(addr - (WORD *)current, 2);
+    WORD temp = LSHIFT(offset, 2);
+    assert(temp >> 2 == offset);
+    word(LSHIFT(offset | op, 2) | OP_LEVEL2);
+}
+
+void jumpi(WORD *addr)
+{
+    addr_op2(OP2_JUMPI, addr);
+}
+
+void jumpzi(WORD *addr)
+{
+    addr_op2(OP2_JUMPZI, addr);
 }
 
 void ass_goto(WORD *addr)
@@ -81,7 +103,7 @@ _GL_ATTRIBUTE_PURE WORD *label(void)
     return (WORD *)current;
 }
 
-static const char *mnemonic[UINT8_MAX + 1] = {
+static const char *mnemonic[O_UNDEFINED + 1] = {
 // 0x00
     "NOP", "NOT", "AND", "OR", "XOR", "LSHIFT", "RSHIFT", "ARSHIFT",
     "POP", "DUP", "SET", "SWAP", "JUMP", "JUMPZ", "CALL", "RET",
@@ -89,64 +111,60 @@ static const char *mnemonic[UINT8_MAX + 1] = {
     "LOAD", "STORE", "LOAD1", "STORE1", "LOAD2", "STORE2", "LOAD4", "STORE4",
     "NEGATE", "ADD", "MUL", "DIVMOD", "UDIVMOD", "EQ", "LT", "ULT",
 // 0x20
-    "PUSHR", "POPR", "DUPR", "CATCH", "THROW", NULL, NULL, NULL,
+    "PUSHR", "POPR", "DUPR", "CATCH", "THROW", "BREAK", "WORD_BYTES", "GET_M0",
+    "GET_MSIZE", "GET_RSIZE", "GET_RP", "SET_RP", "GET_SSIZE", "GET_SP", "SET_SP", "GET_HANDLER_RP",
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-// 0x40
-    "WORD_BYTES", "GET_M0", "GET_MSIZE", "GET_RSIZE", "GET_RP", "SET_RP", "GET_SSIZE", "GET_SP",
-    "SET_SP", "GET_HANDLER_RP", NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-// 0x80
-    "ARGC", "ARGLEN", "ARGCOPY", "STDIN_FILENO", "STDOUT_FILENO", "STDERR_FILENO", "OPEN-FILE", "CLOSE-FILE",
-    "READ-FILE", "WRITE-FILE", "FILE-POSITION", "REPOSITION-FILE", "FLUSH-FILE", "RENAME-FILE", "DELETE-FILE", "FILE-SIZE",
-    "RESIZE-FILE", "FILE-STATUS", NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, };
+};
 
-_GL_ATTRIBUTE_CONST const char *disass(WORD opcode, WORD *addr)
+_GL_ATTRIBUTE_CONST const char *disass(WORD opcode, WORD *pc)
 {
     static char *text = NULL;
 
     free(text);
     switch (opcode & OP_MASK) {
-    case OP_CALL:
+    case OP_CALLI:
         {
-            WORD *dest = addr + (opcode >> 2);
-            text = xasprintf("CALL $%"PRIX32, (UWORD)dest);
+            WORD *addr = pc + ARSHIFT(opcode, 2);
+            text = xasprintf("CALLI $%"PRIX32, (UWORD)addr);
         }
         break;
-    case OP_PUSH:
+    case OP_PUSHI:
         {
             opcode = ARSHIFT(opcode, 2);
-            text = xasprintf("PUSH %"PRIi32"=$%"PRIX32, opcode, (UWORD)opcode);
+            text = xasprintf("PUSHI %"PRIi32"=$%"PRIX32, opcode, (UWORD)opcode);
         }
         break;
-    case OP_PUSHREL:
-        text = xasprintf("PUSHREL $%"PRIX32, (UWORD)(addr + (opcode & ~OP_MASK)));
+    case OP_PUSHRELI:
+        text = xasprintf("PUSHRELI $%"PRIX32, (UWORD)(pc + (opcode & ~OP_MASK)));
         break;
-    case OP_INSTRUCTION:
-        opcode >>= 2;
-        if ((UWORD)opcode <= sizeof(mnemonic) / sizeof(mnemonic[0]) &&
-            mnemonic[(UWORD)opcode] != NULL)
-            text = xasprintf("%s", mnemonic[(UWORD)opcode]);
-        else
-            text = strdup("(invalid instruction!)");
-        break;
+    default:
+        opcode = ARSHIFT(opcode, 2);
+        switch (opcode & OP2_MASK) {
+        case OP2_JUMPI:
+            {
+                WORD *addr = pc + ARSHIFT(opcode, 2);
+                text = xasprintf("JUMPI $%"PRIX32, (UWORD)addr);
+            }
+            break;
+        case OP2_JUMPZI:
+            {
+                WORD *addr = pc + ARSHIFT(opcode, 2);
+                text = xasprintf("JUMPZI $%"PRIX32, (UWORD)addr);
+            }
+            break;
+        case OP2_INSN:
+            opcode >>= 2;
+            if ((UWORD)opcode <= sizeof(mnemonic) / sizeof(mnemonic[0]) &&
+                mnemonic[(UWORD)opcode] != NULL)
+                text = xasprintf("%s", mnemonic[(UWORD)opcode]);
+            else
+                text = strdup("(invalid instruction!)");
+            break;
+        case OP2_TRAP:
+            text = xasprintf("TRAP $%"PRIX32, (UWORD)opcode >> 2);
+            break;
+        }
     }
     return text;
 }
@@ -247,98 +265,89 @@ _GL_ATTRIBUTE_PURE const char *error_to_msg(int code)
 static WORD *compute_next_PC(WORD inst)
 {
     switch (inst & OP_MASK) {
-    case OP_CALL:
-        return (WORD *)((uint8_t *)PC + inst);
-    case OP_PUSH:
-    case OP_PUSHREL:
+    case OP_CALLI:
+        return PC + ARSHIFT(inst, 2);
+    case OP_PUSHI:
+    case OP_PUSHRELI:
         return PC + 1;
-    case OP_INSTRUCTION:
-        switch (inst >> 2) {
-        case O_NOP:
-        case O_NOT:
-        case O_AND:
-        case O_OR:
-        case O_XOR:
-        case O_LSHIFT:
-        case O_RSHIFT:
-        case O_ARSHIFT:
-        case O_POP:
-        case O_DUP:
-        case O_SET:
-        case O_SWAP:
-        case O_LOAD:
-        case O_STORE:
-        case O_LOAD1:
-        case O_STORE1:
-        case O_LOAD2:
-        case O_STORE2:
-        case O_LOAD4:
-        case O_STORE4:
-        case O_NEGATE:
-        case O_ADD:
-        case O_MUL:
-        case O_DIVMOD:
-        case O_UDIVMOD:
-        case O_EQ:
-        case O_LT:
-        case O_ULT:
-        case O_PUSHR:
-        case O_POPR:
-        case O_DUPR:
-
-        case O_WORD_BYTES:
-        case O_GET_M0:
-        case O_GET_MSIZE:
-        case O_GET_RSIZE:
-        case O_GET_RP:
-        case O_SET_RP:
-        case O_GET_SSIZE:
-        case O_GET_SP:
-        case O_SET_SP:
-        case O_GET_HANDLER_RP:
-
-        case OX_ARGC:
-        case OX_ARGLEN:
-        case OX_ARGCOPY:
-        case OX_STDIN:
-        case OX_STDOUT:
-        case OX_STDERR:
-        case OX_OPEN_FILE:
-        case OX_CLOSE_FILE:
-        case OX_READ_FILE:
-        case OX_WRITE_FILE:
-        case OX_FILE_POSITION:
-        case OX_REPOSITION_FILE:
-        case OX_FLUSH_FILE:
-        case OX_RENAME_FILE:
-        case OX_DELETE_FILE:
-        case OX_FILE_SIZE:
-        case OX_RESIZE_FILE:
-        case OX_FILE_STATUS:
+    case OP_LEVEL2:
+        inst = ARSHIFT(inst, 2);
+        switch (inst & OP2_MASK) {
+        case OP2_JUMPI:
+        case OP2_JUMPZI:
+            return PC + ARSHIFT(inst, 2);
+            break;
+        case OP2_INSN:
+            switch (inst >> 2) {
+            case O_NOP:
+            case O_NOT:
+            case O_AND:
+            case O_OR:
+            case O_XOR:
+            case O_LSHIFT:
+            case O_RSHIFT:
+            case O_ARSHIFT:
+            case O_POP:
+            case O_DUP:
+            case O_SET:
+            case O_SWAP:
+            case O_LOAD:
+            case O_STORE:
+            case O_LOAD1:
+            case O_STORE1:
+            case O_LOAD2:
+            case O_STORE2:
+            case O_LOAD4:
+            case O_STORE4:
+            case O_NEGATE:
+            case O_ADD:
+            case O_MUL:
+            case O_DIVMOD:
+            case O_UDIVMOD:
+            case O_EQ:
+            case O_LT:
+            case O_ULT:
+            case O_PUSHR:
+            case O_POPR:
+            case O_DUPR:
+            case O_WORD_BYTES:
+            case O_GET_M0:
+            case O_GET_MSIZE:
+            case O_GET_RSIZE:
+            case O_GET_RP:
+            case O_SET_RP:
+            case O_GET_SSIZE:
+            case O_GET_SP:
+            case O_SET_SP:
+            case O_GET_HANDLER_RP:
+                return PC + 1;
+            case O_JUMP:
+            case O_CALL:
+            case O_CATCH:
+                if (SP < 1)
+                    return NULL;
+                return (WORD *)(S0[SP - 1]);
+            case O_JUMPZ:
+                if (SP < 2)
+                    return NULL;
+                return S0[SP - 2] == 0 ? (WORD *)S0[SP - 1] : PC + 1;
+            case O_RET:
+                if (RP < 1)
+                    return NULL;
+                return (WORD *)(R0[RP - 1] & ~1);
+            case O_THROW:
+                if (HANDLER_RP == (UWORD)-1 || HANDLER_RP < 2)
+                    return NULL;
+                return (WORD *)(R0[HANDLER_RP - 1] & ~1);
+            case O_BREAK:
+            default:
+                return NULL;
+            }
+            break;
+        case OP2_TRAP:
             return PC + 1;
-        case O_JUMP:
-        case O_CALL:
-        case O_CATCH:
-            if (SP < 1)
-                return NULL;
-            return (WORD *)(S0[SP - 1]);
-        case O_JUMPZ:
-            if (SP < 2)
-                return NULL;
-            return S0[SP - 2] == 0 ? (WORD *)S0[SP - 1] : PC + 1;
-        case O_RET:
-            if (RP < 1)
-                return NULL;
-            return (WORD *)(R0[RP - 1] & ~1);
-        case O_THROW:
-            if (HANDLER_RP == (UWORD)-1 || HANDLER_RP < 2)
-                return NULL;
-            return (WORD *)(R0[HANDLER_RP - 1] & ~1);
-        case O_BREAK:
-        default:
-            return NULL;
+            break;
         }
-        break;
     default:
         return NULL;
     }
@@ -354,7 +363,7 @@ WORD single_step(void)
     int next_PC_valid = IS_ALIGNED(next_PC) && IS_VALID(next_PC);
     if (next_PC_valid) {
         assert(load_word(next_PC, &next_inst) == ERROR_OK);
-        assert(store_word(next_PC, (O_BREAK << 2) | OP_INSTRUCTION) == ERROR_OK);
+        assert(store_word(next_PC, (((O_BREAK << 2) | OP2_INSN) << 2) | OP_LEVEL2) == ERROR_OK);
     }
     UWORD save_HANDLER_RP = HANDLER_RP;
     HANDLER_RP = -1;
@@ -367,7 +376,7 @@ WORD single_step(void)
     // Restore HANDLER_RP if it wasn't set by CATCH
     if (HANDLER_RP == (UWORD)-1)
         HANDLER_RP = save_HANDLER_RP;
-    if ((error != ERROR_BREAK || inst == ((O_THROW << 2) | OP_INSTRUCTION)) &&
+    if ((error != ERROR_BREAK || inst == ((((O_THROW << 2) | OP2_INSN) << 2) | OP_LEVEL2)) &&
         HANDLER_RP != (UWORD)-1) {
         // If an error occurred or THROW was executed, and there's a saved
         // error handler, execute it.

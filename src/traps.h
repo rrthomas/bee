@@ -1,0 +1,34 @@
+// The trap opcodes.
+//
+// (c) Reuben Thomas 1994-2020
+//
+// The package is distributed under the GNU Public License version 3, or,
+// at your option, any later version.
+//
+// THIS PROGRAM IS PROVIDED AS IS, WITH NO WARRANTY. USE IS AT THE USER’S
+// RISK.
+
+enum {
+    TRAP_LIBC,
+};
+
+enum {
+    TRAP_LIBC_ARGC,
+    TRAP_LIBC_ARGLEN,
+    TRAP_LIBC_ARGCOPY,
+    TRAP_LIBC_STDIN,
+    TRAP_LIBC_STDOUT,
+    TRAP_LIBC_STDERR,
+    TRAP_LIBC_OPEN_FILE,
+    TRAP_LIBC_CLOSE_FILE,
+    TRAP_LIBC_READ_FILE,
+    TRAP_LIBC_WRITE_FILE,
+    TRAP_LIBC_FILE_POSITION,
+    TRAP_LIBC_REPOSITION_FILE,
+    TRAP_LIBC_FLUSH_FILE,
+    TRAP_LIBC_RENAME_FILE,
+    TRAP_LIBC_DELETE_FILE,
+    TRAP_LIBC_FILE_SIZE,
+    TRAP_LIBC_RESIZE_FILE,
+    TRAP_LIBC_FILE_STATUS,
+};

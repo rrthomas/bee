@@ -13,14 +13,24 @@
 #define BEE_OPCODES
 
 
+// Instruction types
 enum {
-    OP_CALL,
-    OP_PUSH,
-    OP_PUSHREL,
-    OP_INSTRUCTION,
-    OP_MASK = 3,
+    // Bits 0 and 1
+    OP_CALLI    = 0x0,
+    OP_PUSHI    = 0x1,
+    OP_PUSHRELI = 0x2,
+    OP_LEVEL2   = 0x3,
+    OP_MASK     = 0x3,
+
+    // Bits 2 and 3 when bits 0 and 1 are 11
+    OP2_JUMPI   = 0x0,
+    OP2_JUMPZI  = 0x1,
+    OP2_INSN    = 0x2,
+    OP2_TRAP    = 0x3,
+    OP2_MASK    = 0x3,
 };
 
+// OP_INSN opcodes
 enum {
     O_NOP = 0,
     O_NOT,
@@ -60,10 +70,9 @@ enum {
     O_CATCH,
     O_THROW,
     O_BREAK,
-
-    O_WORD_BYTES = 0x40,
+    O_WORD_BYTES,
     O_GET_M0,
-    O_GET_MSIZE,
+    O_GET_MSIZE = 0x28,
     O_GET_RSIZE,
     O_GET_RP,
     O_SET_RP,
@@ -72,26 +81,7 @@ enum {
     O_SET_SP,
     O_GET_HANDLER_RP,
 
-    O_UNDEFINED = 0x7f,
-
-    OX_ARGC = 0x80,
-    OX_ARGLEN,
-    OX_ARGCOPY,
-    OX_STDIN,
-    OX_STDOUT,
-    OX_STDERR,
-    OX_OPEN_FILE,
-    OX_CLOSE_FILE,
-    OX_READ_FILE,
-    OX_WRITE_FILE,
-    OX_FILE_POSITION,
-    OX_REPOSITION_FILE,
-    OX_FLUSH_FILE,
-    OX_RENAME_FILE,
-    OX_DELETE_FILE,
-    OX_FILE_SIZE,
-    OX_RESIZE_FILE,
-    OX_FILE_STATUS,
+    O_UNDEFINED = 0x3f
 };
 
 

@@ -18,10 +18,13 @@ int bee_byte_size(bee_WORD v); // return number of significant bytes in a bee_WO
 void bee_align(void);		// align assembly pointer to next word
 void bee_word(bee_WORD value);	// assemble the given word
 void bee_ass(bee_UWORD instr);	// assemble an instruction
+void bee_ass_trap(bee_UWORD code);	// assemble a trap
 void bee_ass_byte(uint8_t b);	// assemble a byte
-void bee_call(bee_WORD *addr);	// assemble a call
-void bee_push(bee_WORD literal);	// assemble a literal
-void bee_pushrel(bee_WORD *addr);	// assemble an offset to the given word-aligned address
+void bee_calli(bee_WORD *addr);	// assemble an immediate call
+void bee_pushi(bee_WORD literal);	// assemble a literal
+void bee_pushreli(bee_WORD *addr);	// assemble an offset to the given word-aligned address
+void jumpi(bee_WORD *addr);	// assemble an immediate jump
+void jumpzi(bee_WORD *addr);	// assemble an immediate jumpz
 void bee_ass_goto(bee_WORD *addr);	// start assembly at the given word-aligned address
 bee_WORD *bee_label(void);	// return address of bee_WORD currently being assembled to
 const char *bee_disass(bee_WORD opcode, bee_WORD *addr);  // disassemble an instruction
