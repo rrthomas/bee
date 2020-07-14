@@ -24,7 +24,7 @@ TESTS_ENVIRONMENT = \
 # Test binutils support. Assumes binutils for Bee configured with
 # --program-prefix=bee- is installed on PATH.
 test-binutils:
-	bee-as -R -o hello.o hello.S && \
+	bee-as -R -o hello.o $(srcdir)/hello.S && \
 	bee-objcopy -O binary hello.o hello.bin && \
 	( $(TESTS_ENVIRONMENT) $(LOG_COMPILER) $(top_builddir)/src/bee$(EXEEXT) ./hello.bin > hello.output ) && \
 	diff hello.output $(srcdir)/hello.correct
