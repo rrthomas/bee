@@ -19,7 +19,6 @@
 #include <string.h>
 #include <inttypes.h>
 
-#include "verify.h"
 #include "xvasprintf.h"
 
 #include "bee.h"
