@@ -30,7 +30,7 @@ int main(void)
     correct[steps++] = label();
     pushreli(M0 + 10000 / WORD_BYTES);
     correct[steps++] = label();
-    ass(O_JUMP);
+    ass(BEE_INSN_JUMP);
 
     ass_goto(M0 + 10000 / WORD_BYTES);
     correct[steps++] = label();
@@ -38,7 +38,7 @@ int main(void)
     correct[steps++] = label();
     pushi(0);
     correct[steps++] = label();
-    ass(O_JUMPZ);
+    ass(BEE_INSN_JUMPZ);
     correct[steps++] = label();
     pushi(0);
     correct[steps++] = label();
@@ -48,7 +48,7 @@ int main(void)
     correct[steps++] = label();
     pushreli(M0 + 64 / WORD_BYTES);
     correct[steps++] = label();
-    ass(O_CALL);
+    ass(BEE_INSN_CALL);
 
     ass_goto(M0 + 64 / WORD_BYTES);
     correct[steps++] = label();
@@ -56,7 +56,7 @@ int main(void)
 
     ass_goto(M0 + 400 / WORD_BYTES);
     correct[steps++] = label();
-    ass(O_RET);
+    ass(BEE_INSN_RET);
 
     for (unsigned i = 0; i < steps; i++) {
         WORD temp = 0;

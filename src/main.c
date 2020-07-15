@@ -28,7 +28,6 @@
 #include "bee/aux.h"
 
 #include "debug.h"
-#include "opcodes.h"
 #include "gdb-stub.h"
 
 

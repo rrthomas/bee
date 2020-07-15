@@ -24,17 +24,17 @@ int main(void)
     S0[SP++] = 3; S0[SP++] =2; S0[SP++] = 1;	// initialise the stack
 
     ass_goto(M0);
-    ass(O_DUP);
+    ass(BEE_INSN_DUP);
     pushi(1);
-    ass(O_DUP);
-    ass(O_POP);
+    ass(BEE_INSN_DUP);
+    ass(BEE_INSN_POP);
     pushi(0);
-    ass(O_SWAP);
+    ass(BEE_INSN_SWAP);
     pushi(1);
-    ass(O_SWAP);
-    ass(O_PUSHR);
-    ass(O_DUPR);
-    ass(O_POPR);
+    ass(BEE_INSN_SWAP);
+    ass(BEE_INSN_PUSHR);
+    ass(BEE_INSN_DUPR);
+    ass(BEE_INSN_POPR);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]) - 1; i++) {
         show_data_stack();

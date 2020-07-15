@@ -21,25 +21,25 @@ int main(void)
     init_defaults((WORD *)calloc(size, 1), size / WORD_BYTES);
 
     ass_goto(M0);
-    ass(O_GET_M0);
+    ass(BEE_INSN_GET_M0);
     correct[steps++] = xasprintf("%"PRIi32, (WORD)M0);
-    ass(O_POP);
+    ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
-    ass(O_GET_MSIZE);
+    ass(BEE_INSN_GET_MSIZE);
     correct[steps++] = xasprintf("%"PRIi32, (WORD)MSIZE);
-    ass(O_POP);
+    ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
-    ass(O_GET_RSIZE);
+    ass(BEE_INSN_GET_RSIZE);
     correct[steps++] = xasprintf("%"PRIi32, (WORD)RSIZE);
-    ass(O_POP);
+    ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
-    ass(O_GET_SSIZE);
+    ass(BEE_INSN_GET_SSIZE);
     correct[steps++] = xasprintf("%"PRIi32, (WORD)SSIZE);
-    ass(O_POP);
+    ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
-    ass(O_GET_HANDLER_RP);
+    ass(BEE_INSN_GET_HANDLER_RP);
     correct[steps++] = xasprintf("%"PRIi32, (WORD)HANDLER_RP);
-    ass(O_POP);
+    ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
 
     for (unsigned i = 0; i < steps; i++) {

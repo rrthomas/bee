@@ -20,7 +20,7 @@ int main(void)
     const UWORD steps = 10;
     for (UWORD i = 0; i < steps; i++) {
         // Assemble the test as we go!
-        ass(O_WORD_BYTES);
+        ass(BEE_INSN_WORD_BYTES);
         printf("PC = %p\n", PC);
         assert(single_step() == ERROR_BREAK);
     }

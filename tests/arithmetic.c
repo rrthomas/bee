@@ -31,18 +31,18 @@ int main(void)
     init_defaults((WORD *)calloc(1024, 1), 256);
 
     ass_goto(M0);
-    pushi(1); ass(O_NEGATE);
-    ass(O_WORD_BYTES);
+    pushi(1); ass(BEE_INSN_NEGATE);
+    ass(BEE_INSN_WORD_BYTES);
     pushi(-WORD_BYTES);
-    pushi(0); ass(O_SWAP);
-    pushi(1); ass(O_SWAP);
-    ass(O_ADD); ass(O_ADD);
-    ass(O_WORD_BYTES);
-    ass(O_MUL);
+    pushi(0); ass(BEE_INSN_SWAP);
+    pushi(1); ass(BEE_INSN_SWAP);
+    ass(BEE_INSN_ADD); ass(BEE_INSN_ADD);
+    ass(BEE_INSN_WORD_BYTES);
+    ass(BEE_INSN_MUL);
     pushi(3);
-    ass(O_DIVMOD); ass(O_POP);
+    ass(BEE_INSN_DIVMOD); ass(BEE_INSN_POP);
     pushi(-2);
-    ass(O_UDIVMOD);
+    ass(BEE_INSN_UDIVMOD);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
         WORD temp = 0;

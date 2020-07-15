@@ -30,32 +30,32 @@ int main(void)
     // test 1: DUP with SP > SSIZE
     test[0] = label();
     pushi(SSIZE + 1);
-    ass(O_SET_SP); ass(O_DUP);
+    ass(BEE_INSN_SET_SP); ass(BEE_INSN_DUP);
     // test 2: set SP to SSIZE + 1, then try to pop (PUSHR) the stack
     test[1] = label();
     pushi(SSIZE + 1);
-    ass(O_SET_SP); ass(O_PUSHR);
+    ass(BEE_INSN_SET_SP); ass(BEE_INSN_PUSHR);
     // test 3: test SP can be SSIZE
     test[2] = label();
     pushi(SSIZE);
-    ass(O_SET_SP); ass(O_PUSHR);
-    pushi(0); ass(O_THROW);
+    ass(BEE_INSN_SET_SP); ass(BEE_INSN_PUSHR);
+    pushi(0); ass(BEE_INSN_THROW);
     // test 4: test CALL of unaligned address
     test[3] = label();
-    pushi(1); ass(O_CALL);
+    pushi(1); ass(BEE_INSN_CALL);
     // test 5: allow execution to run off the end of memory
     test[4] = label();
-    pushi(MSIZE - WORD_BYTES); ass(O_JUMP);
+    pushi(MSIZE - WORD_BYTES); ass(BEE_INSN_JUMP);
     // test 6: load from an invalid address
     test[5] = label();
     pushi(0);
-    ass(O_LOAD);
+    ass(BEE_INSN_LOAD);
     // test 7: load from an unaligned address
     test[6] = label();
-    pushi(1); ass(O_LOAD);
+    pushi(1); ass(BEE_INSN_LOAD);
     // test 8: test invalid opcode
     test[7] = label();
-    ass(O_UNDEFINED);
+    ass(BEE_INSN_UNDEFINED);
 
     UWORD error = 0;
     for (size_t i = 0; i < sizeof(test) / sizeof(test[0]); i++) {
@@ -67,7 +67,7 @@ int main(void)
             // test 6: code to run at end of memory
             // Assemble now because it was overwritten by an earlier test
             ass_goto(M0 + (MSIZE / WORD_BYTES) - 1);
-            ass(O_WORD_BYTES);
+            ass(BEE_INSN_WORD_BYTES);
         }
 
         PC = test[i];

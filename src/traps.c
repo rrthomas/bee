@@ -26,7 +26,6 @@
 #include "bee/bee.h"
 #include "bee/aux.h"
 
-#include "opcodes.h"
 #include "private.h"
 #include "traps.h"
 

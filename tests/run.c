@@ -24,7 +24,7 @@ int main(void)
 
     int ret_code = 37;
     pushi(ret_code);
-    ass(O_THROW);
+    ass(BEE_INSN_THROW);
     WORD *final_PC = label();
 
     WORD ret = run();

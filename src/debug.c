@@ -40,12 +40,12 @@ void word(WORD value)
 
 void ass(UWORD inst)
 {
-    word((((inst << 2) | OP2_INSN) << 2) | OP_LEVEL2);
+    word((((inst << 2) | BEE_OP2_INSN) << 2) | BEE_OP_LEVEL2);
 }
 
 void ass_trap(UWORD code)
 {
-    word((((code << 2) | OP2_TRAP) << 2) | OP_LEVEL2);
+    word((((code << 2) | BEE_OP2_TRAP) << 2) | BEE_OP_LEVEL2);
 }
 
 void ass_byte(uint8_t b)
@@ -57,7 +57,7 @@ void pushi(WORD literal)
 {
     WORD temp = LSHIFT(literal, 2);
     assert(ARSHIFT(temp, 2) == (UWORD)literal);
-    word(temp | OP_PUSHI);
+    word(temp | BEE_OP_PUSHI);
 }
 
 static void addr_op(int op, WORD *addr)
@@ -67,12 +67,12 @@ static void addr_op(int op, WORD *addr)
 
 void calli(WORD *addr)
 {
-    addr_op(OP_CALLI, addr);
+    addr_op(BEE_OP_CALLI, addr);
 }
 
 void pushreli(WORD *addr)
 {
-    addr_op(OP_PUSHRELI, addr);
+    addr_op(BEE_OP_PUSHRELI, addr);
 }
 
 static void addr_op2(int op, WORD *addr)
@@ -80,17 +80,17 @@ static void addr_op2(int op, WORD *addr)
     WORD offset = LSHIFT(addr - (WORD *)current, 2);
     WORD temp = LSHIFT(offset, 2);
     assert(temp >> 2 == offset);
-    word(LSHIFT(offset | op, 2) | OP_LEVEL2);
+    word(LSHIFT(offset | op, 2) | BEE_OP_LEVEL2);
 }
 
 void jumpi(WORD *addr)
 {
-    addr_op2(OP2_JUMPI, addr);
+    addr_op2(BEE_OP2_JUMPI, addr);
 }
 
 void jumpzi(WORD *addr)
 {
-    addr_op2(OP2_JUMPZI, addr);
+    addr_op2(BEE_OP2_JUMPZI, addr);
 }
 
 void ass_goto(WORD *addr)
@@ -103,7 +103,7 @@ _GL_ATTRIBUTE_PURE WORD *label(void)
     return (WORD *)current;
 }
 
-static const char *mnemonic[O_UNDEFINED + 1] = {
+static const char *mnemonic[BEE_INSN_UNDEFINED + 1] = {
 // 0x00
     "NOP", "NOT", "AND", "OR", "XOR", "LSHIFT", "RSHIFT", "ARSHIFT",
     "POP", "DUP", "SET", "SWAP", "JUMP", "JUMPZ", "CALL", "RET",
@@ -122,38 +122,38 @@ _GL_ATTRIBUTE_CONST const char *disass(WORD opcode, WORD *pc)
     static char *text = NULL;
 
     free(text);
-    switch (opcode & OP_MASK) {
-    case OP_CALLI:
+    switch (opcode & BEE_OP_MASK) {
+    case BEE_OP_CALLI:
         {
             WORD *addr = pc + ARSHIFT(opcode, 2);
             text = xasprintf("CALLI $%"PRIX32, (UWORD)addr);
         }
         break;
-    case OP_PUSHI:
+    case BEE_OP_PUSHI:
         {
             opcode = ARSHIFT(opcode, 2);
             text = xasprintf("PUSHI %"PRIi32"=$%"PRIX32, opcode, (UWORD)opcode);
         }
         break;
-    case OP_PUSHRELI:
-        text = xasprintf("PUSHRELI $%"PRIX32, (UWORD)(pc + (opcode & ~OP_MASK)));
+    case BEE_OP_PUSHRELI:
+        text = xasprintf("PUSHRELI $%"PRIX32, (UWORD)(pc + (opcode & ~BEE_OP_MASK)));
         break;
     default:
         opcode = ARSHIFT(opcode, 2);
-        switch (opcode & OP2_MASK) {
-        case OP2_JUMPI:
+        switch (opcode & BEE_OP2_MASK) {
+        case BEE_OP2_JUMPI:
             {
                 WORD *addr = pc + ARSHIFT(opcode, 2);
                 text = xasprintf("JUMPI $%"PRIX32, (UWORD)addr);
             }
             break;
-        case OP2_JUMPZI:
+        case BEE_OP2_JUMPZI:
             {
                 WORD *addr = pc + ARSHIFT(opcode, 2);
                 text = xasprintf("JUMPZI $%"PRIX32, (UWORD)addr);
             }
             break;
-        case OP2_INSN:
+        case BEE_OP2_INSN:
             opcode >>= 2;
             if ((UWORD)opcode <= sizeof(mnemonic) / sizeof(mnemonic[0]) &&
                 mnemonic[(UWORD)opcode] != NULL)
@@ -161,7 +161,7 @@ _GL_ATTRIBUTE_CONST const char *disass(WORD opcode, WORD *pc)
             else
                 text = strdup("(invalid instruction!)");
             break;
-        case OP2_TRAP:
+        case BEE_OP2_TRAP:
             text = xasprintf("TRAP $%"PRIX32, (UWORD)opcode >> 2);
             break;
         }
@@ -174,7 +174,7 @@ _GL_ATTRIBUTE_PURE uint8_t toass(const char *token)
     for (size_t i = 0; i < sizeof(mnemonic) / sizeof(mnemonic[0]); i++)
         if (mnemonic[i] && strcmp(token, mnemonic[i]) == 0) return i;
 
-    return O_UNDEFINED;
+    return BEE_INSN_UNDEFINED;
 }
 
 static char *_val_data_stack(bool with_hex)
@@ -264,87 +264,87 @@ _GL_ATTRIBUTE_PURE const char *error_to_msg(int code)
 // computed.
 static WORD *compute_next_PC(WORD inst)
 {
-    switch (inst & OP_MASK) {
-    case OP_CALLI:
+    switch (inst & BEE_OP_MASK) {
+    case BEE_OP_CALLI:
         return PC + ARSHIFT(inst, 2);
-    case OP_PUSHI:
-    case OP_PUSHRELI:
+    case BEE_OP_PUSHI:
+    case BEE_OP_PUSHRELI:
         return PC + 1;
-    case OP_LEVEL2:
+    case BEE_OP_LEVEL2:
         inst = ARSHIFT(inst, 2);
-        switch (inst & OP2_MASK) {
-        case OP2_JUMPI:
-        case OP2_JUMPZI:
+        switch (inst & BEE_OP2_MASK) {
+        case BEE_OP2_JUMPI:
+        case BEE_OP2_JUMPZI:
             return PC + ARSHIFT(inst, 2);
             break;
-        case OP2_INSN:
+        case BEE_OP2_INSN:
             switch (inst >> 2) {
-            case O_NOP:
-            case O_NOT:
-            case O_AND:
-            case O_OR:
-            case O_XOR:
-            case O_LSHIFT:
-            case O_RSHIFT:
-            case O_ARSHIFT:
-            case O_POP:
-            case O_DUP:
-            case O_SET:
-            case O_SWAP:
-            case O_LOAD:
-            case O_STORE:
-            case O_LOAD1:
-            case O_STORE1:
-            case O_LOAD2:
-            case O_STORE2:
-            case O_LOAD4:
-            case O_STORE4:
-            case O_NEGATE:
-            case O_ADD:
-            case O_MUL:
-            case O_DIVMOD:
-            case O_UDIVMOD:
-            case O_EQ:
-            case O_LT:
-            case O_ULT:
-            case O_PUSHR:
-            case O_POPR:
-            case O_DUPR:
-            case O_WORD_BYTES:
-            case O_GET_M0:
-            case O_GET_MSIZE:
-            case O_GET_RSIZE:
-            case O_GET_RP:
-            case O_SET_RP:
-            case O_GET_SSIZE:
-            case O_GET_SP:
-            case O_SET_SP:
-            case O_GET_HANDLER_RP:
+            case BEE_INSN_NOP:
+            case BEE_INSN_NOT:
+            case BEE_INSN_AND:
+            case BEE_INSN_OR:
+            case BEE_INSN_XOR:
+            case BEE_INSN_LSHIFT:
+            case BEE_INSN_RSHIFT:
+            case BEE_INSN_ARSHIFT:
+            case BEE_INSN_POP:
+            case BEE_INSN_DUP:
+            case BEE_INSN_SET:
+            case BEE_INSN_SWAP:
+            case BEE_INSN_LOAD:
+            case BEE_INSN_STORE:
+            case BEE_INSN_LOAD1:
+            case BEE_INSN_STORE1:
+            case BEE_INSN_LOAD2:
+            case BEE_INSN_STORE2:
+            case BEE_INSN_LOAD4:
+            case BEE_INSN_STORE4:
+            case BEE_INSN_NEGATE:
+            case BEE_INSN_ADD:
+            case BEE_INSN_MUL:
+            case BEE_INSN_DIVMOD:
+            case BEE_INSN_UDIVMOD:
+            case BEE_INSN_EQ:
+            case BEE_INSN_LT:
+            case BEE_INSN_ULT:
+            case BEE_INSN_PUSHR:
+            case BEE_INSN_POPR:
+            case BEE_INSN_DUPR:
+            case BEE_INSN_WORD_BYTES:
+            case BEE_INSN_GET_M0:
+            case BEE_INSN_GET_MSIZE:
+            case BEE_INSN_GET_RSIZE:
+            case BEE_INSN_GET_RP:
+            case BEE_INSN_SET_RP:
+            case BEE_INSN_GET_SSIZE:
+            case BEE_INSN_GET_SP:
+            case BEE_INSN_SET_SP:
+            case BEE_INSN_GET_HANDLER_RP:
                 return PC + 1;
-            case O_JUMP:
-            case O_CALL:
-            case O_CATCH:
+            case BEE_INSN_JUMP:
+            case BEE_INSN_CALL:
+            case BEE_INSN_CATCH:
                 if (SP < 1)
                     return NULL;
                 return (WORD *)(S0[SP - 1]);
-            case O_JUMPZ:
+            case BEE_INSN_JUMPZ:
                 if (SP < 2)
                     return NULL;
                 return S0[SP - 2] == 0 ? (WORD *)S0[SP - 1] : PC + 1;
-            case O_RET:
+            case BEE_INSN_RET:
                 if (RP < 1)
                     return NULL;
                 return (WORD *)(R0[RP - 1] & ~1);
-            case O_THROW:
+            case BEE_INSN_THROW:
                 if (HANDLER_RP == (UWORD)-1 || HANDLER_RP < 2)
                     return NULL;
                 return (WORD *)(R0[HANDLER_RP - 1] & ~1);
-            case O_BREAK:
+            case BEE_INSN_BREAK:
             default:
                 return NULL;
             }
             break;
-        case OP2_TRAP:
+        case BEE_OP2_TRAP:
             return PC + 1;
             break;
         }
@@ -363,7 +363,7 @@ WORD single_step(void)
     int next_PC_valid = IS_ALIGNED(next_PC) && IS_VALID(next_PC);
     if (next_PC_valid) {
         assert(load_word(next_PC, &next_inst) == ERROR_OK);
-        assert(store_word(next_PC, (((O_BREAK << 2) | OP2_INSN) << 2) | OP_LEVEL2) == ERROR_OK);
+        assert(store_word(next_PC, (((BEE_INSN_BREAK << 2) | BEE_OP2_INSN) << 2) | BEE_OP_LEVEL2) == ERROR_OK);
     }
     UWORD save_HANDLER_RP = HANDLER_RP;
     HANDLER_RP = -1;
@@ -376,7 +376,7 @@ WORD single_step(void)
     // Restore HANDLER_RP if it wasn't set by CATCH
     if (HANDLER_RP == (UWORD)-1)
         HANDLER_RP = save_HANDLER_RP;
-    if ((error != ERROR_BREAK || inst == ((((O_THROW << 2) | OP2_INSN) << 2) | OP_LEVEL2)) &&
+    if ((error != ERROR_BREAK || inst == ((((BEE_INSN_THROW << 2) | BEE_OP2_INSN) << 2) | BEE_OP_LEVEL2)) &&
         HANDLER_RP != (UWORD)-1) {
         // If an error occurred or THROW was executed, and there's a saved
         // error handler, execute it.

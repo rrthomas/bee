@@ -26,52 +26,52 @@ int main(void)
     correct[steps++] = xasprintf("%d %d", 8, 5);
     pushreli(M0 + (0x200 / WORD_BYTES));
     correct[steps++] = xasprintf("%d %d %"PRIi32, 8, 5, m0 + 0x200);
-    ass(O_CATCH);
+    ass(BEE_INSN_CATCH);
     WORD *ret_addr = label();
     ass_goto(M0 + (0x200 / WORD_BYTES));
 
     correct[steps++] = xasprintf("%d %d", 8, 5);
-    ass(O_DIVMOD);
+    ass(BEE_INSN_DIVMOD);
     correct[steps++] = xasprintf("%d %d", 1, 3);
-    ass(O_RET);
+    ass(BEE_INSN_RET);
     correct[steps++] = xasprintf("%d %d %d", 1, 3, 0);
     ass_goto(ret_addr);
 
     pushreli(M0 + (0x400 / WORD_BYTES));
     correct[steps++] = xasprintf("%d %d %d %"PRIi32, 1, 3, 0, m0 + 0x400);
-    ass(O_CATCH);
+    ass(BEE_INSN_CATCH);
     correct[steps++] = xasprintf("%d %d %d", 1, 3, 0);
     ret_addr = label();
     ass_goto(M0 + (0x400 / WORD_BYTES));
 
-    ass(O_UNDEFINED);
+    ass(BEE_INSN_UNDEFINED);
     ass_goto(ret_addr);
     correct[steps++] = xasprintf("%d %d %d %d", 1, 3, 0, -1);
 
-    ass(O_POP);
+    ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%d %d %d", 1, 3, 0);
-    ass(O_POP);
+    ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%d %d", 1, 3);
-    ass(O_POP);
+    ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%d", 1);
-    ass(O_POP);
+    ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
     pushreli(M0 + (0x600 / WORD_BYTES));
     correct[steps++] = xasprintf("%"PRIi32, m0 + 0x600);
-    ass(O_CATCH);
+    ass(BEE_INSN_CATCH);
     correct[steps++] = xasprintf("%s", "");
     ret_addr = label();
     ass_goto(M0 + (0x600 / WORD_BYTES));
 
     pushi(ERROR_INVALID_OPCODE);
     correct[steps++] = xasprintf("%d", -1);
-    ass(O_THROW);
+    ass(BEE_INSN_THROW);
     correct[steps++] = xasprintf("%d", -1);
     ass_goto(ret_addr);
 
     pushi(ERROR_OK);
     correct[steps++] = xasprintf("%d %d", -1, 0);
-    ass(O_THROW);
+    ass(BEE_INSN_THROW);
     correct[steps++] = xasprintf("%d", -1);
 
     for (unsigned i = 0; i < steps; i++) {

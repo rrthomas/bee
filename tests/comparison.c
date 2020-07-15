@@ -57,9 +57,9 @@ int main(void)
     init_defaults((WORD *)malloc(1024), 256);
 
     ass_goto(M0);
-    ass(O_LT); ass(O_LT); ass(O_LT); ass(O_LT);
-    ass(O_EQ); ass(O_EQ);
-    ass(O_ULT); ass(O_ULT); ass(O_ULT); ass(O_ULT);
+    ass(BEE_INSN_LT); ass(BEE_INSN_LT); ass(BEE_INSN_LT); ass(BEE_INSN_LT);
+    ass(BEE_INSN_EQ); ass(BEE_INSN_EQ);
+    ass(BEE_INSN_ULT); ass(BEE_INSN_ULT); ass(BEE_INSN_ULT); ass(BEE_INSN_ULT);
 
     stack1();       // set up the stack with four standard pairs to compare
     step(0, 4);     // do the < tests

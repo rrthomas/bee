@@ -41,20 +41,20 @@ int main(void)
     S0[SP++] = 0xff000000; S0[SP++] = 8; S0[SP++] = 0xff; S0[SP++] = 8;
 
     ass_goto(M0);
-    ass(O_LSHIFT);
-    pushi(1); ass(O_SWAP);
-    pushi(0); ass(O_SWAP);
-    ass(O_RSHIFT);
-    ass(O_OR);
+    ass(BEE_INSN_LSHIFT);
+    pushi(1); ass(BEE_INSN_SWAP);
+    pushi(0); ass(BEE_INSN_SWAP);
+    ass(BEE_INSN_RSHIFT);
+    ass(BEE_INSN_OR);
     pushi(1);
-    ass(O_LSHIFT);
+    ass(BEE_INSN_LSHIFT);
     pushi(1);
-    ass(O_RSHIFT);
-    ass(O_NOT);
+    ass(BEE_INSN_RSHIFT);
+    ass(BEE_INSN_NOT);
     pushi(1);
     pushi(-1);
-    ass(O_XOR);
-    ass(O_AND);
+    ass(BEE_INSN_XOR);
+    ass(BEE_INSN_AND);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
         WORD temp = 0;
