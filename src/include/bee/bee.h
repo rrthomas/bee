@@ -13,8 +13,6 @@
 #define bee_BEE_BEE
 
 
-#include "config.h"
-
 #include <stdio.h>      // for the FILE type
 #include <stdbool.h>
 #include <stdint.h>

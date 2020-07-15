@@ -13,8 +13,6 @@
 #define bee_BEE_AUX
 
 
-#include "config.h"
-
 #include <stdio.h>      // for the FILE type
 #include <stdint.h>
 #include <limits.h>
