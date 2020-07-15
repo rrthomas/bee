@@ -26,7 +26,7 @@
 
 #define R(name, type) \
     type name;
-#include "tbl_registers.h"
+#include "registers.h"
 #undef R
 
 

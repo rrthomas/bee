@@ -74,7 +74,7 @@ static const char hexchars[]="0123456789abcdef";
 /* Number of bytes of registers.  */
 enum regnames {
 #define R(reg, type) reg,
-#include "tbl_registers.h"
+#include "registers.h"
 #undef R
 };
 
@@ -322,7 +322,7 @@ handle_exception (int error)
   *ptr++ = ':';                                                 \
   ptr = mem2hex((uint8_t *)&bee_##reg, ptr, bee_WORD_BYTES);    \
   *ptr++ = ';';
-#include "tbl_registers.h"
+#include "registers.h"
 #undef R
   *ptr++ = 0;
   putpacket(remcomOutBuffer);
@@ -351,7 +351,7 @@ handle_exception (int error)
           {
 #define R(reg, type)                                                    \
             out_ptr = mem2hex((uint8_t *)&bee_##reg, out_ptr, bee_WORD_BYTES);
-#include "tbl_registers.h"
+#include "registers.h"
 #undef R
           }
           break;
@@ -360,7 +360,7 @@ handle_exception (int error)
           {
 #define R(reg, type)                                                    \
             hex2mem(in_ptr, (uint8_t *)&bee_ ##reg, bee_WORD_BYTES);
-#include "tbl_registers.h"
+#include "registers.h"
 #undef R
             strcpy(out_ptr, "OK");
           }
