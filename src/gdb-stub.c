@@ -40,6 +40,8 @@
 
 #include "config.h"
 
+#include "external_syms.h"
+
 #include <assert.h>
 #include <errno.h>
 #include <stdint.h>
@@ -51,9 +53,9 @@
 
 #include "bee/bee.h"
 #include "bee/aux.h"
-#include "bee/debug.h"
-#include "bee/opcodes.h"
 
+#include "debug.h"
+#include "opcodes.h"
 #include "gdb-stub.h"
 
 
@@ -72,9 +74,9 @@ static int remote_debug = 0;
 
 static const char hexchars[]="0123456789abcdef";
 
-/* Number of bytes of registers.  */
+/* Register name enumeration to use as array indices.  */
 enum regnames {
-#define R(reg, type) reg,
+#define R(reg, type) reg##_idx,
 #include "registers.h"
 #undef R
 };
@@ -318,8 +320,8 @@ handle_exception (int error)
   *ptr++ = hexchars[sigval >> 4];
   *ptr++ = hexchars[sigval & 0xf];
 #define R(reg, type)                                            \
-  *ptr++ = hexchars[reg >> 4];                                  \
-  *ptr++ = hexchars[reg & 0xf];                                 \
+  *ptr++ = hexchars[reg##_idx >> 4];                            \
+  *ptr++ = hexchars[reg##_idx & 0xf];                           \
   *ptr++ = ':';                                                 \
   ptr = mem2hex((uint8_t *)&bee_##reg, ptr, bee_WORD_BYTES);    \
   *ptr++ = ';';
@@ -360,7 +362,7 @@ handle_exception (int error)
         case 'G':	   /* set the value of the CPU registers - return OK */
           {
 #define R(reg, type)                                                    \
-            hex2mem(in_ptr, (uint8_t *)&bee_ ##reg, bee_WORD_BYTES);
+            hex2mem(in_ptr, (uint8_t *)&bee_##reg, bee_WORD_BYTES);
 #include "registers.h"
 #undef R
             strcpy(out_ptr, "OK");

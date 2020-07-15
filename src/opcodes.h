@@ -9,9 +9,6 @@
 // THIS PROGRAM IS PROVIDED AS IS, WITH NO WARRANTY. USE IS AT THE USER’S
 // RISK.
 
-#ifndef BEE_OPCODES
-#define BEE_OPCODES
-
 
 // Instruction types
 enum {
@@ -83,6 +80,3 @@ enum {
 
     O_UNDEFINED = 0x3f
 };
-
-
-#endif

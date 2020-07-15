@@ -23,8 +23,9 @@
 
 #include "bee/bee.h"
 #include "bee/aux.h"
-#include "bee/debug.h"
-#include "bee/opcodes.h"
+
+#include "debug.h"
+#include "opcodes.h"
 
 
 static uint8_t *current; // where we assemble the next instruction word or literal

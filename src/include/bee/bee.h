@@ -25,7 +25,6 @@
 typedef int32_t bee_WORD;
 typedef uint32_t bee_UWORD;
 typedef uint64_t bee_DUWORD;
-#define bee_CHAR_MASK ((1 << CHAR_BIT) - 1)
 #define bee_WORD_BIT (sizeof(bee_WORD_BYTES) * CHAR_BIT)
 #define bee_WORD_MIN ((bee_WORD)(1UL << (bee_WORD_BIT - 1)))
 #define bee_WORD_MAX (UINT32_MAX)
