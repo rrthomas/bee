@@ -21,10 +21,10 @@
 
 #include "xvasprintf.h"
 
-#include "bee.h"
-#include "bee_aux.h"
-#include "bee_debug.h"
-#include "bee_opcodes.h"
+#include "bee/bee.h"
+#include "bee/aux.h"
+#include "bee/debug.h"
+#include "bee/opcodes.h"
 
 
 static uint8_t *current; // where we assemble the next instruction word or literal

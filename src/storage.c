@@ -16,8 +16,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "bee.h"
-#include "bee_aux.h"
+#include "bee/bee.h"
+#include "bee/aux.h"
 
 #include "private.h"
 

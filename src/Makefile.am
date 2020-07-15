@@ -8,7 +8,7 @@
 # THIS PROGRAM IS PROVIDED AS IS, WITH NO WARRANTY. USE IS AT THE USER’S
 # RISK.
 
-AM_CPPFLAGS = -I$(top_builddir)/lib -I$(top_srcdir)/lib $(WARN_CFLAGS)
+AM_CPPFLAGS = -I$(top_builddir)/lib -I$(top_srcdir)/lib -I$(srcdir)/include $(WARN_CFLAGS)
 
 lib_LTLIBRARIES = libbee.la
 libbee_la_SOURCES = storage.c run.c traps.h traps.c debug.c loadobj.c \
@@ -19,7 +19,7 @@ bin_PROGRAMS = bee
 man_MANS = bee.1
 bee_LDADD = libbee.la $(top_builddir)/lib/libgnu.la
 bee_SOURCES = main.c gdb-stub.c gdb-stub.h cmdline.h registers.h $(include_HEADERS)
-include_HEADERS = bee.h bee_aux.h bee_debug.h bee_opcodes.h
+pkginclude_HEADERS = include/bee/bee.h include/bee/aux.h include/bee/debug.h include/bee/opcodes.h
 
 # The man page depends on the binary because it is built by running the binary.
 bee.1: bee$(EXEEXT)

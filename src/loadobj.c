@@ -16,8 +16,8 @@
 #include <string.h>
 #include <assert.h>
 
-#include "bee.h"
-#include "bee_aux.h"
+#include "bee/bee.h"
+#include "bee/aux.h"
 
 
 // Return the length of a seekable stream, or `-1` if not seekable

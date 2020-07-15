@@ -23,11 +23,11 @@
 #include "binary-io.h"
 #include "verify.h"
 
-#include "bee.h"
-#include "bee_aux.h"
-#include "private.h"
-#include "bee_opcodes.h"
+#include "bee/bee.h"
+#include "bee/aux.h"
+#include "bee/opcodes.h"
 
+#include "private.h"
 #include "traps.h"
 
 
