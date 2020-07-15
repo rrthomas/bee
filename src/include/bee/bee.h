@@ -9,8 +9,8 @@
 // THIS PROGRAM IS PROVIDED AS IS, WITH NO WARRANTY. USE IS AT THE USER’S
 // RISK.
 
-#ifndef bee_BEE_BEE
-#define bee_BEE_BEE
+#ifndef BEE_BEE
+#define BEE_BEE
 
 
 #include <stdio.h>      // for the FILE type
