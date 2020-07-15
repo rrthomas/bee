@@ -1,4 +1,4 @@
-// Front-end and shell.
+// Standalone interpreter.
 //
 // (c) Reuben Thomas 1995-2020
 //
