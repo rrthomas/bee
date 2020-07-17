@@ -36,65 +36,13 @@ verify(sizeof(int) <= sizeof(WORD));
 
 // I/O support
 
-// Make a NUL-terminated string from a counted string
-static int getstr(char *adr, UWORD len, char **res)
-{
-    int error = 0;
-
-    *res = calloc(1, len + 1);
-    if (*res == NULL)
-        error = -511;
-    else
-        strncpy(*res, adr, len);
-
-    return error;
-}
-
-// Convert portable open(2) flags bits to system flags
-static int getflags(UWORD perm, bool *binary)
-{
-     int flags = 0;
-
-     switch (perm & 3) {
-     case 0:
-         flags = O_RDONLY;
-         break;
-     case 1:
-         flags = O_WRONLY;
-         break;
-     case 2:
-         flags = O_RDWR;
-         break;
-     default:
-         break;
-     }
-     if (perm & 4)
-         flags |= O_CREAT | O_TRUNC;
-
-     if (perm & 8)
-         *binary = true;
-
-     return flags;
-}
-
 // Register command-line args
 static int main_argc = 0;
 static const char **main_argv;
-static UWORD *main_argv_len;
-int register_args(int argc, const char *argv[])
+void register_args(int argc, const char *argv[])
 {
      main_argc = argc;
      main_argv = argv;
-     if ((main_argv_len = calloc(argc, sizeof(UWORD))) == NULL)
-         return -1;
-
-     for (int i = 0; i < argc; i++) {
-         size_t len = strlen(argv[i]);
-         if (len > WORD_MAX)
-             return -2;
-         main_argv_len[i] = len;
-     }
-     return 0;
 }
 
 
@@ -104,29 +52,22 @@ WORD trap_libc(UWORD function)
 
     int error = ERROR_OK;
     switch (function) {
-    case TRAP_LIBC_ARGC: // ( -- u )
-        PUSH(main_argc);
-        break;
-    case TRAP_LIBC_ARGLEN: // ( u1 -- u2 )
+    case TRAP_LIBC_STRLEN: // ( a-addr -- u )
         {
-            UWORD narg;
-            POP((WORD *)&narg);
-            if (narg >= (UWORD)main_argc)
-                PUSH(0);
-            else
-                PUSH(main_argv_len[narg]);
+            const char *s;
+            POP((WORD *)&s);
+            PUSH(strlen(s));
         }
         break;
-    case TRAP_LIBC_ARGCOPY: // ( u1 addr -- )
+    case TRAP_LIBC_STRNCPY: // ( a-addr1 a-addr2 u -- a-addr3 )
         {
-            char *addr;
-            POP((WORD *)&addr);
-            UWORD narg;
-            POP((WORD *)&narg);
-            if (narg < (UWORD)main_argc) {
-                UWORD len = (UWORD)main_argv_len[narg];
-                strncpy(addr, main_argv[narg], len);
-            }
+            const char *src;
+            char *dest;
+            size_t n;
+            POP((WORD *)&n);
+            POP((WORD *)&src);
+            POP((WORD *)&dest);
+            PUSH((WORD)(size_t)(void *)strncpy(dest, src, n));
         }
         break;
     case TRAP_LIBC_STDIN:
@@ -138,31 +79,41 @@ WORD trap_libc(UWORD function)
     case TRAP_LIBC_STDERR:
         PUSH((WORD)(STDERR_FILENO));
         break;
-    case TRAP_LIBC_OPEN_FILE:
+    case TRAP_LIBC_O_RDONLY:
+        PUSH((WORD)(O_RDONLY));
+        break;
+    case TRAP_LIBC_O_WRONLY:
+        PUSH((WORD)(O_WRONLY));
+        break;
+    case TRAP_LIBC_O_RDWR:
+        PUSH((WORD)(O_RDWR));
+        break;
+    case TRAP_LIBC_O_CREAT:
+        PUSH((WORD)(O_CREAT));
+        break;
+    case TRAP_LIBC_O_TRUNC:
+        PUSH((WORD)(O_TRUNC));
+        break;
+    case TRAP_LIBC_OPEN: // ( c-addr flags -- fd )
         {
-            bool binary = false;
-            POP(&temp);
-            int perm = getflags(temp, &binary);
-            UWORD len;
-            POP((WORD *)&len);
-            char *str;
-            POP((WORD *)&str);
+            UWORD flags;
+            POP((WORD *)&flags);
             char *file;
-            error = getstr(str, len, &file);
-            int fd = error == 0 ? open(file, perm, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH) : -1;
-            free(file);
+            POP((WORD *)&file);
+            int fd = open(file, flags, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
             PUSH((WORD)fd);
-            PUSH(fd < 0 || (binary && set_binary_mode(fd, O_BINARY) < 0) ? -1 : 0);
+            if (fd >= 0)
+                set_binary_mode(fd, O_BINARY); // Best effort
         }
         break;
-    case TRAP_LIBC_CLOSE_FILE:
+    case TRAP_LIBC_CLOSE:
         {
             POP(&temp);
             int fd = temp;
             PUSH((WORD)close(fd));
         }
         break;
-    case TRAP_LIBC_READ_FILE:
+    case TRAP_LIBC_READ:
         {
             POP(&temp);
             int fd = temp;
@@ -173,7 +124,7 @@ WORD trap_libc(UWORD function)
             PUSH(read(fd, buf, nbytes));
         }
         break;
-    case TRAP_LIBC_WRITE_FILE:
+    case TRAP_LIBC_WRITE:
         {
             POP(&temp);
             int fd = temp;
@@ -184,63 +135,49 @@ WORD trap_libc(UWORD function)
             PUSH(write(fd, buf, nbytes));
         }
         break;
-    case TRAP_LIBC_FILE_POSITION:
-        {
-            POP(&temp);
-            int fd = temp;
-            off_t res = lseek(fd, 0, SEEK_CUR);
-            PUSH_DOUBLE((DUWORD)res);
-            PUSH(res >= 0 ? 0 : -1);
-        }
+    case TRAP_LIBC_SEEK_SET:
+        PUSH((WORD)(SEEK_SET));
         break;
-    case TRAP_LIBC_REPOSITION_FILE:
+    case TRAP_LIBC_SEEK_CUR:
+        PUSH((WORD)(SEEK_CUR));
+        break;
+    case TRAP_LIBC_SEEK_END:
+        PUSH((WORD)(SEEK_END));
+        break;
+    case TRAP_LIBC_LSEEK:
         {
             POP(&temp);
-            int fd = temp;
+            int whence = temp;
             WORD pop1, pop2;
             POP(&pop1);
             POP(&pop2);
             DUWORD ud = DOUBLE_WORD(pop1, pop2);
-            off_t res = lseek(fd, (off_t)ud, SEEK_SET);
-            PUSH(res >= 0 ? 0 : -1);
+            POP(&temp);
+            int fd = temp;
+            off_t res = lseek(fd, (off_t)ud, whence);
+            PUSH_DOUBLE((DUWORD)res);
         }
         break;
-    case TRAP_LIBC_FLUSH_FILE:
+    case TRAP_LIBC_FDATASYNC:
         {
             POP(&temp);
             int fd = temp;
-            int res = fdatasync(fd);
-            PUSH(res);
+            PUSH(fdatasync(fd));
         }
         break;
-    case TRAP_LIBC_RENAME_FILE:
+    case TRAP_LIBC_RENAME:
         {
-            UWORD len1, len2;
-            char *str1, *str2;
-            POP((WORD *)&len1);
-            POP((WORD *)&str1);
-            POP((WORD *)&len2);
-            POP((WORD *)&str2);
-            char *from;
-            char *to = NULL;
-            error = getstr(str2, len2, &from) ||
-                getstr(str1, len1, &to) ||
-                rename(from, to);
-            free(from);
-            free(to);
-            PUSH(error);
+            char *to, *from;
+            POP((WORD *)&to);
+            POP((WORD *)&from);
+            PUSH(rename(from, to));
         }
         break;
-    case TRAP_LIBC_DELETE_FILE:
+    case TRAP_LIBC_REMOVE:
         {
-            UWORD len;
-            POP((WORD *)&len);
-            char *str;
-            POP((WORD *)&str);
             char *file;
-            error = getstr(str, len, &file) || remove(file);
-            free(file);
-            PUSH(error);
+            POP((WORD *)&file);
+            PUSH(remove(file));
         }
         break;
     case TRAP_LIBC_FILE_SIZE:
@@ -274,6 +211,12 @@ WORD trap_libc(UWORD function)
             PUSH(st.st_mode);
             PUSH(res);
         }
+        break;
+    case TRAP_LIBC_ARGC: // ( -- u )
+        PUSH(main_argc);
+        break;
+    case TRAP_LIBC_ARGV: // ( -- a-addr )
+        PUSH((WORD)main_argv);
         break;
     default:
         error = ERROR_INVALID_FUNCTION;

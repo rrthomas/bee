@@ -16,18 +16,23 @@
 
 int main(void)
 {
-    // Data for ARGC/ARGLEN/ARGCOPY tests
+    // Data for ARGC/ARGV tests
     int argc = 3;
     const char *argv[] = {"foo", "bard", "basilisk"};
 
     init_defaults((WORD *)malloc(4096), 1024);
-    assert(register_args(argc, argv) == 0);
-    uint8_t *buf = (uint8_t *)(M0 + 16);
+    register_args(argc, argv);
 
     ass_goto(M0);
+
+    // ARGC test
     pushi(TRAP_LIBC_ARGC); ass_trap(TRAP_LIBC);
-    pushi(1); pushi(TRAP_LIBC_ARGLEN); ass_trap(TRAP_LIBC);
-    pushi(1); pushreli((WORD *)buf); pushi(TRAP_LIBC_ARGCOPY); ass_trap(TRAP_LIBC);
+
+    // ARGV test
+    pushi(TRAP_LIBC_ARGV); ass_trap(TRAP_LIBC);
+    ass(BEE_INSN_WORD_BYTES); ass(BEE_INSN_ADD); ass(BEE_INSN_LOAD);
+    pushi(TRAP_LIBC_STRLEN); ass_trap(TRAP_LIBC);
+    WORD *end = label();
 
     assert(single_step() == ERROR_BREAK);
     assert(single_step() == ERROR_BREAK);
@@ -38,23 +43,11 @@ int main(void)
         exit(1);
     }
 
-    assert(single_step() == ERROR_BREAK);
-    assert(single_step() == ERROR_BREAK);
-    assert(single_step() == ERROR_BREAK);
+    while (PC < end)
+        assert(single_step() == ERROR_BREAK);
     printf("arg 1's length is %"PRId32", and should be %zu\n", *stack_position(S0, SP, 0), strlen(argv[1]));
     assert(SP > 0);
     if ((UWORD)S0[--SP] != strlen(argv[1])) {
-        printf("Error in traps tests: PC = %p\n", PC);
-        exit(1);
-    }
-
-    assert(single_step() == ERROR_BREAK);
-    assert(single_step() == ERROR_BREAK);
-    assert(single_step() == ERROR_BREAK);
-    assert(single_step() == ERROR_BREAK);
-    const char *correct_arg = argv[1];
-    printf("arg 1 is %s, and should be %s\n", buf, correct_arg);
-    if (strcmp((char *)buf, correct_arg) != 0) {
         printf("Error in traps tests: PC = %p\n", PC);
         exit(1);
     }

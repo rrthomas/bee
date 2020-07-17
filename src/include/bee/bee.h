@@ -72,7 +72,7 @@ int bee_load_object(FILE *file, bee_WORD *ptr);
 // Additional implementation-specific routines, macros, types and quantities
 int bee_init(bee_WORD *c_array, bee_WORD memory_size, bee_WORD stack_size, bee_WORD return_stack_size);
 int bee_init_defaults(bee_WORD *c_array, bee_WORD memory_size);
-int bee_register_args(int argc, const char *argv[]);
+void bee_register_args(int argc, const char *argv[]);
 
 #define bee_WORD_BYTES 4    // the width of a word in bytes
 

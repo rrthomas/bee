@@ -185,8 +185,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    if (register_args(argc, (const char **)(argv + optind)) != 0)
-        die("could not register command-line arguments");
+    register_args(argc, (const char **)(argv + optind));
     FILE *handle = fopen(argv[optind], "rb");
     if (handle == NULL)
         die("cannot not open file %s", argv[optind]);
