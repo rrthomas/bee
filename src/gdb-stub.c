@@ -361,7 +361,8 @@ handle_exception (int error)
         case 'G':	   /* set the value of the CPU registers - return OK */
           {
 #define R(reg, type)                                                    \
-            hex2mem(in_ptr, (uint8_t *)&bee_##reg, bee_WORD_BYTES);
+            hex2mem(in_ptr, (uint8_t *)&bee_##reg, bee_WORD_BYTES);     \
+            in_ptr += bee_WORD_BYTES * 2; /* Advance over WORD_BYTES*2 hex characters. */
 #include "registers.h"
 #undef R
             strcpy(out_ptr, "OK");
