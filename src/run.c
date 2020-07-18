@@ -28,9 +28,6 @@
 // Division macros
 #define DIV_CATCH_ZERO(a, b) ((b) == 0 ? 0 : (a) / (b))
 #define MOD_CATCH_ZERO(a, b) ((b) == 0 ? (a) : (a) % (b))
-#define DIV_WOULD_OVERFLOW(a, b) (((a) == WORD_MIN) && ((b) == -1))
-#define DIV_WITH_OVERFLOW(a, b) (DIV_WOULD_OVERFLOW((a), (b)) ? WORD_MIN : DIV_CATCH_ZERO((a), (b)))
-#define MOD_WITH_OVERFLOW(a, b) (DIV_WOULD_OVERFLOW((a), (b)) ? 0 : MOD_CATCH_ZERO((a), (b)))
 
 
 // Execution function
@@ -324,8 +321,13 @@ WORD bee_run(void)
                             WORD divisor, dividend;
                             POP(&divisor);
                             POP(&dividend);
-                            PUSH(DIV_WITH_OVERFLOW(dividend, divisor));
-                            PUSH(MOD_WITH_OVERFLOW(dividend, divisor));
+                            if (dividend == WORD_MIN && divisor == -1) {
+                                PUSH(WORD_MIN);
+                                PUSH(0);
+                            } else {
+                                PUSH(DIV_CATCH_ZERO(dividend, divisor));
+                                PUSH(MOD_CATCH_ZERO(dividend, divisor));
+                            }
                         }
                         break;
                     case BEE_INSN_UDIVMOD:
