@@ -14,7 +14,7 @@
 WORD result[] = {
     ERROR_STACK_OVERFLOW, ERROR_STACK_OVERFLOW, 0,
     ERROR_UNALIGNED_ADDRESS,
-    ERROR_INVALID_LOAD, ERROR_INVALID_LOAD, ERROR_UNALIGNED_ADDRESS,
+    ERROR_UNALIGNED_ADDRESS,
     ERROR_INVALID_OPCODE,
 };
 WORD *test[sizeof(result) / sizeof(result[0])];
@@ -22,39 +22,33 @@ WORD *test[sizeof(result) / sizeof(result[0])];
 
 int main(void)
 {
-    size_t size = 4096;
+    size_t size = 4096, tests = 0;
     init_defaults((WORD *)calloc(size, WORD_BYTES), size);
+    setbuf(stdout, NULL);
 
     ass_goto(M0);
 
     // test 1: DUP with SP > SSIZE
-    test[0] = label();
+    test[tests++] = label();
     pushi(SSIZE + 1);
     ass(BEE_INSN_SET_SP); ass(BEE_INSN_DUP);
     // test 2: set SP to SSIZE + 1, then try to pop (PUSHR) the stack
-    test[1] = label();
+    test[tests++] = label();
     pushi(SSIZE + 1);
     ass(BEE_INSN_SET_SP); ass(BEE_INSN_PUSHR);
     // test 3: test SP can be SSIZE
-    test[2] = label();
+    test[tests++] = label();
     pushi(SSIZE);
     ass(BEE_INSN_SET_SP); ass(BEE_INSN_PUSHR);
     pushi(0); ass(BEE_INSN_THROW);
     // test 4: test CALL of unaligned address
-    test[3] = label();
+    test[tests++] = label();
     pushi(1); ass(BEE_INSN_CALL);
-    // test 5: allow execution to run off the end of memory
-    test[4] = label();
-    pushi(MSIZE - WORD_BYTES); ass(BEE_INSN_JUMP);
-    // test 6: load from an invalid address
-    test[5] = label();
-    pushi(0);
-    ass(BEE_INSN_LOAD);
-    // test 7: load from an unaligned address
-    test[6] = label();
+    // test 5: load from an unaligned address
+    test[tests++] = label();
     pushi(1); ass(BEE_INSN_LOAD);
-    // test 8: test invalid opcode
-    test[7] = label();
+    // test 6: test invalid opcode
+    test[tests++] = label();
     ass(BEE_INSN_UNDEFINED);
 
     UWORD error = 0;

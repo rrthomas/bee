@@ -290,9 +290,10 @@ hexToInt(char **ptr, bee_UWORD *intValue)
 static int
 valid_memory_or_stack_range(uint8_t *addr, bee_UWORD length)
 {
+  uint8_t *MEND = (uint8_t *)bee_R0 + (MSIZE * bee_WORD_BYTES);
   uint8_t *REND = (uint8_t *)bee_R0 + (RSIZE * bee_WORD_BYTES);
   uint8_t *SEND = (uint8_t *)bee_S0 + (SSIZE * bee_WORD_BYTES);
-  return address_range_valid(addr, length) ||
+  return (addr >= (uint8_t *)bee_M0 && addr <= REND && length <= (bee_UWORD)(MEND - addr)) ||
     (addr >= (uint8_t *)bee_R0 && addr <= REND && length <= (bee_UWORD)(REND - addr)) ||
     (addr >= (uint8_t *)bee_S0 && addr <= SEND && length <= (bee_UWORD)(SEND - addr));
 }

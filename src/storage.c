@@ -62,19 +62,8 @@ int push_stack(WORD *s0, UWORD ssize, UWORD *sp, WORD val)
 
 // General memory access
 
-// Return native address of a range of VM memory, or NULL if invalid
-_GL_ATTRIBUTE_PURE bool address_range_valid(uint8_t *start, UWORD length)
-{
-    return likely(start >= (uint8_t *)M0 &&
-                  start <= (uint8_t *)M0 + MSIZE &&
-                  length <= (UWORD)((uint8_t *)M0 + MSIZE - start));
-}
-
 int load_word(WORD *ptr, WORD *value)
 {
-    if (!address_range_valid((uint8_t *)ptr, WORD_BYTES))
-        return ERROR_INVALID_LOAD;
-
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
     *value = *(WORD *)ptr;
@@ -84,17 +73,12 @@ int load_word(WORD *ptr, WORD *value)
 
 int load_byte(uint8_t *ptr, uint8_t *value)
 {
-    if (!address_range_valid(ptr, 1))
-        return ERROR_INVALID_LOAD;
     *value = *ptr;
     return ERROR_OK;
 }
 
 int store_word(WORD *ptr, WORD value)
 {
-    if (!address_range_valid((uint8_t *)ptr, WORD_BYTES))
-        return ERROR_INVALID_STORE;
-
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
     *(WORD *)ptr = value;
@@ -104,8 +88,6 @@ int store_word(WORD *ptr, WORD value)
 
 int store_byte(uint8_t *ptr, uint8_t value)
 {
-    if (!address_range_valid(ptr, 1))
-        return ERROR_INVALID_STORE;
     *ptr = value;
     return ERROR_OK;
 }

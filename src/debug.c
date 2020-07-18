@@ -360,7 +360,7 @@ WORD single_step(void)
     if ((error = load_word(PC, &inst)) != ERROR_OK)
         return error;
     WORD *next_PC = compute_next_PC(inst);
-    int next_PC_valid = IS_ALIGNED(next_PC) && IS_VALID(next_PC);
+    int next_PC_valid = next_PC != NULL && IS_ALIGNED(next_PC);
     if (next_PC_valid) {
         assert(load_word(next_PC, &next_inst) == ERROR_OK);
         assert(store_word(next_PC, (((BEE_INSN_BREAK << 2) | BEE_OP2_INSN) << 2) | BEE_OP_LEVEL2) == ERROR_OK);

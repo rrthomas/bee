@@ -63,7 +63,6 @@ int bee_load_byte(uint8_t *ptr, uint8_t *value);
 int bee_store_byte(uint8_t *ptr, uint8_t value);
 
 // Interface calls
-bool address_range_valid(uint8_t *addr, bee_UWORD length);
 bee_WORD bee_run(void);
 int bee_load_object(FILE *file, bee_WORD *ptr);
 

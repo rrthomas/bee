@@ -54,17 +54,13 @@
 
 // Memory access
 
-// Check whether a given word is in the VM memory
-#define IS_VALID(a)                                             \
-    (address_range_valid((uint8_t *)(a), WORD_BYTES))
-
 // Align a VM address
 #define bee_ALIGN(a)                                            \
     (((UWORD)(a) + bee_WORD_BYTES - 1) & (-bee_WORD_BYTES))
 
 // Check whether a VM address is aligned
 #define bee_IS_ALIGNED(a)                                       \
-    ((uint8_t *)(((UWORD)(a) & (bee_WORD_BYTES - 1)) == 0))
+    (((uint8_t *)((UWORD)(a) & (bee_WORD_BYTES - 1)) == 0))
 
 // Portable left shift (the behaviour of << with overflow (including on any
 // negative number) is undefined)

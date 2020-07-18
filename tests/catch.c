@@ -16,6 +16,7 @@ int main(void)
 {
     const char *correct[64];
     unsigned steps = 0;
+    setbuf(stdout, NULL);
 
     init_defaults((WORD *)malloc(4096), 1024);
 

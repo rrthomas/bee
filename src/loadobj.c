@@ -50,8 +50,6 @@ int load_object(FILE *fp, WORD *ptr)
     off_t len = fleno(fp);
     if (len == -1)
         return -2;
-    if (!address_range_valid((uint8_t *)ptr, len))
-        return -1;
     if ((off_t)fread(ptr, 1, len, fp) != len || fclose(fp) == EOF)
         return -2;
 

@@ -21,11 +21,6 @@
 #include "private.h"
 
 
-#define CHECK_VALID_WORD(a)                                     \
-    CHECK_ADDRESS(a, IS_ALIGNED(a), ERROR_UNALIGNED_ADDRESS)    \
-    CHECK_ADDRESS(a, IS_VALID(a), ERROR_INVALID_LOAD)
-
-
 // Division macros
 #define DIV_CATCH_ZERO(a, b) ((b) == 0 ? 0 : (a) / (b))
 #define MOD_CATCH_ZERO(a, b) ((b) == 0 ? (a) : (a) % (b))
@@ -47,7 +42,7 @@ WORD run(void)
             {
                 PUSH_RETURN((UWORD)PC);
                 WORD *addr = (PC - 1) + (IR >> 2);
-                CHECK_VALID_WORD(addr);
+                CHECK_ALIGNED(addr);
                 PC = addr;
             }
             break;
@@ -63,7 +58,7 @@ WORD run(void)
             case BEE_OP2_JUMPI:
                 {
                     WORD *addr = (PC - 1) + (IR >> 2);
-                    CHECK_VALID_WORD(addr);
+                    CHECK_ALIGNED(addr);
                     PC = addr;
                 }
                 break;
@@ -73,7 +68,7 @@ WORD run(void)
                     WORD flag;
                     POP(&flag);
                     if (flag == 0) {
-                        CHECK_VALID_WORD(addr);
+                        CHECK_ALIGNED(addr);
                         PC = addr;
                     }
                 }
@@ -183,7 +178,7 @@ WORD run(void)
                         {
                             WORD *addr;
                             POP((WORD *)&addr);
-                            CHECK_VALID_WORD(addr);
+                            CHECK_ALIGNED(addr);
                             PC = addr;
                         }
                         break;
@@ -194,7 +189,7 @@ WORD run(void)
                             WORD flag;
                             POP(&flag);
                             if (flag == 0) {
-                                CHECK_VALID_WORD(addr);
+                                CHECK_ALIGNED(addr);
                                 PC = addr;
                             }
                         }
@@ -203,7 +198,7 @@ WORD run(void)
                         {
                             WORD *addr;
                             POP((WORD *)&addr);
-                            CHECK_VALID_WORD(addr);
+                            CHECK_ALIGNED(addr);
                             PUSH_RETURN((UWORD)PC);
                             PC = addr;
                         }
@@ -213,7 +208,7 @@ WORD run(void)
                             UWORD addr;
                             POP_RETURN((WORD *)&addr);
                             WORD *real_addr = (WORD *)(addr & ~1);
-                            CHECK_VALID_WORD(real_addr);
+                            CHECK_ALIGNED(real_addr);
                             if ((addr & 1) == 1) {
                                 POP_RETURN((WORD *)&HANDLER_RP);
                                 PUSH(0);
@@ -267,8 +262,6 @@ WORD run(void)
                             POP((WORD *)&addr);
                             if ((UWORD)addr % 2 != 0)
                                 THROW(ERROR_UNALIGNED_ADDRESS);
-                            if (!address_range_valid((uint8_t *)addr, 2))
-                                THROW(ERROR_INVALID_LOAD);
                             PUSH(*addr);
                         }
                         break;
@@ -278,8 +271,6 @@ WORD run(void)
                             POP((WORD *)&addr);
                             if ((UWORD)addr % 2 != 0)
                                 THROW(ERROR_UNALIGNED_ADDRESS);
-                            if (!address_range_valid((uint8_t *)addr, 2))
-                                THROW(ERROR_INVALID_LOAD);
                             WORD value;
                             POP(&value);
                             *addr = (uint16_t)value;
@@ -291,8 +282,6 @@ WORD run(void)
                             POP((WORD *)&addr);
                             if ((UWORD)addr % 4 != 0)
                                 THROW(ERROR_UNALIGNED_ADDRESS);
-                            if (!address_range_valid((uint8_t *)addr, 2))
-                                THROW(ERROR_INVALID_LOAD);
                             PUSH(*addr);
                         }
                         break;
@@ -302,8 +291,6 @@ WORD run(void)
                             POP((WORD *)&addr);
                             if ((UWORD)addr % 4 != 0)
                                 THROW(ERROR_UNALIGNED_ADDRESS);
-                            if (!address_range_valid((uint8_t *)addr, 2))
-                                THROW(ERROR_INVALID_LOAD);
                             WORD value;
                             POP(&value);
                             *addr = (uint32_t)value;
@@ -401,7 +388,7 @@ WORD run(void)
                         {
                             WORD *addr;
                             POP((WORD *)&addr);
-                            CHECK_VALID_WORD(addr);
+                            CHECK_ALIGNED(addr);
                             PUSH_RETURN(HANDLER_RP);
                             PUSH_RETURN((UWORD)PC | 1);
                             HANDLER_RP = RP;

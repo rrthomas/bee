@@ -125,10 +125,7 @@ WORD trap_libc(UWORD function)
             POP((WORD *)&narg);
             if (narg < (UWORD)main_argc) {
                 UWORD len = (UWORD)main_argv_len[narg];
-                if (address_range_valid((uint8_t *)addr, len))
-                    strncpy(addr, main_argv[narg], len);
-                else
-                    error = ERROR_INVALID_LOAD;
+                strncpy(addr, main_argv[narg], len);
             }
         }
         break;
@@ -173,11 +170,7 @@ WORD trap_libc(UWORD function)
             POP((WORD *)&nbytes);
             uint8_t *buf;
             POP((WORD *)&buf);
-            if (address_range_valid((uint8_t *)buf, nbytes)) {
-                ssize_t res = read(fd, buf, nbytes);
-                PUSH(res);
-                PUSH(res >= 0 ? 0 : -1);
-            }
+            PUSH(read(fd, buf, nbytes));
         }
         break;
     case TRAP_LIBC_WRITE_FILE:
@@ -188,10 +181,7 @@ WORD trap_libc(UWORD function)
             POP((WORD *)&nbytes);
             uint8_t *buf;
             POP((WORD *)&buf);
-            if (address_range_valid((uint8_t *)buf, nbytes)) {
-                ssize_t res = write(fd, buf, nbytes);
-                PUSH(res >= 0 ? 0 : -1);
-            }
+            PUSH(write(fd, buf, nbytes));
         }
         break;
     case TRAP_LIBC_FILE_POSITION:
