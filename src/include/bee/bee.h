@@ -21,13 +21,13 @@
 // Basic types
 typedef int32_t bee_WORD;
 typedef uint32_t bee_UWORD;
+#define bee_WORD_BYTES 4    // the number of bytes in a word
 #define bee_WORD_BIT (sizeof(bee_WORD_BYTES) * CHAR_BIT)
 #define bee_WORD_MIN ((bee_WORD)(1UL << (bee_WORD_BIT - 1)))
 #define bee_WORD_MAX (UINT32_MAX)
 #define bee_WORD_MASK bee_WORD_MAX
 
 // VM registers
-
 extern bee_WORD *bee_PC, *bee_M0, *bee_S0, *bee_D0;
 extern bee_UWORD bee_MSIZE, bee_SSIZE, bee_DSIZE;
 extern bee_UWORD bee_DP, bee_SP, bee_HANDLER_SP;
@@ -50,21 +50,15 @@ enum {
 int bee_pop_stack(bee_WORD *s0, bee_UWORD ssize, bee_UWORD *sp, bee_WORD *val_ptr);
 int bee_push_stack(bee_WORD *s0, bee_UWORD ssize, bee_UWORD *sp, bee_WORD val);
 
-
-// Memory access
-
-// Interface calls
-bee_WORD bee_run(void);
-int bee_load_object(FILE *file, bee_WORD *ptr);
-
 // Default stacks size in words
 #define bee_DEFAULT_STACK_SIZE   4096
 
-// Additional implementation-specific routines, macros, types and quantities
+// Miscellaneous routines
+bee_WORD bee_run(void);
+int bee_load_object(FILE *file, bee_WORD *ptr);
 int bee_init(bee_WORD *c_array, bee_WORD memory_size, bee_WORD stack_size, bee_WORD return_stack_size);
 int bee_init_defaults(bee_WORD *c_array, bee_WORD memory_size);
 void bee_register_args(int argc, const char *argv[]);
 
-#define bee_WORD_BYTES 4    // the width of a word in bytes
 
 #endif
