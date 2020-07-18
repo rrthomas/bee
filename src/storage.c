@@ -17,8 +17,8 @@
 #include <string.h>
 
 #include "bee/bee.h"
-#include "bee/aux.h"
 
+#include "aux.h"
 #include "private.h"
 
 

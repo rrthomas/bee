@@ -52,8 +52,8 @@
 #include <unistd.h>
 
 #include "bee/bee.h"
-#include "bee/aux.h"
 
+#include "aux.h"
 #include "debug.h"
 #include "gdb-stub.h"
 
