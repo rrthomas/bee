@@ -225,8 +225,7 @@ WORD bee_run(void)
                         {
                             WORD *addr;
                             POP((WORD *)&addr);
-                            if (!IS_ALIGNED(addr))
-                                THROW(BEE_ERROR_UNALIGNED_ADDRESS);
+                            CHECK_ALIGNED(addr);
                             PUSH(*addr);
                         }
                         break;
@@ -234,8 +233,7 @@ WORD bee_run(void)
                         {
                             WORD *addr;
                             POP((WORD *)&addr);
-                            if (!IS_ALIGNED(addr))
-                                THROW(BEE_ERROR_UNALIGNED_ADDRESS);
+                            CHECK_ALIGNED(addr);
                             WORD value;
                             POP(&value);
                             *addr = value;
