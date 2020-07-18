@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
         free(s);
         printf(" should be %d\n", correct[i]);
         printf("Word 0 of memory is %"PRIX32"; should be 1020304\n", (UWORD)(load_word(M0, &c), c));
-        if ((load_word(0, &c), c) != 0x1020304) {
+        if (load_word(M0, &c) != bee_ERROR_OK || c != 0x1020304) {
             printf("Error in load_object() tests: file %s\n", files[i]);
             exit(1);
         }
