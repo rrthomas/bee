@@ -1,8 +1,6 @@
 #define ALIGN bee_ALIGN
 #define ARSHIFT bee_ARSHIFT
 #define DEFAULT_STACK_SIZE bee_DEFAULT_STACK_SIZE
-#define DOUBLE_WORD bee_DOUBLE_WORD
-#define DUWORD bee_DUWORD
 #define HANDLER_SP bee_HANDLER_SP
 #define IS_ALIGNED bee_IS_ALIGNED
 #define IR bee_IR
@@ -13,7 +11,6 @@
 #define POP bee_POP
 #define POP_RETURN bee_POP_RETURN
 #define PUSH bee_PUSH
-#define PUSH_DOUBLE bee_PUSH_DOUBLE
 #define PUSH_RETURN bee_PUSH_RETURN
 #define S0 bee_S0
 #define SP bee_SP

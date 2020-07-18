@@ -14,6 +14,7 @@
 
 #include <inttypes.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -35,6 +36,13 @@ verify(sizeof(int) <= sizeof(WORD));
 
 
 // I/O support
+
+typedef uint64_t DUWORD;
+#define DOUBLE_WORD(pop1, pop2)                                 \
+    (((DUWORD)(bee_UWORD)pop1) << bee_WORD_BIT | (UWORD)pop2)
+#define PUSH_DOUBLE(ud)                                                 \
+    bee_PUSH((bee_UWORD)(ud & bee_WORD_MASK));                          \
+    bee_PUSH((bee_UWORD)((ud >> bee_WORD_BIT) & bee_WORD_MASK));
 
 // Register command-line args
 static int main_argc = 0;

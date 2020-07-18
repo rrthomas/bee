@@ -33,12 +33,6 @@
         THROW_IF_ERROR(bee_push_stack(D0, DSIZE, &DP, v));      \
     } while (0)
 
-#define bee_DOUBLE_WORD(pop1, pop2)                                     \
-    (((bee_DUWORD)(bee_UWORD)pop1) << bee_WORD_BIT | (bee_UWORD)pop2)
-#define bee_PUSH_DOUBLE(ud)                                             \
-    bee_PUSH((bee_UWORD)(ud & bee_WORD_MASK));                          \
-    bee_PUSH((bee_UWORD)((ud >> bee_WORD_BIT) & bee_WORD_MASK));
-
 #define bee_POP_RETURN(ptr)                             \
     THROW_IF_ERROR(bee_pop_stack(S0, SSIZE, &SP, ptr))
 #define bee_PUSH_RETURN(v)                                      \
