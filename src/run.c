@@ -382,7 +382,7 @@ WORD bee_run(void)
                         if (SP == 0)
                             THROW(BEE_ERROR_STACK_UNDERFLOW);
                         else {
-                            WORD value = *bee_stack_position(S0, SP, 0);
+                            WORD value = S0[SP - 1];
                             PUSH(value);
                         }
                         break;

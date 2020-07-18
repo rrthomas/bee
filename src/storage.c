@@ -12,7 +12,6 @@
 
 #include "external_syms.h"
 
-#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -30,13 +29,6 @@
 
 
 // Stacks
-
-_GL_ATTRIBUTE_CONST WORD *bee_stack_position(WORD *s0, UWORD sp, UWORD pos)
-{
-    if (unlikely(pos >= sp))
-        return NULL;
-    return &s0[sp - pos - 1];
-}
 
 int bee_pop_stack(WORD *s0, UWORD ssize, UWORD *sp, WORD *val_ptr)
 {

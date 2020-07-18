@@ -14,7 +14,6 @@
 
 
 #include <stdio.h>      // for the FILE type
-#include <stdbool.h>
 #include <stdint.h>
 #include <limits.h>
 
@@ -48,7 +47,6 @@ enum {
 };
 
 // Stack access
-_GL_ATTRIBUTE_PURE bee_WORD *bee_stack_position(bee_WORD *s0, bee_UWORD sp, bee_UWORD pos);
 int bee_pop_stack(bee_WORD *s0, bee_UWORD ssize, bee_UWORD *sp, bee_WORD *val_ptr);
 int bee_push_stack(bee_WORD *s0, bee_UWORD ssize, bee_UWORD *sp, bee_WORD val);
 
