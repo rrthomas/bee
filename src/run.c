@@ -33,9 +33,7 @@
 WORD run(void)
 {
     for (;;) {
-        WORD error = ERROR_OK, IR;
-        THROW_IF_ERROR(load_word(PC, &IR));
-        PC++;
+        WORD error = ERROR_OK, IR = *PC++;
 
         switch (IR & BEE_OP_MASK) {
         case BEE_OP_CALLI:
@@ -225,9 +223,7 @@ WORD run(void)
                             POP((WORD *)&addr);
                             if (!IS_ALIGNED(addr))
                                 THROW(ERROR_UNALIGNED_ADDRESS);
-                            WORD value;
-                            THROW_IF_ERROR(load_word(addr, &value));
-                            PUSH(value);
+                            PUSH(*addr);
                         }
                         break;
                     case BEE_INSN_STORE:
@@ -238,15 +234,14 @@ WORD run(void)
                                 THROW(ERROR_UNALIGNED_ADDRESS);
                             WORD value;
                             POP(&value);
-                            THROW_IF_ERROR(store_word(addr, value));
+                            *addr = value;
                         }
                         break;
                     case BEE_INSN_LOAD1:
                         {
                             uint8_t *addr;
                             POP((WORD *)&addr);
-                            uint8_t value;
-                            THROW_IF_ERROR(load_byte(addr, &value));
+                            uint8_t value = *(uint8_t *)addr;
                             PUSH((WORD)value);
                         }
                         break;
@@ -256,7 +251,7 @@ WORD run(void)
                             POP((WORD *)&addr);
                             WORD value;
                             POP(&value);
-                            THROW_IF_ERROR(store_byte(addr, (uint8_t)value));
+                            *(uint8_t *)addr = (uint8_t)value;
                         }
                         break;
                     case BEE_INSN_LOAD2:

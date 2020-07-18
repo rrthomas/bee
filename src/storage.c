@@ -60,39 +60,6 @@ int push_stack(WORD *s0, UWORD ssize, UWORD *sp, WORD val)
 }
 
 
-// General memory access
-
-int load_word(WORD *ptr, WORD *value)
-{
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
-    *value = *(WORD *)ptr;
-#pragma GCC diagnostic pop
-    return ERROR_OK;
-}
-
-int load_byte(uint8_t *ptr, uint8_t *value)
-{
-    *value = *ptr;
-    return ERROR_OK;
-}
-
-int store_word(WORD *ptr, WORD value)
-{
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
-    *(WORD *)ptr = value;
-#pragma GCC diagnostic pop
-    return ERROR_OK;
-}
-
-int store_byte(uint8_t *ptr, uint8_t value)
-{
-    *ptr = value;
-    return ERROR_OK;
-}
-
-
 // Initialise VM state.
 int init(WORD *buf, WORD memory_size, WORD stack_size, WORD return_stack_size)
 {

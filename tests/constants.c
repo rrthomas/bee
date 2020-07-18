@@ -22,9 +22,7 @@ int main(void)
     pushi(ERROR_BREAK); pushi(12345678);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
-        WORD temp = 0;
-        assert(load_word(PC, &temp) == ERROR_OK);
-        printf("Instruction = %s\n", disass(temp, PC));
+        printf("Instruction = %s\n", disass(*PC, PC));
         assert(single_step() == ERROR_BREAK);
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);

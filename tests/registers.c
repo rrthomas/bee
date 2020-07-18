@@ -43,9 +43,7 @@ int main(void)
     correct[steps++] = xasprintf("%s", "");
 
     for (unsigned i = 0; i < steps; i++) {
-        WORD temp = 0;
-        assert(load_word(PC, &temp) == ERROR_OK);
-        printf("Instruction = %s\n", disass(temp, PC));
+        printf("Instruction = %s\n", disass(*PC, PC));
         assert(single_step() == ERROR_BREAK);
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);

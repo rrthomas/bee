@@ -18,9 +18,7 @@
 #define init_defaults bee_init_defaults
 #define IS_ALIGNED bee_IS_ALIGNED
 #define IR bee_IR
-#define load_byte bee_load_byte
 #define load_object bee_load_object
-#define load_word bee_load_word
 #define LSHIFT bee_LSHIFT
 #define M0 bee_M0
 #define MSIZE bee_MSIZE
@@ -41,8 +39,6 @@
 #define DP bee_DP
 #define DSIZE bee_DSIZE
 #define stack_position bee_stack_position
-#define store_byte bee_store_byte
-#define store_word bee_store_word
 #define UWORD bee_UWORD
 #define WORD bee_WORD
 #define WORD_BIT bee_WORD_BIT

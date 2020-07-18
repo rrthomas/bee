@@ -34,7 +34,7 @@ static uint8_t *current; // where we assemble the next instruction word or liter
 void word(WORD value)
 {
     current = (uint8_t *)ALIGN(current);
-    store_word((WORD *)current, value);
+    *(WORD *)current = value;
     current += WORD_BYTES;
 }
 
@@ -50,7 +50,7 @@ void ass_trap(UWORD code)
 
 void ass_byte(uint8_t b)
 {
-    store_byte(current++, b);
+    *current++ = b;
 }
 
 void pushi(WORD literal)
@@ -356,20 +356,18 @@ static WORD *compute_next_PC(WORD inst)
 WORD single_step(void)
 {
     WORD error = 0;
-    WORD inst, next_inst;
-    if ((error = load_word(PC, &inst)) != ERROR_OK)
-        return error;
+    WORD inst = *PC, next_inst;
     WORD *next_PC = compute_next_PC(inst);
     int next_PC_valid = next_PC != NULL && IS_ALIGNED(next_PC);
     if (next_PC_valid) {
-        assert(load_word(next_PC, &next_inst) == ERROR_OK);
-        assert(store_word(next_PC, (((BEE_INSN_BREAK << 2) | BEE_OP2_INSN) << 2) | BEE_OP_LEVEL2) == ERROR_OK);
+        next_inst = *next_PC;
+        *next_PC = (((BEE_INSN_BREAK << 2) | BEE_OP2_INSN) << 2) | BEE_OP_LEVEL2;
     }
     UWORD save_HANDLER_SP = HANDLER_SP;
     HANDLER_SP = -1;
     error = run();
     if (next_PC_valid) {
-        assert(store_word(next_PC, next_inst) == ERROR_OK);
+        *next_PC = next_inst;
         if (error == ERROR_BREAK)
             PC = next_PC;
     }

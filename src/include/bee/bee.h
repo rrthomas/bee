@@ -56,12 +56,6 @@ int bee_push_stack(bee_WORD *s0, bee_UWORD ssize, bee_UWORD *sp, bee_WORD val);
 
 // Memory access
 
-// Return value is 0 if OK, or error code for invalid address
-int bee_load_word(bee_WORD *ptr, bee_WORD *value);
-int bee_store_word(bee_WORD *ptr, bee_WORD value);
-int bee_load_byte(uint8_t *ptr, uint8_t *value);
-int bee_store_byte(uint8_t *ptr, uint8_t value);
-
 // Interface calls
 bee_WORD bee_run(void);
 int bee_load_object(FILE *file, bee_WORD *ptr);

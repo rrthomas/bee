@@ -37,9 +37,7 @@ static void step(unsigned start, unsigned end)
 {
     if (end > start)
         for (unsigned i = start; i < end; i++) {
-            WORD temp;
-            assert(load_word(PC, &temp) == ERROR_OK);
-            printf("Instruction = %s\n", disass(temp, PC));
+            printf("Instruction = %s\n", disass(*PC, PC));
             assert(single_step() == ERROR_BREAK);
             show_data_stack();
             printf("Result: %d; correct result: %d\n\n", *stack_position(D0, DP, 0),

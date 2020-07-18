@@ -59,9 +59,7 @@ int main(void)
     ass(BEE_INSN_RET);
 
     for (unsigned i = 0; i < steps; i++) {
-        WORD temp = 0;
-        assert(load_word(PC, &temp) == ERROR_OK);
-        printf("Instruction = %s\n", disass(temp, PC));
+        printf("Instruction = %s\n", disass(*PC, PC));
         printf("Instruction %zu: PC = %p; should be %p\n\n", i, PC, correct[i]);
         if (correct[i] != PC) {
             printf("Error in branch tests: PC = %p\n", PC);

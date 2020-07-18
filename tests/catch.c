@@ -76,9 +76,7 @@ int main(void)
     correct[steps++] = xasprintf("%d", -1);
 
     for (unsigned i = 0; i < steps; i++) {
-        WORD temp = 0;
-        assert(load_word(PC, &temp) == ERROR_OK);
-        printf("Instruction = %s\n", disass(temp, PC));
+        printf("Instruction = %s\n", disass(*PC, PC));
         WORD ret = single_step();
         printf("single_step() returns %d (%s)\n", ret, error_to_msg(ret)); // Some instructions will error.
         show_data_stack();

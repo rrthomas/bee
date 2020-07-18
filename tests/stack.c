@@ -43,9 +43,7 @@ int main(void)
             printf("Error in stack tests: PC = %p\n", PC);
             exit(1);
         }
-        WORD temp = 0;
-        assert(load_word(PC, &temp) == ERROR_OK);
-        printf("Instruction = %s\n", disass(temp, PC));
+        printf("Instruction = %s\n", disass(*PC, PC));
         assert(single_step() == ERROR_BREAK);
     }
 
