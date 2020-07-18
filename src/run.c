@@ -1,4 +1,4 @@
-// The interface call run() : integer.
+// The interpreter main loop.
 //
 // (c) Reuben Thomas 1994-2020
 //
@@ -30,7 +30,7 @@
 
 
 // Execution function
-WORD run(void)
+WORD bee_run(void)
 {
     for (;;) {
         WORD error = ERROR_OK, IR = *PC++;
@@ -378,7 +378,7 @@ WORD run(void)
                         if (SP == 0)
                             THROW(ERROR_STACK_UNDERFLOW);
                         else {
-                            WORD value = *stack_position(S0, SP, 0);
+                            WORD value = *bee_stack_position(S0, SP, 0);
                             PUSH(value);
                         }
                         break;

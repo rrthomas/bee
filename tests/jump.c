@@ -20,7 +20,7 @@ int main(void)
     unsigned steps = 0;
 
     size_t size = 4096;
-    init_defaults((WORD *)calloc(size, WORD_BYTES), size);
+    bee_init_defaults((WORD *)calloc(size, WORD_BYTES), size);
 
     ass_goto(M0);
     correct[steps++] = label();

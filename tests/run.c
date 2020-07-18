@@ -1,5 +1,5 @@
-// Test that run works, and that the return value of the HALT instruction is
-// correctly returned.
+// Test that bee_run() works, and that the return value of the THROW
+// instruction is correctly returned.
 //
 // (c) Reuben Thomas 1995-2020
 //
@@ -14,7 +14,7 @@
 
 int main(void)
 {
-    int i = init_defaults((WORD *)calloc(1024, 1), 256);
+    int i = bee_init_defaults((WORD *)calloc(1024, 1), 256);
     if (i != 0) {
         printf("Error in run() tests: init with valid parameters failed\n");
         exit(1);
@@ -27,7 +27,7 @@ int main(void)
     ass(BEE_INSN_THROW);
     WORD *final_PC = label();
 
-    WORD ret = run();
+    WORD ret = bee_run();
 
     printf("Return value should be %d and is %"PRId32"\n", ret_code, ret);
     if (ret != ret_code) {
@@ -37,7 +37,7 @@ int main(void)
 
     printf("PC should now be %p\n", final_PC);
     if (PC != (WORD *)final_PC) {
-        printf("Error in run() tests: PC = %p\n", PC);
+        printf("Error in bee_run() tests: PC = %p\n", PC);
         exit(1);
     }
 

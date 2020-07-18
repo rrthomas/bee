@@ -16,7 +16,7 @@ const char *correct[] = { "-256", "-256 12345678" };
 
 int main(void)
 {
-    init_defaults((WORD *)calloc(1024, 1), 256);
+    bee_init_defaults((WORD *)calloc(1024, 1), 256);
 
     ass_goto(M0);
     pushi(ERROR_BREAK); pushi(12345678);

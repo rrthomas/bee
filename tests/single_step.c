@@ -13,7 +13,7 @@
 
 int main(void)
 {
-    init_defaults((WORD *)calloc(1024, 1), 256);
+    bee_init_defaults((WORD *)calloc(1024, 1), 256);
 
     ass_goto(M0);
 

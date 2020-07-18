@@ -23,7 +23,7 @@ WORD *test[sizeof(result) / sizeof(result[0])];
 int main(void)
 {
     size_t size = 4096, tests = 0;
-    init_defaults((WORD *)calloc(size, WORD_BYTES), size);
+    bee_init_defaults((WORD *)calloc(size, WORD_BYTES), size);
     setbuf(stdout, NULL);
 
     ass_goto(M0);
@@ -65,7 +65,7 @@ int main(void)
         }
 
         PC = test[i];
-        WORD res = run();
+        WORD res = bee_run();
 
         if (result[i] != res) {
              printf("Error in errors tests: test %zu failed; PC = %p\n", i + 1, PC);

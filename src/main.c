@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
 
     if ((memory = (WORD *)calloc(memory_size, WORD_BYTES)) == NULL)
         die("could not allocate %"PRIu32" words of memory", memory_size);
-    init(memory, memory_size, stack_size, return_stack_size);
+    bee_init(memory, memory_size, stack_size, return_stack_size);
 
     argc -= optind;
     if (argc < 1) {
@@ -185,17 +185,17 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    register_args(argc, (const char **)(argv + optind));
+    bee_register_args(argc, (const char **)(argv + optind));
     FILE *handle = fopen(argv[optind], "rb");
     if (handle == NULL)
         die("cannot not open file %s", argv[optind]);
-    if (load_object(handle, M0) != 0)
+    if (bee_load_object(handle, M0) != 0)
         die("could not read file %s, or file is invalid", argv[optind]);
 
     if (gdb_target == true) {
-        for (int res = ERROR_BREAK; handle_exception(res); res = run())
+        for (int res = ERROR_BREAK; handle_exception(res); res = bee_run())
             ;
         exit(EXIT_SUCCESS);
     } else
-        return run();
+        return bee_run();
 }

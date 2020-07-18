@@ -18,7 +18,7 @@ int main(void)
     unsigned steps = 0;
     setbuf(stdout, NULL);
 
-    init_defaults((WORD *)malloc(4096), 1024);
+    bee_init_defaults((WORD *)malloc(4096), 1024);
 
     ass_goto(M0);
     pushi(8);

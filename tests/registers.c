@@ -18,7 +18,7 @@ int main(void)
     unsigned steps = 0;
 
     size_t size = 1024;
-    init_defaults((WORD *)calloc(size, 1), size / WORD_BYTES);
+    bee_init_defaults((WORD *)calloc(size, 1), size / WORD_BYTES);
 
     ass_goto(M0);
     ass(BEE_INSN_GET_M0);

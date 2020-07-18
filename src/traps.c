@@ -39,7 +39,7 @@ verify(sizeof(int) <= sizeof(WORD));
 // Register command-line args
 static int main_argc = 0;
 static const char **main_argv;
-void register_args(int argc, const char *argv[])
+void bee_register_args(int argc, const char *argv[])
 {
      main_argc = argc;
      main_argv = argv;

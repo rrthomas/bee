@@ -32,14 +32,14 @@
 
 // Stacks
 
-_GL_ATTRIBUTE_CONST WORD *stack_position(WORD *s0, UWORD sp, UWORD pos)
+_GL_ATTRIBUTE_CONST WORD *bee_stack_position(WORD *s0, UWORD sp, UWORD pos)
 {
     if (unlikely(pos >= sp))
         return NULL;
     return &s0[sp - pos - 1];
 }
 
-int pop_stack(WORD *s0, UWORD ssize, UWORD *sp, WORD *val_ptr)
+int bee_pop_stack(WORD *s0, UWORD ssize, UWORD *sp, WORD *val_ptr)
 {
     if (unlikely(*sp == 0))
         return ERROR_STACK_UNDERFLOW;
@@ -50,7 +50,7 @@ int pop_stack(WORD *s0, UWORD ssize, UWORD *sp, WORD *val_ptr)
     return ERROR_OK;
 }
 
-int push_stack(WORD *s0, UWORD ssize, UWORD *sp, WORD val)
+int bee_push_stack(WORD *s0, UWORD ssize, UWORD *sp, WORD val)
 {
     if (unlikely(*sp >= ssize))
         return ERROR_STACK_OVERFLOW;
@@ -61,7 +61,7 @@ int push_stack(WORD *s0, UWORD ssize, UWORD *sp, WORD val)
 
 
 // Initialise VM state.
-int init(WORD *buf, WORD memory_size, WORD stack_size, WORD return_stack_size)
+int bee_init(WORD *buf, WORD memory_size, WORD stack_size, WORD return_stack_size)
 {
     if (buf == NULL)
         return -1;
@@ -89,7 +89,7 @@ int init(WORD *buf, WORD memory_size, WORD stack_size, WORD return_stack_size)
     return 0;
 }
 
-int init_defaults(WORD *buf, WORD memory_size)
+int bee_init_defaults(WORD *buf, WORD memory_size)
 {
-    return init(buf, memory_size, DEFAULT_STACK_SIZE, DEFAULT_STACK_SIZE);
+    return bee_init(buf, memory_size, DEFAULT_STACK_SIZE, DEFAULT_STACK_SIZE);
 }

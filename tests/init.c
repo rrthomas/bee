@@ -14,10 +14,10 @@
 
 int main(void)
 {
-    int i = init_defaults((WORD *)NULL, 4);
-    printf("init_defaults((WORD *)NULL, 4) should return -1; returns: %d\n", i);
+    int i = bee_init_defaults((WORD *)NULL, 4);
+    printf("bee_init_defaults((WORD *)NULL, 4) should return -1; returns: %d\n", i);
     if (i != -1) {
-        printf("Error in init_defaults() tests: init with invalid parameters "
+        printf("Error in bee_init_defaults() tests: init with invalid parameters "
             "succeeded\n");
         exit(1);
     }
@@ -25,12 +25,12 @@ int main(void)
     size_t size = 1024;
     WORD *ptr = (WORD *)malloc(size);
     assert(ptr);
-    i = init_defaults(ptr, size / WORD_BYTES);
+    i = bee_init_defaults(ptr, size / WORD_BYTES);
     if (i != 0) {
-        printf("Error in init_defaults() tests: init with valid parameters failed\n");
+        printf("Error in bee_init_defaults() tests: init with valid parameters failed\n");
         exit(1);
     }
 
-    printf("init_defaults() tests ran OK\n");
+    printf("bee_init_defaults() tests ran OK\n");
     return 0;
 }

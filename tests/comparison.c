@@ -40,9 +40,9 @@ static void step(unsigned start, unsigned end)
             printf("Instruction = %s\n", disass(*PC, PC));
             assert(single_step() == ERROR_BREAK);
             show_data_stack();
-            printf("Result: %d; correct result: %d\n\n", *stack_position(D0, DP, 0),
+            printf("Result: %d; correct result: %d\n\n", *bee_stack_position(D0, DP, 0),
                    correct[i]);
-            if (correct[i] != *stack_position(D0, DP, 0)) {
+            if (correct[i] != *bee_stack_position(D0, DP, 0)) {
                 printf("Error in comparison tests: PC = %p\n", PC);
                 exit(1);
             }
@@ -52,7 +52,7 @@ static void step(unsigned start, unsigned end)
 
 int main(void)
 {
-    init_defaults((WORD *)malloc(1024), 256);
+    bee_init_defaults((WORD *)malloc(1024), 256);
 
     ass_goto(M0);
     ass(BEE_INSN_LT); ass(BEE_INSN_LT); ass(BEE_INSN_LT); ass(BEE_INSN_LT);

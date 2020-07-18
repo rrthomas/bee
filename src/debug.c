@@ -365,7 +365,7 @@ WORD single_step(void)
     }
     UWORD save_HANDLER_SP = HANDLER_SP;
     HANDLER_SP = -1;
-    error = run();
+    error = bee_run();
     if (next_PC_valid) {
         *next_PC = next_inst;
         if (error == ERROR_BREAK)
