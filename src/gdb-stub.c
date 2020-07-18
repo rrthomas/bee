@@ -81,7 +81,7 @@ enum regnames {
 };
 
 /* BUFMAX defines the maximum number of characters in inbound/outbound buffers. */
-/* At least (number of registers) * bee_WORD_BYTES * 2 are needed for register packets. */
+/* At least (number of registers) * WORD_BYTES * 2 are needed for register packets. */
 #define BUFMAX 2048
 
 static _GL_ATTRIBUTE_FORMAT_PRINTF(1, 0) void debug(const char *format, ...)
@@ -245,13 +245,13 @@ static struct error_info
   int error;		/* Bee error code */
   unsigned char signo;		/* Signal that we map this error into */
 } error_info[] = {
-  {bee_ERROR_INVALID_OPCODE, SIGILL},
-  {bee_ERROR_STACK_UNDERFLOW, SIGSEGV},
-  {bee_ERROR_STACK_OVERFLOW, SIGSEGV},
-  {bee_ERROR_INVALID_LOAD, SIGSEGV},
-  {bee_ERROR_INVALID_STORE, SIGSEGV},
-  {bee_ERROR_UNALIGNED_ADDRESS, SIGBUS},
-  {bee_ERROR_BREAK, SIGTRAP},
+  {ERROR_INVALID_OPCODE, SIGILL},
+  {ERROR_STACK_UNDERFLOW, SIGSEGV},
+  {ERROR_STACK_OVERFLOW, SIGSEGV},
+  {ERROR_INVALID_LOAD, SIGSEGV},
+  {ERROR_INVALID_STORE, SIGSEGV},
+  {ERROR_UNALIGNED_ADDRESS, SIGBUS},
+  {ERROR_BREAK, SIGTRAP},
   {0, 0}			/* Must be last */
 };
 
@@ -274,11 +274,11 @@ _GL_ATTRIBUTE_CONST computeSignal (int error)
  */
 
 static unsigned
-hexToInt(char **ptr, bee_UWORD *intValue)
+hexToInt(char **ptr, UWORD *intValue)
 {
   errno = 0;
   char *start = *ptr;
-  *intValue = (bee_UWORD)strtoul(*ptr, ptr, 16);
+  *intValue = (UWORD)strtoul(*ptr, ptr, 16);
   return errno == 0 && start != *ptr;
 }
 
@@ -288,14 +288,14 @@ hexToInt(char **ptr, bee_UWORD *intValue)
  */
 
 static int
-valid_memory_or_stack_range(uint8_t *addr, bee_UWORD length)
+valid_memory_or_stack_range(uint8_t *addr, UWORD length)
 {
-  uint8_t *MEND = (uint8_t *)bee_M0 + (MSIZE * bee_WORD_BYTES);
-  uint8_t *SEND = (uint8_t *)bee_S0 + (SSIZE * bee_WORD_BYTES);
-  uint8_t *DEND = (uint8_t *)bee_D0 + (DSIZE * bee_WORD_BYTES);
-  return (addr >= (uint8_t *)bee_M0 && addr <= MEND && length <= (bee_UWORD)(MEND - addr)) ||
-    (addr >= (uint8_t *)bee_S0 && addr <= SEND && length <= (bee_UWORD)(SEND - addr)) ||
-    (addr >= (uint8_t *)bee_D0 && addr <= DEND && length <= (bee_UWORD)(DEND - addr));
+  uint8_t *MEND = (uint8_t *)M0 + (MSIZE * WORD_BYTES);
+  uint8_t *SEND = (uint8_t *)S0 + (SSIZE * WORD_BYTES);
+  uint8_t *DEND = (uint8_t *)D0 + (DSIZE * WORD_BYTES);
+  return (addr >= (uint8_t *)M0 && addr <= MEND && length <= (UWORD)(MEND - addr)) ||
+    (addr >= (uint8_t *)S0 && addr <= SEND && length <= (UWORD)(SEND - addr)) ||
+    (addr >= (uint8_t *)D0 && addr <= DEND && length <= (UWORD)(DEND - addr));
 }
 
 /*
@@ -307,8 +307,8 @@ int
 handle_exception (int error)
 {
   int sigval;
-  bee_UWORD addr;
-  bee_UWORD length = 0;
+  UWORD addr;
+  UWORD length = 0;
 
   /* reply to host that an exception has occurred */
   debug("handle_exception: %d\n", error);
@@ -323,7 +323,7 @@ handle_exception (int error)
   *ptr++ = hexchars[reg##_idx >> 4];                            \
   *ptr++ = hexchars[reg##_idx & 0xf];                           \
   *ptr++ = ':';                                                 \
-  ptr = mem2hex((uint8_t *)&bee_##reg, ptr, bee_WORD_BYTES);    \
+  ptr = mem2hex((uint8_t *)&reg, ptr, WORD_BYTES);              \
   *ptr++ = ';';
 #include "registers.h"
 #undef R
@@ -353,7 +353,7 @@ handle_exception (int error)
         case 'g':		/* return the value of the CPU registers */
           {
 #define R(reg, type)                                                    \
-            out_ptr = mem2hex((uint8_t *)&bee_##reg, out_ptr, bee_WORD_BYTES);
+            out_ptr = mem2hex((uint8_t *)&reg, out_ptr, WORD_BYTES);
 #include "registers.h"
 #undef R
           }
@@ -362,8 +362,8 @@ handle_exception (int error)
         case 'G':	   /* set the value of the CPU registers - return OK */
           {
 #define R(reg, type)                                                    \
-            hex2mem(in_ptr, (uint8_t *)&bee_##reg, bee_WORD_BYTES);     \
-            in_ptr += bee_WORD_BYTES * 2; /* Advance over WORD_BYTES*2 hex characters. */
+            hex2mem(in_ptr, (uint8_t *)&reg, WORD_BYTES);     \
+            in_ptr += WORD_BYTES * 2; /* Advance over WORD_BYTES*2 hex characters. */
 #include "registers.h"
 #undef R
             strcpy(out_ptr, "OK");
@@ -411,7 +411,7 @@ handle_exception (int error)
         case 'c':    /* cAA..AA    Continue at address AA..AA(optional) */
           /* try to read optional parameter, pc unchanged if no parm */
           if (hexToInt(&in_ptr, &addr))
-            bee_PC = (bee_WORD *)addr;
+            PC = (WORD *)addr;
           return 1;
 
         case 'k':    /* kill the program */
