@@ -1,18 +1,12 @@
 // Private implementation-specific APIs that are shared between modules.
 //
-// (c) Reuben Thomas 1994-2018
+// (c) Reuben Thomas 1994-2020
 //
 // The package is distributed under the GNU Public License version 3, or,
 // at your option, any later version.
 //
 // THIS PROGRAM IS PROVIDED AS IS, WITH NO WARRANTY. USE IS AT THE USER’S
 // RISK.
-
-#ifndef BEE_PRIVATE
-#define BEE_PRIVATE
-
-
-#include "config.h"
 
 // Optimization
 // Hint that `x` is usually true/false.
@@ -26,15 +20,55 @@
 #endif
 
 
-// Address checking
-#define CHECK_ALIGNED(a)                                        \
-    if (!IS_ALIGNED(a))                                         \
-        THROW(BEE_ERROR_UNALIGNED_ADDRESS);
+// Errors
+#define THROW(code)                             \
+    do {                                        \
+        error = code;                           \
+        goto error;                             \
+    } while (0)
+
+#define THROW_IF_ERROR(code)                    \
+    if (code != BEE_ERROR_OK)                   \
+        THROW(code)
+
+
+// Stack access
+#define POP(ptr)                                        \
+    THROW_IF_ERROR(bee_pop_stack(D0, DSIZE, &DP, ptr))
+#define PUSH(v)                                                 \
+    do {                                                        \
+        THROW_IF_ERROR(bee_push_stack(D0, DSIZE, &DP, v));      \
+    } while (0)
+
+#define POP_RETURN(ptr)                                 \
+    THROW_IF_ERROR(bee_pop_stack(S0, SSIZE, &SP, ptr))
+#define PUSH_RETURN(v)                                          \
+    do {                                                        \
+        THROW_IF_ERROR(bee_push_stack(S0, SSIZE, &SP, v));      \
+    } while (0)
+
+
+// Memory access
+
+// Align a VM address
+#define ALIGN(a)                                                \
+    (((UWORD)(a) + bee_WORD_BYTES - 1) & (-bee_WORD_BYTES))
+
+// Check whether a VM address is aligned
+#define IS_ALIGNED(a)                                           \
+    (((uint8_t *)((UWORD)(a) & (bee_WORD_BYTES - 1)) == 0))
+
+// Portable left shift (the behaviour of << with overflow (including on any
+// negative number) is undefined)
+#define LSHIFT(n, p)                            \
+    (((n) & ((UWORD)-1 >> p)) << p)
+
+// Portable arithmetic right shift (the behaviour of >> on signed
+// quantities is implementation-defined in C99)
+#define ARSHIFT(n, p)                                           \
+    (((n) >> (p)) | (LSHIFT(-((n) < 0), (bee_WORD_BIT - p))))
 
 
 // Traps
 WORD trap(WORD code);
 WORD trap_libc(UWORD function);
-
-
-#endif

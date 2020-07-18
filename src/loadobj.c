@@ -18,7 +18,7 @@
 
 #include "bee/bee.h"
 
-#include "aux.h"
+#include "private.h"
 
 
 // Return the length of a seekable stream, or `-1` if not seekable

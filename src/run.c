@@ -16,10 +16,14 @@
 
 #include "bee/bee.h"
 
-#include "aux.h"
 #include "opcodes.h"
 #include "private.h"
 
+
+// Address checking
+#define CHECK_ALIGNED(a)                                        \
+    if (!IS_ALIGNED(a))                                         \
+        THROW(BEE_ERROR_UNALIGNED_ADDRESS);
 
 // Division macros
 #define DIV_CATCH_ZERO(a, b) ((b) == 0 ? 0 : (a) / (b))

@@ -18,7 +18,6 @@
 
 #include "bee/bee.h"
 
-#include "aux.h"
 #include "private.h"
 
 

@@ -53,7 +53,7 @@
 
 #include "bee/bee.h"
 
-#include "aux.h"
+#include "private.h"
 #include "debug.h"
 #include "gdb-stub.h"
 

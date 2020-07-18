@@ -25,7 +25,7 @@
 
 #include "bee/bee.h"
 
-#include "aux.h"
+#include "private.h"
 #include "debug.h"
 #include "opcodes.h"
 #include "stringify.h"
