@@ -1,7 +1,7 @@
 // Auxiliary public functions.
 // These are undocumented and subject to change.
 //
-// (c) Reuben Thomas 1994-2018
+// (c) Reuben Thomas 1994-2020
 //
 // The package is distributed under the GNU Public License version 3, or,
 // at your option, any later version.
@@ -11,11 +11,6 @@
 
 #ifndef BEE_AUX
 #define BEE_AUX
-
-
-#include <stdio.h>      // for the FILE type
-#include <stdint.h>
-#include <limits.h>
 
 
 // Errors
