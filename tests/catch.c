@@ -64,13 +64,13 @@ int main(void)
     ret_addr = label();
     ass_goto(M0 + (0x600 / WORD_BYTES));
 
-    pushi(ERROR_INVALID_OPCODE);
+    pushi(BEE_ERROR_INVALID_OPCODE);
     correct[steps++] = xasprintf("%d", -1);
     ass(BEE_INSN_THROW);
     correct[steps++] = xasprintf("%d", -1);
     ass_goto(ret_addr);
 
-    pushi(ERROR_OK);
+    pushi(BEE_ERROR_OK);
     correct[steps++] = xasprintf("%d %d", -1, 0);
     ass(BEE_INSN_THROW);
     correct[steps++] = xasprintf("%d", -1);

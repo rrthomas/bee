@@ -65,7 +65,7 @@ int main(void)
             printf("Error in branch tests: PC = %p\n", PC);
             exit(1);
         }
-        assert(single_step() == ERROR_BREAK);
+        assert(single_step() == BEE_ERROR_BREAK);
     }
 
     printf("Branch tests ran OK\n");

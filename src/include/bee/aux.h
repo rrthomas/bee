@@ -26,7 +26,7 @@
     } while (0)
 
 #define THROW_IF_ERROR(code)                    \
-    if (code != ERROR_OK)                       \
+    if (code != BEE_ERROR_OK)                       \
         THROW(code)
 
 

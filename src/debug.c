@@ -368,13 +368,13 @@ WORD single_step(void)
     error = bee_run();
     if (next_PC_valid) {
         *next_PC = next_inst;
-        if (error == ERROR_BREAK)
+        if (error == BEE_ERROR_BREAK)
             PC = next_PC;
     }
     // Restore HANDLER_SP if it wasn't set by CATCH
     if (HANDLER_SP == (UWORD)-1)
         HANDLER_SP = save_HANDLER_SP;
-    if ((error != ERROR_BREAK || inst == ((((BEE_INSN_THROW << 2) | BEE_OP2_INSN) << 2) | BEE_OP_LEVEL2)) &&
+    if ((error != BEE_ERROR_BREAK || inst == ((((BEE_INSN_THROW << 2) | BEE_OP2_INSN) << 2) | BEE_OP_LEVEL2)) &&
         HANDLER_SP != (UWORD)-1) {
         // If an error occurred or THROW was executed, and there's a saved
         // error handler, execute it.

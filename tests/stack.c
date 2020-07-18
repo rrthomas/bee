@@ -44,7 +44,7 @@ int main(void)
             exit(1);
         }
         printf("Instruction = %s\n", disass(*PC, PC));
-        assert(single_step() == ERROR_BREAK);
+        assert(single_step() == BEE_ERROR_BREAK);
     }
 
     printf("Stack tests ran OK\n");

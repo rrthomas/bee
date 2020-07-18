@@ -26,15 +26,10 @@
 #endif
 
 
-// Memory access
-
 // Address checking
-#define CHECK_ADDRESS(a, cond, code)            \
-    if (!(cond))                                \
-        THROW(code);
-
 #define CHECK_ALIGNED(a)                                        \
-    CHECK_ADDRESS(a, IS_ALIGNED(a), ERROR_UNALIGNED_ADDRESS)
+    if (!IS_ALIGNED(a))                                         \
+        THROW(BEE_ERROR_UNALIGNED_ADDRESS);
 
 
 // Traps

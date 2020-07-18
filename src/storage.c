@@ -42,21 +42,21 @@ _GL_ATTRIBUTE_CONST WORD *bee_stack_position(WORD *s0, UWORD sp, UWORD pos)
 int bee_pop_stack(WORD *s0, UWORD ssize, UWORD *sp, WORD *val_ptr)
 {
     if (unlikely(*sp == 0))
-        return ERROR_STACK_UNDERFLOW;
+        return BEE_ERROR_STACK_UNDERFLOW;
     else if (unlikely(*sp > ssize))
-        return ERROR_STACK_OVERFLOW;
+        return BEE_ERROR_STACK_OVERFLOW;
     (*sp)--;
     *val_ptr = s0[*sp];
-    return ERROR_OK;
+    return BEE_ERROR_OK;
 }
 
 int bee_push_stack(WORD *s0, UWORD ssize, UWORD *sp, WORD val)
 {
     if (unlikely(*sp >= ssize))
-        return ERROR_STACK_OVERFLOW;
+        return BEE_ERROR_STACK_OVERFLOW;
     s0[*sp] = val;
     (*sp)++;
-    return ERROR_OK;
+    return BEE_ERROR_OK;
 }
 
 

@@ -19,11 +19,11 @@ int main(void)
     bee_init_defaults((WORD *)calloc(1024, 1), 256);
 
     ass_goto(M0);
-    pushi(ERROR_BREAK); pushi(12345678);
+    pushi(BEE_ERROR_BREAK); pushi(12345678);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
         printf("Instruction = %s\n", disass(*PC, PC));
-        assert(single_step() == ERROR_BREAK);
+        assert(single_step() == BEE_ERROR_BREAK);
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {

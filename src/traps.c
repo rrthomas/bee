@@ -50,7 +50,7 @@ WORD trap_libc(UWORD function)
 {
     WORD temp = 0;
 
-    int error = ERROR_OK;
+    int error = BEE_ERROR_OK;
     switch (function) {
     case TRAP_LIBC_STRLEN: // ( a-addr -- u )
         {
@@ -219,7 +219,7 @@ WORD trap_libc(UWORD function)
         PUSH((WORD)main_argv);
         break;
     default:
-        error = ERROR_INVALID_FUNCTION;
+        error = BEE_ERROR_INVALID_FUNCTION;
         break;
     }
 
@@ -229,7 +229,7 @@ WORD trap_libc(UWORD function)
 
 WORD trap(WORD code)
 {
-    int error = ERROR_OK;
+    int error = BEE_ERROR_OK;
     switch (code) {
     case TRAP_LIBC:
         {
@@ -239,7 +239,7 @@ WORD trap(WORD code)
         }
         break;
     default:
-        return ERROR_INVALID_LIBRARY;
+        return BEE_ERROR_INVALID_LIBRARY;
         break;
     }
 

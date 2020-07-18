@@ -22,7 +22,7 @@ int main(void)
         // Assemble the test as we go!
         ass(BEE_INSN_WORD_BYTES);
         printf("PC = %p\n", PC);
-        assert(single_step() == ERROR_BREAK);
+        assert(single_step() == BEE_ERROR_BREAK);
     }
 
     WORD *final_PC = M0 + steps;

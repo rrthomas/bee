@@ -38,7 +38,7 @@ static void step(unsigned start, unsigned end)
     if (end > start)
         for (unsigned i = start; i < end; i++) {
             printf("Instruction = %s\n", disass(*PC, PC));
-            assert(single_step() == ERROR_BREAK);
+            assert(single_step() == BEE_ERROR_BREAK);
             show_data_stack();
             printf("Result: %d; correct result: %d\n\n", *bee_stack_position(D0, DP, 0),
                    correct[i]);

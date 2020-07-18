@@ -116,7 +116,7 @@ int main(void)
 
     for (size_t i = 0; i < steps; i++) {
         printf("Instruction = %s\n", disass(*PC, PC));
-        assert(single_step() == ERROR_BREAK);
+        assert(single_step() == BEE_ERROR_BREAK);
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {

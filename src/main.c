@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
         die("could not read file %s, or file is invalid", argv[optind]);
 
     if (gdb_target == true) {
-        for (int res = ERROR_BREAK; handle_exception(res); res = bee_run())
+        for (int res = BEE_ERROR_BREAK; handle_exception(res); res = bee_run())
             ;
         exit(EXIT_SUCCESS);
     } else

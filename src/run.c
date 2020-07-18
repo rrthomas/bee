@@ -33,7 +33,7 @@
 WORD bee_run(void)
 {
     for (;;) {
-        WORD error = ERROR_OK, IR = *PC++;
+        WORD error = BEE_ERROR_OK, IR = *PC++;
 
         switch (IR & BEE_OP_MASK) {
         case BEE_OP_CALLI:
@@ -137,7 +137,7 @@ WORD bee_run(void)
                         break;
                     case BEE_INSN_POP:
                         if (DP == 0)
-                            THROW(ERROR_STACK_UNDERFLOW);
+                            THROW(BEE_ERROR_STACK_UNDERFLOW);
                         DP--;
                         break;
                     case BEE_INSN_DUP:
@@ -145,7 +145,7 @@ WORD bee_run(void)
                             UWORD depth;
                             POP((WORD *)&depth);
                             if (depth >= DP)
-                                THROW(ERROR_STACK_UNDERFLOW);
+                                THROW(BEE_ERROR_STACK_UNDERFLOW);
                             else
                                 PUSH(D0[DP - (depth + 1)]);
                         }
@@ -157,7 +157,7 @@ WORD bee_run(void)
                             WORD value;
                             POP(&value);
                             if (depth >= DP)
-                                THROW(ERROR_STACK_UNDERFLOW);
+                                THROW(BEE_ERROR_STACK_UNDERFLOW);
                             else
                                 D0[DP - (depth + 1)] = value;
                         }
@@ -167,7 +167,7 @@ WORD bee_run(void)
                             UWORD depth;
                             POP((WORD *)&depth);
                             if (DP == 0 || depth >= DP - 1)
-                                THROW(ERROR_STACK_UNDERFLOW);
+                                THROW(BEE_ERROR_STACK_UNDERFLOW);
                             else {
                                 WORD temp = D0[DP - (depth + 2)];
                                 D0[DP - (depth + 2)] = D0[DP - 1];
@@ -222,7 +222,7 @@ WORD bee_run(void)
                             WORD *addr;
                             POP((WORD *)&addr);
                             if (!IS_ALIGNED(addr))
-                                THROW(ERROR_UNALIGNED_ADDRESS);
+                                THROW(BEE_ERROR_UNALIGNED_ADDRESS);
                             PUSH(*addr);
                         }
                         break;
@@ -231,7 +231,7 @@ WORD bee_run(void)
                             WORD *addr;
                             POP((WORD *)&addr);
                             if (!IS_ALIGNED(addr))
-                                THROW(ERROR_UNALIGNED_ADDRESS);
+                                THROW(BEE_ERROR_UNALIGNED_ADDRESS);
                             WORD value;
                             POP(&value);
                             *addr = value;
@@ -259,7 +259,7 @@ WORD bee_run(void)
                             uint16_t *addr;
                             POP((WORD *)&addr);
                             if ((UWORD)addr % 2 != 0)
-                                THROW(ERROR_UNALIGNED_ADDRESS);
+                                THROW(BEE_ERROR_UNALIGNED_ADDRESS);
                             PUSH(*addr);
                         }
                         break;
@@ -268,7 +268,7 @@ WORD bee_run(void)
                             uint16_t *addr;
                             POP((WORD *)&addr);
                             if ((UWORD)addr % 2 != 0)
-                                THROW(ERROR_UNALIGNED_ADDRESS);
+                                THROW(BEE_ERROR_UNALIGNED_ADDRESS);
                             WORD value;
                             POP(&value);
                             *addr = (uint16_t)value;
@@ -279,7 +279,7 @@ WORD bee_run(void)
                             uint32_t *addr;
                             POP((WORD *)&addr);
                             if ((UWORD)addr % 4 != 0)
-                                THROW(ERROR_UNALIGNED_ADDRESS);
+                                THROW(BEE_ERROR_UNALIGNED_ADDRESS);
                             PUSH(*addr);
                         }
                         break;
@@ -288,7 +288,7 @@ WORD bee_run(void)
                             uint32_t *addr;
                             POP((WORD *)&addr);
                             if ((UWORD)addr % 4 != 0)
-                                THROW(ERROR_UNALIGNED_ADDRESS);
+                                THROW(BEE_ERROR_UNALIGNED_ADDRESS);
                             WORD value;
                             POP(&value);
                             *addr = (uint32_t)value;
@@ -370,13 +370,13 @@ WORD bee_run(void)
                         {
                             WORD value;
                             POP_RETURN(&value);
-                            if (error == ERROR_OK)
+                            if (error == BEE_ERROR_OK)
                                 PUSH(value);
                         }
                         break;
                     case BEE_INSN_DUPR:
                         if (SP == 0)
-                            THROW(ERROR_STACK_UNDERFLOW);
+                            THROW(BEE_ERROR_STACK_UNDERFLOW);
                         else {
                             WORD value = *bee_stack_position(S0, SP, 0);
                             PUSH(value);
@@ -396,7 +396,7 @@ WORD bee_run(void)
                     case BEE_INSN_THROW:
                         {
                             if (DP < 1)
-                                error = ERROR_STACK_UNDERFLOW;
+                                error = BEE_ERROR_STACK_UNDERFLOW;
                             else
                                 POP(&error);
                         error:
@@ -414,7 +414,7 @@ WORD bee_run(void)
                         break;
                     case BEE_INSN_BREAK:
                         PC--;
-                        return ERROR_BREAK;
+                        return BEE_ERROR_BREAK;
                     case BEE_INSN_WORD_BYTES:
                         PUSH(WORD_BYTES);
                         break;
@@ -453,7 +453,7 @@ WORD bee_run(void)
                         PUSH(HANDLER_SP);
                         break;
                     default:
-                        THROW(ERROR_INVALID_OPCODE);
+                        THROW(BEE_ERROR_INVALID_OPCODE);
                         break;
                     }
                 }

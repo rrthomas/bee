@@ -34,8 +34,8 @@ int main(void)
     pushi(TRAP_LIBC_STRLEN); ass_trap(TRAP_LIBC);
     WORD *end = label();
 
-    assert(single_step() == ERROR_BREAK);
-    assert(single_step() == ERROR_BREAK);
+    assert(single_step() == BEE_ERROR_BREAK);
+    assert(single_step() == BEE_ERROR_BREAK);
     printf("argc is %"PRId32", and should be %d\n", *bee_stack_position(D0, DP, 0), argc);
     assert(DP > 0);
     if (D0[--DP] != argc) {
@@ -44,7 +44,7 @@ int main(void)
     }
 
     while (PC < end)
-        assert(single_step() == ERROR_BREAK);
+        assert(single_step() == BEE_ERROR_BREAK);
     printf("arg 1's length is %"PRId32", and should be %zu\n", *bee_stack_position(D0, DP, 0), strlen(argv[1]));
     assert(DP > 0);
     if ((UWORD)D0[--DP] != strlen(argv[1])) {
