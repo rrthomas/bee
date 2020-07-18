@@ -153,6 +153,9 @@ _GL_ATTRIBUTE_CONST const char *disass(WORD opcode, WORD *pc)
                 text = xasprintf("JUMPZI $%"PRIX32, (UWORD)addr);
             }
             break;
+        case BEE_OP2_TRAP:
+            text = xasprintf("TRAP $%"PRIX32, (UWORD)opcode >> 2);
+            break;
         case BEE_OP2_INSN:
             opcode >>= 2;
             if ((UWORD)opcode <= sizeof(mnemonic) / sizeof(mnemonic[0]) &&
@@ -160,9 +163,6 @@ _GL_ATTRIBUTE_CONST const char *disass(WORD opcode, WORD *pc)
                 text = xasprintf("%s", mnemonic[(UWORD)opcode]);
             else
                 text = strdup("(invalid instruction!)");
-            break;
-        case BEE_OP2_TRAP:
-            text = xasprintf("TRAP $%"PRIX32, (UWORD)opcode >> 2);
             break;
         }
     }
@@ -277,6 +277,9 @@ static WORD *compute_next_PC(WORD inst)
         case BEE_OP2_JUMPZI:
             return PC + ARSHIFT(inst, 2);
             break;
+        case BEE_OP2_TRAP:
+            return PC + 1;
+            break;
         case BEE_OP2_INSN:
             switch (inst >> 2) {
             case BEE_INSN_NOP:
@@ -343,9 +346,6 @@ static WORD *compute_next_PC(WORD inst)
             default:
                 return NULL;
             }
-            break;
-        case BEE_OP2_TRAP:
-            return PC + 1;
             break;
         }
     default:

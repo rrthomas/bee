@@ -73,6 +73,9 @@ WORD run(void)
                     }
                 }
                 break;
+            case BEE_OP2_TRAP:
+                THROW_IF_ERROR(trap(IR >> 2));
+                break;
             case BEE_OP2_INSN:
                 {
                     WORD opcode = IR >> 2;
@@ -459,9 +462,6 @@ WORD run(void)
                         break;
                     }
                 }
-                break;
-            case BEE_OP2_TRAP:
-                THROW_IF_ERROR(trap(IR >> 2));
                 break;
             }
         }

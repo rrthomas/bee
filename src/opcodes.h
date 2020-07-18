@@ -15,7 +15,7 @@
       The opcodes are BEE_OP_* below.
    2. Bits 0-1 are 11, opcode in bits 2-3, rest of word is immediate
       operand.  The opcodes are BEE_OP2_* below.
-   3. Bits 0-3 are 1011, rest of word is instruction opcode.
+   3. Bits 0-3 are 1111, rest of word is instruction opcode.
       The opcodes are BEE_INSN_* below.
 */
 
@@ -47,8 +47,8 @@ enum {
   /* Bits 2 and 3 when bits 0 and 1 are 11.  */
   BEE_OP2_JUMPI   = 0x0,
   BEE_OP2_JUMPZI  = 0x1,
-  BEE_OP2_INSN    = 0x2,
-  BEE_OP2_TRAP    = 0x3,
+  BEE_OP2_TRAP    = 0x2,
+  BEE_OP2_INSN    = 0x3,
   BEE_OP2_MASK    = 0x3,
 
   BEE_OP2_BAD     = 0x4,
