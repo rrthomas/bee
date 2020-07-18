@@ -138,18 +138,18 @@ WORD run(void)
                         }
                         break;
                     case BEE_INSN_POP:
-                        if (SP == 0)
+                        if (DP == 0)
                             THROW(ERROR_STACK_UNDERFLOW);
-                        SP--;
+                        DP--;
                         break;
                     case BEE_INSN_DUP:
                         {
                             UWORD depth;
                             POP((WORD *)&depth);
-                            if (depth >= SP)
+                            if (depth >= DP)
                                 THROW(ERROR_STACK_UNDERFLOW);
                             else
-                                PUSH(S0[SP - (depth + 1)]);
+                                PUSH(D0[DP - (depth + 1)]);
                         }
                         break;
                     case BEE_INSN_SET:
@@ -158,22 +158,22 @@ WORD run(void)
                             POP((WORD *)&depth);
                             WORD value;
                             POP(&value);
-                            if (depth >= SP)
+                            if (depth >= DP)
                                 THROW(ERROR_STACK_UNDERFLOW);
                             else
-                                S0[SP - (depth + 1)] = value;
+                                D0[DP - (depth + 1)] = value;
                         }
                         break;
                     case BEE_INSN_SWAP:
                         {
                             UWORD depth;
                             POP((WORD *)&depth);
-                            if (SP == 0 || depth >= SP - 1)
+                            if (DP == 0 || depth >= DP - 1)
                                 THROW(ERROR_STACK_UNDERFLOW);
                             else {
-                                WORD temp = S0[SP - (depth + 2)];
-                                S0[SP - (depth + 2)] = S0[SP - 1];
-                                S0[SP - 1] = temp;
+                                WORD temp = D0[DP - (depth + 2)];
+                                D0[DP - (depth + 2)] = D0[DP - 1];
+                                D0[DP - 1] = temp;
                             }
                         }
                         break;
@@ -213,7 +213,7 @@ WORD run(void)
                             WORD *real_addr = (WORD *)(addr & ~1);
                             CHECK_ALIGNED(real_addr);
                             if ((addr & 1) == 1) {
-                                POP_RETURN((WORD *)&HANDLER_RP);
+                                POP_RETURN((WORD *)&HANDLER_SP);
                                 PUSH(0);
                             }
                             PC = real_addr;
@@ -380,10 +380,10 @@ WORD run(void)
                         }
                         break;
                     case BEE_INSN_DUPR:
-                        if (RP == 0)
+                        if (SP == 0)
                             THROW(ERROR_STACK_UNDERFLOW);
                         else {
-                            WORD value = *stack_position(R0, RP, 0);
+                            WORD value = *stack_position(S0, SP, 0);
                             PUSH(value);
                         }
                         break;
@@ -392,28 +392,28 @@ WORD run(void)
                             WORD *addr;
                             POP((WORD *)&addr);
                             CHECK_ALIGNED(addr);
-                            PUSH_RETURN(HANDLER_RP);
+                            PUSH_RETURN(HANDLER_SP);
                             PUSH_RETURN((UWORD)PC | 1);
-                            HANDLER_RP = RP;
+                            HANDLER_SP = SP;
                             PC = addr;
                         }
                         break;
                     case BEE_INSN_THROW:
                         {
-                            if (SP < 1)
+                            if (DP < 1)
                                 error = ERROR_STACK_UNDERFLOW;
                             else
                                 POP(&error);
                         error:
-                            if (HANDLER_RP == (UWORD)-1)
+                            if (HANDLER_SP == (UWORD)-1)
                                 return error;
                             // Don't push error code if the stack is full.
-                            if (SP < SSIZE)
-                                S0[SP++] = error;
-                            RP = HANDLER_RP;
+                            if (DP < DSIZE)
+                                D0[DP++] = error;
+                            SP = HANDLER_SP;
                             UWORD addr;
                             POP_RETURN((WORD *)&addr);
-                            POP_RETURN((WORD *)&HANDLER_RP);
+                            POP_RETURN((WORD *)&HANDLER_SP);
                             PC = (WORD *)(addr & ~1);
                         }
                         break;
@@ -429,33 +429,33 @@ WORD run(void)
                     case BEE_INSN_GET_MSIZE:
                         PUSH(MSIZE);
                         break;
-                    case BEE_INSN_GET_RSIZE:
-                        PUSH(RSIZE);
-                        break;
-                    case BEE_INSN_GET_RP:
-                        PUSH(RP);
-                        break;
-                    case BEE_INSN_SET_RP:
-                        POP((WORD *)&RP);
-                        break;
                     case BEE_INSN_GET_SSIZE:
                         PUSH(SSIZE);
                         break;
                     case BEE_INSN_GET_SP:
+                        PUSH(SP);
+                        break;
+                    case BEE_INSN_SET_SP:
+                        POP((WORD *)&SP);
+                        break;
+                    case BEE_INSN_GET_DSIZE:
+                        PUSH(DSIZE);
+                        break;
+                    case BEE_INSN_GET_DP:
                         {
-                            WORD value = SP;
+                            WORD value = DP;
                             PUSH(value);
                         }
                         break;
-                    case BEE_INSN_SET_SP:
+                    case BEE_INSN_SET_DP:
                         {
                             WORD value;
                             POP(&value);
-                            SP = value;
+                            DP = value;
                         }
                         break;
-                    case BEE_INSN_GET_HANDLER_RP:
-                        PUSH(HANDLER_RP);
+                    case BEE_INSN_GET_HANDLER_SP:
+                        PUSH(HANDLER_SP);
                         break;
                     default:
                         THROW(ERROR_INVALID_OPCODE);

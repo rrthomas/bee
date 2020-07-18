@@ -28,18 +28,18 @@ int main(void)
 
     ass_goto(M0);
 
-    // test 1: DUP with SP > SSIZE
+    // test 1: DUP with DP > DSIZE
     test[tests++] = label();
-    pushi(SSIZE + 1);
-    ass(BEE_INSN_SET_SP); ass(BEE_INSN_DUP);
-    // test 2: set SP to SSIZE + 1, then try to pop (PUSHR) the stack
+    pushi(DSIZE + 1);
+    ass(BEE_INSN_SET_DP); ass(BEE_INSN_DUP);
+    // test 2: set DP to DSIZE + 1, then try to pop (PUSHR) the stack
     test[tests++] = label();
-    pushi(SSIZE + 1);
-    ass(BEE_INSN_SET_SP); ass(BEE_INSN_PUSHR);
-    // test 3: test SP can be SSIZE
+    pushi(DSIZE + 1);
+    ass(BEE_INSN_SET_DP); ass(BEE_INSN_PUSHR);
+    // test 3: test DP can be DSIZE
     test[tests++] = label();
-    pushi(SSIZE);
-    ass(BEE_INSN_SET_SP); ass(BEE_INSN_PUSHR);
+    pushi(DSIZE);
+    ass(BEE_INSN_SET_DP); ass(BEE_INSN_PUSHR);
     pushi(0); ass(BEE_INSN_THROW);
     // test 4: test CALL of unaligned address
     test[tests++] = label();
@@ -53,7 +53,7 @@ int main(void)
 
     UWORD error = 0;
     for (size_t i = 0; i < sizeof(test) / sizeof(test[0]); i++) {
-        SP = 0;    // reset stack pointer
+        DP = 0;    // reset stack pointer
 
         printf("Test %zu\n", i + 1);
 

@@ -17,20 +17,20 @@ WORD correct[] = { 0, 1, 0, 1, 1, 0, 0, 1, 0, 0 };
 
 static void stack1(void)
 {
-    SP = 0;	// empty the stack
+    DP = 0;	// empty the stack
 
-    S0[SP++] = -4; S0[SP++] = 3;
-    S0[SP++] = 2; S0[SP++] = 2;
-    S0[SP++] = 1; S0[SP++] = 3;
-    S0[SP++] = 3; S0[SP++] = 1;
+    D0[DP++] = -4; D0[DP++] = 3;
+    D0[DP++] = 2; D0[DP++] = 2;
+    D0[DP++] = 1; D0[DP++] = 3;
+    D0[DP++] = 3; D0[DP++] = 1;
 }
 
 static void stack2(void)
 {
-    SP = 0;	// empty the stack
+    DP = 0;	// empty the stack
 
-    S0[SP++] = 1; S0[SP++] = -1;
-    S0[SP++] = 237; S0[SP++] = 237;
+    D0[DP++] = 1; D0[DP++] = -1;
+    D0[DP++] = 237; D0[DP++] = 237;
 }
 
 static void step(unsigned start, unsigned end)
@@ -42,13 +42,13 @@ static void step(unsigned start, unsigned end)
             printf("Instruction = %s\n", disass(temp, PC));
             assert(single_step() == ERROR_BREAK);
             show_data_stack();
-            printf("Result: %d; correct result: %d\n\n", *stack_position(S0, SP, 0),
+            printf("Result: %d; correct result: %d\n\n", *stack_position(D0, DP, 0),
                    correct[i]);
-            if (correct[i] != *stack_position(S0, SP, 0)) {
+            if (correct[i] != *stack_position(D0, DP, 0)) {
                 printf("Error in comparison tests: PC = %p\n", PC);
                 exit(1);
             }
-            SP--;	// drop result of comparison
+            DP--;	// drop result of comparison
         }
 }
 

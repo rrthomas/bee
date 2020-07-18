@@ -32,10 +32,10 @@
 
 // Stack access
 #define bee_POP(ptr)                                    \
-    THROW_IF_ERROR(bee_pop_stack(S0, SSIZE, &SP, ptr))
+    THROW_IF_ERROR(bee_pop_stack(D0, DSIZE, &DP, ptr))
 #define bee_PUSH(v)                                             \
     do {                                                        \
-        THROW_IF_ERROR(bee_push_stack(S0, SSIZE, &SP, v));      \
+        THROW_IF_ERROR(bee_push_stack(D0, DSIZE, &DP, v));      \
     } while (0)
 
 #define bee_DOUBLE_WORD(pop1, pop2)                                     \
@@ -45,10 +45,10 @@
     bee_PUSH((bee_UWORD)((ud >> bee_WORD_BIT) & bee_WORD_MASK));
 
 #define bee_POP_RETURN(ptr)                             \
-    THROW_IF_ERROR(bee_pop_stack(R0, RSIZE, &RP, ptr))
+    THROW_IF_ERROR(bee_pop_stack(S0, SSIZE, &SP, ptr))
 #define bee_PUSH_RETURN(v)                                      \
     do {                                                        \
-        THROW_IF_ERROR(bee_push_stack(R0, RSIZE, &RP, v));      \
+        THROW_IF_ERROR(bee_push_stack(S0, SSIZE, &SP, v));      \
     } while (0)
 
 

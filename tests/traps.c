@@ -36,18 +36,18 @@ int main(void)
 
     assert(single_step() == ERROR_BREAK);
     assert(single_step() == ERROR_BREAK);
-    printf("argc is %"PRId32", and should be %d\n", *stack_position(S0, SP, 0), argc);
-    assert(SP > 0);
-    if (S0[--SP] != argc) {
+    printf("argc is %"PRId32", and should be %d\n", *stack_position(D0, DP, 0), argc);
+    assert(DP > 0);
+    if (D0[--DP] != argc) {
         printf("Error in traps tests: PC = %p\n", PC);
         exit(1);
     }
 
     while (PC < end)
         assert(single_step() == ERROR_BREAK);
-    printf("arg 1's length is %"PRId32", and should be %zu\n", *stack_position(S0, SP, 0), strlen(argv[1]));
-    assert(SP > 0);
-    if ((UWORD)S0[--SP] != strlen(argv[1])) {
+    printf("arg 1's length is %"PRId32", and should be %zu\n", *stack_position(D0, DP, 0), strlen(argv[1]));
+    assert(DP > 0);
+    if ((UWORD)D0[--DP] != strlen(argv[1])) {
         printf("Error in traps tests: PC = %p\n", PC);
         exit(1);
     }

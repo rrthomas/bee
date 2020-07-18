@@ -38,7 +38,7 @@ int main(void)
 {
     init_defaults((WORD *)malloc(1024), 256);
 
-    S0[SP++] = 0xff000000; S0[SP++] = 8; S0[SP++] = 0xff; S0[SP++] = 8;
+    D0[DP++] = 0xff000000; D0[DP++] = 8; D0[DP++] = 0xff; D0[DP++] = 8;
 
     ass_goto(M0);
     ass(BEE_INSN_LSHIFT);

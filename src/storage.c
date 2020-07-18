@@ -103,19 +103,19 @@ int init(WORD *buf, WORD memory_size, WORD stack_size, WORD return_stack_size)
     memset(M0, 0, MSIZE);
 
     PC = M0;
-    SP = 0;
+    DP = 0;
 
-    SSIZE = stack_size;
-    S0 = (WORD *)calloc(SSIZE, WORD_BYTES);
-    if (S0 == NULL)
+    DSIZE = stack_size;
+    D0 = (WORD *)calloc(DSIZE, WORD_BYTES);
+    if (D0 == NULL)
         return -1;
-    RP = 0;
-    HANDLER_RP = (UWORD)-1;
+    SP = 0;
+    HANDLER_SP = (UWORD)-1;
 
-    RSIZE = return_stack_size;
-    R0 = (WORD *)calloc(RSIZE, WORD_BYTES);
-    if (R0 == NULL) {
-        free(R0);
+    SSIZE = return_stack_size;
+    S0 = (WORD *)calloc(SSIZE, WORD_BYTES);
+    if (S0 == NULL) {
+        free(S0);
         return -1;
     }
 

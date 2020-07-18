@@ -30,9 +30,9 @@ typedef uint64_t bee_DUWORD;
 
 // VM registers
 
-extern bee_WORD *bee_PC, *bee_M0, *bee_R0, *bee_S0;
-extern bee_UWORD bee_MSIZE, bee_RSIZE, bee_SSIZE;
-extern bee_UWORD bee_SP, bee_RP, bee_HANDLER_RP;
+extern bee_WORD *bee_PC, *bee_M0, *bee_S0, *bee_D0;
+extern bee_UWORD bee_MSIZE, bee_SSIZE, bee_DSIZE;
+extern bee_UWORD bee_DP, bee_SP, bee_HANDLER_SP;
 
 // Error codes
 enum {

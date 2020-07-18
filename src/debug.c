@@ -112,7 +112,7 @@ static const char *mnemonic[BEE_INSN_UNDEFINED + 1] = {
     "NEGATE", "ADD", "MUL", "DIVMOD", "UDIVMOD", "EQ", "LT", "ULT",
 // 0x20
     "PUSHR", "POPR", "DUPR", "CATCH", "THROW", "BREAK", "WORD_BYTES", "GET_M0",
-    "GET_MSIZE", "GET_RSIZE", "GET_RP", "SET_RP", "GET_SSIZE", "GET_SP", "SET_SP", "GET_HANDLER_RP",
+    "GET_MSIZE", "GET_SSIZE", "GET_SP", "SET_SP", "GET_DSIZE", "GET_SP", "SET_SP", "GET_HANDLER_SP",
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
 };
@@ -183,19 +183,19 @@ static char *_val_data_stack(bool with_hex)
 
     free(picture);
     picture = xasprintf("%s", "");
-    if (SP > SSIZE) {
+    if (DP > DSIZE) {
         picture = xasprintf("%s", "stack overflow");
     } else
-        for (UWORD i = 0; i < SP; i++) {
-            char *ptr = xasprintf("%s%"PRId32, picture, S0[i]);
+        for (UWORD i = 0; i < DP; i++) {
+            char *ptr = xasprintf("%s%"PRId32, picture, D0[i]);
             free(picture);
             picture = ptr;
             if (with_hex) {
-                ptr = xasprintf("%s ($%"PRIX32") ", picture, (UWORD)S0[i]);
+                ptr = xasprintf("%s ($%"PRIX32") ", picture, (UWORD)D0[i]);
                 free(picture);
                 picture = ptr;
             }
-            if (i != SP - 1) {
+            if (i != DP - 1) {
                 ptr = xasprintf("%s ", picture);
                 free(picture);
                 picture = ptr;
@@ -212,9 +212,9 @@ char *val_data_stack(void)
 
 void show_data_stack(void)
 {
-    if (SP == 0)
+    if (DP == 0)
         printf("Data stack empty\n");
-    else if (SP > SSIZE)
+    else if (DP > DSIZE)
         printf("Data stack overflow\n");
     else
         printf("Data stack: %s\n", _val_data_stack(true));
@@ -222,14 +222,14 @@ void show_data_stack(void)
 
 void show_return_stack(void)
 {
-    if (RP == 0)
+    if (SP == 0)
         printf("Return stack empty\n");
-    else if (RP > RSIZE)
+    else if (SP > SSIZE)
         printf("Return stack overflow\n");
     else {
         printf("Return stack: ");
-        for (UWORD i = 0; i < RP; i++)
-            printf("$%"PRIX32" ", (UWORD)R0[i]);
+        for (UWORD i = 0; i < SP; i++)
+            printf("$%"PRIX32" ", (UWORD)S0[i]);
         putchar('\n');
     }
 }
@@ -316,32 +316,32 @@ static WORD *compute_next_PC(WORD inst)
             case BEE_INSN_WORD_BYTES:
             case BEE_INSN_GET_M0:
             case BEE_INSN_GET_MSIZE:
-            case BEE_INSN_GET_RSIZE:
-            case BEE_INSN_GET_RP:
-            case BEE_INSN_SET_RP:
             case BEE_INSN_GET_SSIZE:
             case BEE_INSN_GET_SP:
             case BEE_INSN_SET_SP:
-            case BEE_INSN_GET_HANDLER_RP:
+            case BEE_INSN_GET_DSIZE:
+            case BEE_INSN_GET_DP:
+            case BEE_INSN_SET_DP:
+            case BEE_INSN_GET_HANDLER_SP:
                 return PC + 1;
             case BEE_INSN_JUMP:
             case BEE_INSN_CALL:
             case BEE_INSN_CATCH:
+                if (DP < 1)
+                    return NULL;
+                return (WORD *)(D0[DP - 1]);
+            case BEE_INSN_JUMPZ:
+                if (DP < 2)
+                    return NULL;
+                return D0[DP - 2] == 0 ? (WORD *)D0[DP - 1] : PC + 1;
+            case BEE_INSN_RET:
                 if (SP < 1)
                     return NULL;
-                return (WORD *)(S0[SP - 1]);
-            case BEE_INSN_JUMPZ:
-                if (SP < 2)
-                    return NULL;
-                return S0[SP - 2] == 0 ? (WORD *)S0[SP - 1] : PC + 1;
-            case BEE_INSN_RET:
-                if (RP < 1)
-                    return NULL;
-                return (WORD *)(R0[RP - 1] & ~1);
+                return (WORD *)(S0[SP - 1] & ~1);
             case BEE_INSN_THROW:
-                if (HANDLER_RP == (UWORD)-1 || HANDLER_RP < 2)
+                if (HANDLER_SP == (UWORD)-1 || HANDLER_SP < 2)
                     return NULL;
-                return (WORD *)(R0[HANDLER_RP - 1] & ~1);
+                return (WORD *)(S0[HANDLER_SP - 1] & ~1);
             case BEE_INSN_BREAK:
             default:
                 return NULL;
@@ -365,27 +365,27 @@ WORD single_step(void)
         assert(load_word(next_PC, &next_inst) == ERROR_OK);
         assert(store_word(next_PC, (((BEE_INSN_BREAK << 2) | BEE_OP2_INSN) << 2) | BEE_OP_LEVEL2) == ERROR_OK);
     }
-    UWORD save_HANDLER_RP = HANDLER_RP;
-    HANDLER_RP = -1;
+    UWORD save_HANDLER_SP = HANDLER_SP;
+    HANDLER_SP = -1;
     error = run();
     if (next_PC_valid) {
         assert(store_word(next_PC, next_inst) == ERROR_OK);
         if (error == ERROR_BREAK)
             PC = next_PC;
     }
-    // Restore HANDLER_RP if it wasn't set by CATCH
-    if (HANDLER_RP == (UWORD)-1)
-        HANDLER_RP = save_HANDLER_RP;
+    // Restore HANDLER_SP if it wasn't set by CATCH
+    if (HANDLER_SP == (UWORD)-1)
+        HANDLER_SP = save_HANDLER_SP;
     if ((error != ERROR_BREAK || inst == ((((BEE_INSN_THROW << 2) | BEE_OP2_INSN) << 2) | BEE_OP_LEVEL2)) &&
-        HANDLER_RP != (UWORD)-1) {
+        HANDLER_SP != (UWORD)-1) {
         // If an error occurred or THROW was executed, and there's a saved
         // error handler, execute it.
-        if (SP < SSIZE)
-            S0[SP++] = error;
-        RP = HANDLER_RP;
+        if (DP < DSIZE)
+            D0[DP++] = error;
+        SP = HANDLER_SP;
         UWORD addr;
         POP_RETURN((WORD *)&addr);
-        POP_RETURN((WORD *)&HANDLER_RP);
+        POP_RETURN((WORD *)&HANDLER_SP);
         PC = (WORD *)(addr & ~1);
     }
  error:

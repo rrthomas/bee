@@ -103,15 +103,15 @@ int main(void)
     correct[steps++] = xasprintf("%d", 0);
     ass(BEE_INSN_SET_SP);
     correct[steps++] = xasprintf("%s", "");
-    ass(BEE_INSN_GET_RP);
+    ass(BEE_INSN_GET_SP);
     correct[steps++] = xasprintf("%d", 0);
     ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
     pushi(0);
     correct[steps++] = xasprintf("%d", 0);
-    ass(BEE_INSN_SET_RP);
+    ass(BEE_INSN_SET_SP);
     correct[steps++] = xasprintf("%s", "");
-    ass(BEE_INSN_GET_RP);
+    ass(BEE_INSN_GET_SP);
     correct[steps++] = xasprintf("%d", 0);
 
     for (size_t i = 0; i < steps; i++) {

@@ -1,4 +1,4 @@
-// Test the register instructions, except for those operating on RP and SP
+// Test the register instructions, except for those operating on SP and DP
 // (see memory.c).
 //
 // (c) Reuben Thomas 1994-2020
@@ -29,16 +29,16 @@ int main(void)
     correct[steps++] = xasprintf("%"PRIi32, (WORD)MSIZE);
     ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
-    ass(BEE_INSN_GET_RSIZE);
-    correct[steps++] = xasprintf("%"PRIi32, (WORD)RSIZE);
-    ass(BEE_INSN_POP);
-    correct[steps++] = xasprintf("%s", "");
     ass(BEE_INSN_GET_SSIZE);
     correct[steps++] = xasprintf("%"PRIi32, (WORD)SSIZE);
     ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
-    ass(BEE_INSN_GET_HANDLER_RP);
-    correct[steps++] = xasprintf("%"PRIi32, (WORD)HANDLER_RP);
+    ass(BEE_INSN_GET_DSIZE);
+    correct[steps++] = xasprintf("%"PRIi32, (WORD)DSIZE);
+    ass(BEE_INSN_POP);
+    correct[steps++] = xasprintf("%s", "");
+    ass(BEE_INSN_GET_HANDLER_SP);
+    correct[steps++] = xasprintf("%"PRIi32, (WORD)HANDLER_SP);
     ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
 

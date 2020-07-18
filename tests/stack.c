@@ -21,7 +21,7 @@ int main(void)
 {
     init_defaults((WORD *)malloc(1024), 256);
 
-    S0[SP++] = 3; S0[SP++] =2; S0[SP++] = 1;	// initialise the stack
+    D0[DP++] = 3; D0[DP++] =2; D0[DP++] = 1;	// initialise the stack
 
     ass_goto(M0);
     ass(BEE_INSN_DUP);
