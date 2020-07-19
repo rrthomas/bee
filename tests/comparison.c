@@ -12,48 +12,48 @@
 #include "tests.h"
 
 
-WORD correct[] = { 0, 1, 0, 1, 1, 0, 0, 1, 0, 0 };
+bee_WORD correct[] = { 0, 1, 0, 1, 1, 0, 0, 1, 0, 0 };
 
 
 static void stack1(void)
 {
-    DP = 0;	// empty the stack
+    bee_dp = 0;	// empty the stack
 
-    D0[DP++] = -4; D0[DP++] = 3;
-    D0[DP++] = 2; D0[DP++] = 2;
-    D0[DP++] = 1; D0[DP++] = 3;
-    D0[DP++] = 3; D0[DP++] = 1;
+    bee_d0[bee_dp++] = -4; bee_d0[bee_dp++] = 3;
+    bee_d0[bee_dp++] = 2; bee_d0[bee_dp++] = 2;
+    bee_d0[bee_dp++] = 1; bee_d0[bee_dp++] = 3;
+    bee_d0[bee_dp++] = 3; bee_d0[bee_dp++] = 1;
 }
 
 static void stack2(void)
 {
-    DP = 0;	// empty the stack
+    bee_dp = 0;	// empty the stack
 
-    D0[DP++] = 1; D0[DP++] = -1;
-    D0[DP++] = 237; D0[DP++] = 237;
+    bee_d0[bee_dp++] = 1; bee_d0[bee_dp++] = -1;
+    bee_d0[bee_dp++] = 237; bee_d0[bee_dp++] = 237;
 }
 
 static void step(unsigned start, unsigned end)
 {
     if (end > start)
         for (unsigned i = start; i < end; i++) {
-            printf("Instruction = %s\n", disass(*PC, PC));
+            printf("Instruction = %s\n", disass(*bee_pc, bee_pc));
             assert(single_step() == BEE_ERROR_BREAK);
             show_data_stack();
-            printf("Result: %d; correct result: %d\n\n", D0[DP - 1], correct[i]);
-            if (correct[i] != D0[DP - 1]) {
-                printf("Error in comparison tests: PC = %p\n", PC);
+            printf("Result: %d; correct result: %d\n\n", bee_d0[bee_dp - 1], correct[i]);
+            if (correct[i] != bee_d0[bee_dp - 1]) {
+                printf("Error in comparison tests: bee_pc = %p\n", bee_pc);
                 exit(1);
             }
-            DP--;	// drop result of comparison
+            bee_dp--;	// drop result of comparison
         }
 }
 
 int main(void)
 {
-    bee_init_defaults((WORD *)malloc(1024), 256);
+    bee_init_defaults((bee_WORD *)malloc(1024), 256);
 
-    ass_goto(M0);
+    ass_goto(bee_m0);
     ass(BEE_INSN_LT); ass(BEE_INSN_LT); ass(BEE_INSN_LT); ass(BEE_INSN_LT);
     ass(BEE_INSN_EQ); ass(BEE_INSN_EQ);
     ass(BEE_INSN_ULT); ass(BEE_INSN_ULT); ass(BEE_INSN_ULT); ass(BEE_INSN_ULT);

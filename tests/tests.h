@@ -8,13 +8,7 @@
 // THIS PROGRAM IS PROVIDED AS IS, WITH NO WARRANTY. USE IS AT THE USER’S
 // RISK.
 
-#ifndef BEE_TESTS
-#define BEE_TESTS
-
-
 #include "config.h"
-
-#include "external_syms.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -29,12 +23,3 @@
 #include "debug.h"
 #include "opcodes.h"
 #include "stringify.h"
-
-
-// Helper macros for test data, used to generate absolute addresses without
-// too many casts.
-#define m0 ((WORD)M0)
-#define memory ((WORD)MSIZE)
-
-
-#endif

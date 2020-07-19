@@ -35,6 +35,4 @@ CLOC = cloc --force-lang="C",h
 loc:
 	$(CLOC) $(libbee_la_SOURCES) $(bee_SOURCES)
 
-EXTRA_DIST = external_syms.h
-
 DISTCLEANFILES = bee.1 $(include_HEADERS)

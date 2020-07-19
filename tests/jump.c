@@ -16,23 +16,23 @@
 
 int main(void)
 {
-    WORD *correct[64];
+    bee_WORD *correct[64];
     unsigned steps = 0;
 
     size_t size = 4096;
-    bee_init_defaults((WORD *)calloc(size, WORD_BYTES), size);
+    bee_init_defaults((bee_WORD *)calloc(size, bee_WORD_BYTES), size);
 
-    ass_goto(M0);
+    ass_goto(bee_m0);
     correct[steps++] = label();
-    jumpi(M0 + 48 / WORD_BYTES);
+    jumpi(bee_m0 + 48 / bee_WORD_BYTES);
 
-    ass_goto(M0 + 48 / WORD_BYTES);
+    ass_goto(bee_m0 + 48 / bee_WORD_BYTES);
     correct[steps++] = label();
-    pushreli(M0 + 10000 / WORD_BYTES);
+    pushreli(bee_m0 + 10000 / bee_WORD_BYTES);
     correct[steps++] = label();
     ass(BEE_INSN_JUMP);
 
-    ass_goto(M0 + 10000 / WORD_BYTES);
+    ass_goto(bee_m0 + 10000 / bee_WORD_BYTES);
     correct[steps++] = label();
     pushi(1);
     correct[steps++] = label();
@@ -42,27 +42,27 @@ int main(void)
     correct[steps++] = label();
     pushi(0);
     correct[steps++] = label();
-    jumpzi(M0 + 11000 / WORD_BYTES);
+    jumpzi(bee_m0 + 11000 / bee_WORD_BYTES);
 
-    ass_goto(M0 + 11000 / WORD_BYTES);
+    ass_goto(bee_m0 + 11000 / bee_WORD_BYTES);
     correct[steps++] = label();
-    pushreli(M0 + 64 / WORD_BYTES);
+    pushreli(bee_m0 + 64 / bee_WORD_BYTES);
     correct[steps++] = label();
     ass(BEE_INSN_CALL);
 
-    ass_goto(M0 + 64 / WORD_BYTES);
+    ass_goto(bee_m0 + 64 / bee_WORD_BYTES);
     correct[steps++] = label();
-    calli(M0 + 400 / WORD_BYTES);
+    calli(bee_m0 + 400 / bee_WORD_BYTES);
 
-    ass_goto(M0 + 400 / WORD_BYTES);
+    ass_goto(bee_m0 + 400 / bee_WORD_BYTES);
     correct[steps++] = label();
     ass(BEE_INSN_RET);
 
     for (unsigned i = 0; i < steps; i++) {
-        printf("Instruction = %s\n", disass(*PC, PC));
-        printf("Instruction %zu: PC = %p; should be %p\n\n", i, PC, correct[i]);
-        if (correct[i] != PC) {
-            printf("Error in branch tests: PC = %p\n", PC);
+        printf("Instruction = %s\n", disass(*bee_pc, bee_pc));
+        printf("Instruction %zu: bee_pc = %p; should be %p\n\n", i, bee_pc, correct[i]);
+        if (correct[i] != bee_pc) {
+            printf("Error in branch tests: bee_pc = %p\n", bee_pc);
             exit(1);
         }
         assert(single_step() == BEE_ERROR_BREAK);

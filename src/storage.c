@@ -10,8 +10,6 @@
 
 #include "config.h"
 
-#include "external_syms.h"
-
 #include <stdlib.h>
 #include <string.h>
 
@@ -30,7 +28,7 @@
 
 // Stacks
 
-int bee_pop_stack(WORD *s0, UWORD ssize, UWORD *sp, WORD *val_ptr)
+int bee_pop_stack(bee_WORD *s0, bee_UWORD ssize, bee_UWORD *sp, bee_WORD *val_ptr)
 {
     if (unlikely(*sp == 0))
         return BEE_ERROR_STACK_UNDERFLOW;
@@ -41,7 +39,7 @@ int bee_pop_stack(WORD *s0, UWORD ssize, UWORD *sp, WORD *val_ptr)
     return BEE_ERROR_OK;
 }
 
-int bee_push_stack(WORD *s0, UWORD ssize, UWORD *sp, WORD val)
+int bee_push_stack(bee_WORD *s0, bee_UWORD ssize, bee_UWORD *sp, bee_WORD val)
 {
     if (unlikely(*sp >= ssize))
         return BEE_ERROR_STACK_OVERFLOW;
@@ -52,35 +50,35 @@ int bee_push_stack(WORD *s0, UWORD ssize, UWORD *sp, WORD val)
 
 
 // Initialise VM state.
-int bee_init(WORD *buf, WORD memory_size, WORD stack_size, WORD return_stack_size)
+int bee_init(bee_WORD *buf, bee_WORD memory_size, bee_WORD stack_size, bee_WORD return_stack_size)
 {
     if (buf == NULL)
         return -1;
-    M0 = buf;
-    MSIZE = memory_size * WORD_BYTES;
-    memset(M0, 0, MSIZE);
+    bee_m0 = buf;
+    bee_msize = memory_size * bee_WORD_BYTES;
+    memset(bee_m0, 0, bee_msize);
 
-    PC = M0;
-    DP = 0;
+    bee_pc = bee_m0;
+    bee_dp = 0;
 
-    DSIZE = stack_size;
-    D0 = (WORD *)calloc(DSIZE, WORD_BYTES);
-    if (D0 == NULL)
+    bee_dsize = stack_size;
+    bee_d0 = (bee_WORD *)calloc(bee_dsize, bee_WORD_BYTES);
+    if (bee_d0 == NULL)
         return -1;
-    SP = 0;
-    HANDLER_SP = (UWORD)-1;
+    bee_sp = 0;
+    bee_handler_sp = (bee_UWORD)-1;
 
-    SSIZE = return_stack_size;
-    S0 = (WORD *)calloc(SSIZE, WORD_BYTES);
-    if (S0 == NULL) {
-        free(S0);
+    bee_ssize = return_stack_size;
+    bee_s0 = (bee_WORD *)calloc(bee_ssize, bee_WORD_BYTES);
+    if (bee_s0 == NULL) {
+        free(bee_s0);
         return -1;
     }
 
     return 0;
 }
 
-int bee_init_defaults(WORD *buf, WORD memory_size)
+int bee_init_defaults(bee_WORD *buf, bee_WORD memory_size)
 {
-    return bee_init(buf, memory_size, DEFAULT_STACK_SIZE, DEFAULT_STACK_SIZE);
+    return bee_init(buf, memory_size, BEE_DEFAULT_STACK_SIZE, BEE_DEFAULT_STACK_SIZE);
 }

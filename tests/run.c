@@ -14,20 +14,20 @@
 
 int main(void)
 {
-    int i = bee_init_defaults((WORD *)calloc(1024, 1), 256);
+    int i = bee_init_defaults((bee_WORD *)calloc(1024, 1), 256);
     if (i != 0) {
         printf("Error in run() tests: init with valid parameters failed\n");
         exit(1);
     }
 
-    ass_goto(M0);
+    ass_goto(bee_m0);
 
     int ret_code = 37;
     pushi(ret_code);
     ass(BEE_INSN_THROW);
-    WORD *final_PC = label();
+    bee_WORD *final_PC = label();
 
-    WORD ret = bee_run();
+    bee_WORD ret = bee_run();
 
     printf("Return value should be %d and is %"PRId32"\n", ret_code, ret);
     if (ret != ret_code) {
@@ -35,9 +35,9 @@ int main(void)
         exit(1);
     }
 
-    printf("PC should now be %p\n", final_PC);
-    if (PC != (WORD *)final_PC) {
-        printf("Error in bee_run() tests: PC = %p\n", PC);
+    printf("bee_pc should now be %p\n", final_PC);
+    if (bee_pc != (bee_WORD *)final_PC) {
+        printf("Error in bee_run() tests: bee_pc = %p\n", bee_pc);
         exit(1);
     }
 

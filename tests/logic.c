@@ -36,11 +36,11 @@ const char *correct[] = {
 
 int main(void)
 {
-    bee_init_defaults((WORD *)malloc(1024), 256);
+    bee_init_defaults((bee_WORD *)malloc(1024), 256);
 
-    D0[DP++] = 0xff000000; D0[DP++] = 8; D0[DP++] = 0xff; D0[DP++] = 8;
+    bee_d0[bee_dp++] = 0xff000000; bee_d0[bee_dp++] = 8; bee_d0[bee_dp++] = 0xff; bee_d0[bee_dp++] = 8;
 
-    ass_goto(M0);
+    ass_goto(bee_m0);
     ass(BEE_INSN_LSHIFT);
     pushi(1); ass(BEE_INSN_SWAP);
     pushi(0); ass(BEE_INSN_SWAP);
@@ -57,12 +57,12 @@ int main(void)
     ass(BEE_INSN_AND);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
-        printf("Instruction = %s\n", disass(*PC, PC));
+        printf("Instruction = %s\n", disass(*bee_pc, bee_pc));
         assert(single_step() == BEE_ERROR_BREAK);
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {
-            printf("Error in logic tests: PC = %p\n", PC);
+            printf("Error in logic tests: bee_pc = %p\n", bee_pc);
             exit(1);
         }
     }

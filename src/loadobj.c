@@ -10,11 +10,8 @@
 
 #include "config.h"
 
-#include "external_syms.h"
-
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
 
 #include "bee/bee.h"
 
@@ -44,7 +41,7 @@ static int skip_hashbang(FILE *fp)
     return 0;
 }
 
-int bee_load_object(FILE *fp, WORD *ptr)
+int bee_load_object(FILE *fp, bee_WORD *ptr)
 {
     if (fp == NULL || skip_hashbang(fp) == -1)
         return -2;

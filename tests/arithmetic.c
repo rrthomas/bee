@@ -3,7 +3,7 @@
 // by the ISO C standard, we only test the stack handling and basic
 // correctness of the operators here, assuming that if the arithmetic works
 // in one case, it will work in all. Note that the correct stack values are
-// not quite independent of the word size (in WORD_BYTES and str(WORD_BYTES)); some
+// not quite independent of the word size (in bee_WORD_BYTES and str(bee_WORD_BYTES)); some
 // stack pictures implicitly refer to it.
 //
 // (c) Reuben Thomas 1994-2020
@@ -18,22 +18,22 @@
 
 
 const char *correct[] = {
-    "1", "-1", "-1 " str(WORD_BYTES), "-1 " str(WORD_BYTES) " -" str(WORD_BYTES),
-    "-1 " str(WORD_BYTES) " -" str(WORD_BYTES) " 0", "-1 -" str(WORD_BYTES) " " str(WORD_BYTES),
-    "-1 -" str(WORD_BYTES) " " str(WORD_BYTES) " 1", str(WORD_BYTES) " -" str(WORD_BYTES) " -1",
-    str(WORD_BYTES) " -5", "-1", "-1 " str(WORD_BYTES), "-" str(WORD_BYTES),
-    "-" str(WORD_BYTES) " 3", "-1 -1", "-1", "-1 -2", "1 1"
+    "1", "-1", "-1 " str(bee_WORD_BYTES), "-1 " str(bee_WORD_BYTES) " -" str(bee_WORD_BYTES),
+    "-1 " str(bee_WORD_BYTES) " -" str(bee_WORD_BYTES) " 0", "-1 -" str(bee_WORD_BYTES) " " str(bee_WORD_BYTES),
+    "-1 -" str(bee_WORD_BYTES) " " str(bee_WORD_BYTES) " 1", str(bee_WORD_BYTES) " -" str(bee_WORD_BYTES) " -1",
+    str(bee_WORD_BYTES) " -5", "-1", "-1 " str(bee_WORD_BYTES), "-" str(bee_WORD_BYTES),
+    "-" str(bee_WORD_BYTES) " 3", "-1 -1", "-1", "-1 -2", "1 1"
 };
 
 
 int main(void)
 {
-    bee_init_defaults((WORD *)calloc(1024, 1), 256);
+    bee_init_defaults((bee_WORD *)calloc(1024, 1), 256);
 
-    ass_goto(M0);
+    ass_goto(bee_m0);
     pushi(1); ass(BEE_INSN_NEGATE);
     ass(BEE_INSN_WORD_BYTES);
-    pushi(-WORD_BYTES);
+    pushi(-bee_WORD_BYTES);
     pushi(0); ass(BEE_INSN_SWAP);
     pushi(1); ass(BEE_INSN_SWAP);
     ass(BEE_INSN_ADD); ass(BEE_INSN_ADD);
@@ -45,12 +45,12 @@ int main(void)
     ass(BEE_INSN_UDIVMOD);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
-        printf("Instruction = %s\n", disass(*PC, PC));
+        printf("Instruction = %s\n", disass(*bee_pc, bee_pc));
         assert(single_step() == BEE_ERROR_BREAK);
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {
-            printf("Error in arithmetic tests: PC = %p\n", PC);
+            printf("Error in arithmetic tests: bee_pc = %p\n", bee_pc);
             exit(1);
         }
     }

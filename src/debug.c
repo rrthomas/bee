@@ -10,8 +10,6 @@
 
 #include "config.h"
 
-#include "external_syms.h"
-
 #include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -31,19 +29,19 @@
 static uint8_t *current; // where we assemble the next instruction word or literal
 
 
-void word(WORD value)
+void word(bee_WORD value)
 {
     current = (uint8_t *)ALIGN(current);
-    *(WORD *)current = value;
-    current += WORD_BYTES;
+    *(bee_WORD *)current = value;
+    current += bee_WORD_BYTES;
 }
 
-void ass(UWORD inst)
+void ass(bee_UWORD inst)
 {
     word((((inst << 2) | BEE_OP2_INSN) << 2) | BEE_OP_LEVEL2);
 }
 
-void ass_trap(UWORD code)
+void ass_trap(bee_UWORD code)
 {
     word((((code << 2) | BEE_OP2_TRAP) << 2) | BEE_OP_LEVEL2);
 }
@@ -53,54 +51,54 @@ void ass_byte(uint8_t b)
     *current++ = b;
 }
 
-void pushi(WORD literal)
+void pushi(bee_WORD literal)
 {
-    WORD temp = LSHIFT(literal, 2);
-    assert(ARSHIFT(temp, 2) == (UWORD)literal);
+    bee_WORD temp = LSHIFT(literal, 2);
+    assert(ARSHIFT(temp, 2) == (bee_UWORD)literal);
     word(temp | BEE_OP_PUSHI);
 }
 
-static void addr_op(int op, WORD *addr)
+static void addr_op(int op, bee_WORD *addr)
 {
-    word(LSHIFT(addr - (WORD *)current, 2) | op);
+    word(LSHIFT(addr - (bee_WORD *)current, 2) | op);
 }
 
-void calli(WORD *addr)
+void calli(bee_WORD *addr)
 {
     addr_op(BEE_OP_CALLI, addr);
 }
 
-void pushreli(WORD *addr)
+void pushreli(bee_WORD *addr)
 {
     addr_op(BEE_OP_PUSHRELI, addr);
 }
 
-static void addr_op2(int op, WORD *addr)
+static void addr_op2(int op, bee_WORD *addr)
 {
-    WORD offset = LSHIFT(addr - (WORD *)current, 2);
-    WORD temp = LSHIFT(offset, 2);
+    bee_WORD offset = LSHIFT(addr - (bee_WORD *)current, 2);
+    bee_WORD temp = LSHIFT(offset, 2);
     assert(temp >> 2 == offset);
     word(LSHIFT(offset | op, 2) | BEE_OP_LEVEL2);
 }
 
-void jumpi(WORD *addr)
+void jumpi(bee_WORD *addr)
 {
     addr_op2(BEE_OP2_JUMPI, addr);
 }
 
-void jumpzi(WORD *addr)
+void jumpzi(bee_WORD *addr)
 {
     addr_op2(BEE_OP2_JUMPZI, addr);
 }
 
-void ass_goto(WORD *addr)
+void ass_goto(bee_WORD *addr)
 {
     current = (uint8_t *)addr;
 }
 
-_GL_ATTRIBUTE_PURE WORD *label(void)
+_GL_ATTRIBUTE_PURE bee_WORD *label(void)
 {
-    return (WORD *)current;
+    return (bee_WORD *)current;
 }
 
 static const char *mnemonic[BEE_INSN_UNDEFINED + 1] = {
@@ -111,13 +109,13 @@ static const char *mnemonic[BEE_INSN_UNDEFINED + 1] = {
     "LOAD", "STORE", "LOAD1", "STORE1", "LOAD2", "STORE2", "LOAD4", "STORE4",
     "NEGATE", "ADD", "MUL", "DIVMOD", "UDIVMOD", "EQ", "LT", "ULT",
 // 0x20
-    "PUSHR", "POPR", "DUPR", "CATCH", "THROW", "BREAK", "WORD_BYTES", "GET_M0",
+    "PUSHR", "POPR", "DUPR", "CATCH", "THROW", "BREAK", "bee_WORD_BYTES", "GET_M0",
     "GET_MSIZE", "GET_SSIZE", "GET_SP", "SET_SP", "GET_DSIZE", "GET_SP", "SET_SP", "GET_HANDLER_SP",
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
 };
 
-_GL_ATTRIBUTE_CONST const char *disass(WORD opcode, WORD *pc)
+_GL_ATTRIBUTE_CONST const char *disass(bee_WORD opcode, bee_WORD *pc)
 {
     static char *text = NULL;
 
@@ -125,42 +123,42 @@ _GL_ATTRIBUTE_CONST const char *disass(WORD opcode, WORD *pc)
     switch (opcode & BEE_OP_MASK) {
     case BEE_OP_CALLI:
         {
-            WORD *addr = pc + ARSHIFT(opcode, 2);
-            text = xasprintf("CALLI $%"PRIX32, (UWORD)addr);
+            bee_WORD *addr = pc + ARSHIFT(opcode, 2);
+            text = xasprintf("CALLI $%"PRIX32, (bee_UWORD)addr);
         }
         break;
     case BEE_OP_PUSHI:
         {
             opcode = ARSHIFT(opcode, 2);
-            text = xasprintf("PUSHI %"PRIi32"=$%"PRIX32, opcode, (UWORD)opcode);
+            text = xasprintf("PUSHI %"PRIi32"=$%"PRIX32, opcode, (bee_UWORD)opcode);
         }
         break;
     case BEE_OP_PUSHRELI:
-        text = xasprintf("PUSHRELI $%"PRIX32, (UWORD)(pc + (opcode & ~BEE_OP_MASK)));
+        text = xasprintf("PUSHRELI $%"PRIX32, (bee_UWORD)(pc + (opcode & ~BEE_OP_MASK)));
         break;
     default:
         opcode = ARSHIFT(opcode, 2);
         switch (opcode & BEE_OP2_MASK) {
         case BEE_OP2_JUMPI:
             {
-                WORD *addr = pc + ARSHIFT(opcode, 2);
-                text = xasprintf("JUMPI $%"PRIX32, (UWORD)addr);
+                bee_WORD *addr = pc + ARSHIFT(opcode, 2);
+                text = xasprintf("JUMPI $%"PRIX32, (bee_UWORD)addr);
             }
             break;
         case BEE_OP2_JUMPZI:
             {
-                WORD *addr = pc + ARSHIFT(opcode, 2);
-                text = xasprintf("JUMPZI $%"PRIX32, (UWORD)addr);
+                bee_WORD *addr = pc + ARSHIFT(opcode, 2);
+                text = xasprintf("JUMPZI $%"PRIX32, (bee_UWORD)addr);
             }
             break;
         case BEE_OP2_TRAP:
-            text = xasprintf("TRAP $%"PRIX32, (UWORD)opcode >> 2);
+            text = xasprintf("TRAP $%"PRIX32, (bee_UWORD)opcode >> 2);
             break;
         case BEE_OP2_INSN:
             opcode >>= 2;
-            if ((UWORD)opcode <= sizeof(mnemonic) / sizeof(mnemonic[0]) &&
-                mnemonic[(UWORD)opcode] != NULL)
-                text = xasprintf("%s", mnemonic[(UWORD)opcode]);
+            if ((bee_UWORD)opcode <= sizeof(mnemonic) / sizeof(mnemonic[0]) &&
+                mnemonic[(bee_UWORD)opcode] != NULL)
+                text = xasprintf("%s", mnemonic[(bee_UWORD)opcode]);
             else
                 text = strdup("(invalid instruction!)");
             break;
@@ -183,19 +181,19 @@ static char *_val_data_stack(bool with_hex)
 
     free(picture);
     picture = xasprintf("%s", "");
-    if (DP > DSIZE) {
+    if (bee_dp > bee_dsize) {
         picture = xasprintf("%s", "stack overflow");
     } else
-        for (UWORD i = 0; i < DP; i++) {
-            char *ptr = xasprintf("%s%"PRId32, picture, D0[i]);
+        for (bee_UWORD i = 0; i < bee_dp; i++) {
+            char *ptr = xasprintf("%s%"PRId32, picture, bee_d0[i]);
             free(picture);
             picture = ptr;
             if (with_hex) {
-                ptr = xasprintf("%s ($%"PRIX32") ", picture, (UWORD)D0[i]);
+                ptr = xasprintf("%s ($%"PRIX32") ", picture, (bee_UWORD)bee_d0[i]);
                 free(picture);
                 picture = ptr;
             }
-            if (i != DP - 1) {
+            if (i != bee_dp - 1) {
                 ptr = xasprintf("%s ", picture);
                 free(picture);
                 picture = ptr;
@@ -212,9 +210,9 @@ char *val_data_stack(void)
 
 void show_data_stack(void)
 {
-    if (DP == 0)
+    if (bee_dp == 0)
         printf("Data stack empty\n");
-    else if (DP > DSIZE)
+    else if (bee_dp > bee_dsize)
         printf("Data stack overflow\n");
     else
         printf("Data stack: %s\n", _val_data_stack(true));
@@ -222,14 +220,14 @@ void show_data_stack(void)
 
 void show_return_stack(void)
 {
-    if (SP == 0)
+    if (bee_sp == 0)
         printf("Return stack empty\n");
-    else if (SP > SSIZE)
+    else if (bee_sp > bee_ssize)
         printf("Return stack overflow\n");
     else {
         printf("Return stack: ");
-        for (UWORD i = 0; i < SP; i++)
-            printf("$%"PRIX32" ", (UWORD)S0[i]);
+        for (bee_UWORD i = 0; i < bee_sp; i++)
+            printf("$%"PRIX32" ", (bee_UWORD)bee_s0[i]);
         putchar('\n');
     }
 }
@@ -259,26 +257,26 @@ _GL_ATTRIBUTE_PURE const char *error_to_msg(int code)
     return "unknown error";
 }
 
-// Return value of PC after successful execution of the next instruction,
-// which may not be valid, or NULL if the new value of PC cannot be
+// Return value of pc after successful execution of the next instruction,
+// which may not be valid, or NULL if the new value of pc cannot be
 // computed.
-static WORD *compute_next_PC(WORD inst)
+static bee_WORD *compute_next_PC(bee_WORD inst)
 {
     switch (inst & BEE_OP_MASK) {
     case BEE_OP_CALLI:
-        return PC + ARSHIFT(inst, 2);
+        return bee_pc + ARSHIFT(inst, 2);
     case BEE_OP_PUSHI:
     case BEE_OP_PUSHRELI:
-        return PC + 1;
+        return bee_pc + 1;
     case BEE_OP_LEVEL2:
         inst = ARSHIFT(inst, 2);
         switch (inst & BEE_OP2_MASK) {
         case BEE_OP2_JUMPI:
         case BEE_OP2_JUMPZI:
-            return PC + ARSHIFT(inst, 2);
+            return bee_pc + ARSHIFT(inst, 2);
             break;
         case BEE_OP2_TRAP:
-            return PC + 1;
+            return bee_pc + 1;
             break;
         case BEE_OP2_INSN:
             switch (inst >> 2) {
@@ -323,25 +321,25 @@ static WORD *compute_next_PC(WORD inst)
             case BEE_INSN_GET_DP:
             case BEE_INSN_SET_DP:
             case BEE_INSN_GET_HANDLER_SP:
-                return PC + 1;
+                return bee_pc + 1;
             case BEE_INSN_JUMP:
             case BEE_INSN_CALL:
             case BEE_INSN_CATCH:
-                if (DP < 1)
+                if (bee_dp < 1)
                     return NULL;
-                return (WORD *)(D0[DP - 1]);
+                return (bee_WORD *)(bee_d0[bee_dp - 1]);
             case BEE_INSN_JUMPZ:
-                if (DP < 2)
+                if (bee_dp < 2)
                     return NULL;
-                return D0[DP - 2] == 0 ? (WORD *)D0[DP - 1] : PC + 1;
+                return bee_d0[bee_dp - 2] == 0 ? (bee_WORD *)bee_d0[bee_dp - 1] : bee_pc + 1;
             case BEE_INSN_RET:
-                if (SP < 1)
+                if (bee_sp < 1)
                     return NULL;
-                return (WORD *)(S0[SP - 1] & ~1);
+                return (bee_WORD *)(bee_s0[bee_sp - 1] & ~1);
             case BEE_INSN_THROW:
-                if (HANDLER_SP == (UWORD)-1 || HANDLER_SP < 2)
+                if (bee_handler_sp == (bee_UWORD)-1 || bee_handler_sp < 2)
                     return NULL;
-                return (WORD *)(S0[HANDLER_SP - 1] & ~1);
+                return (bee_WORD *)(bee_s0[bee_handler_sp - 1] & ~1);
             case BEE_INSN_BREAK:
             default:
                 return NULL;
@@ -353,38 +351,38 @@ static WORD *compute_next_PC(WORD inst)
     }
 }
 
-WORD single_step(void)
+bee_WORD single_step(void)
 {
-    WORD error = 0;
-    WORD inst = *PC, next_inst;
-    WORD *next_PC = compute_next_PC(inst);
+    bee_WORD error = 0;
+    bee_WORD inst = *bee_pc, next_inst;
+    bee_WORD *next_PC = compute_next_PC(inst);
     int next_PC_valid = next_PC != NULL && IS_ALIGNED(next_PC);
     if (next_PC_valid) {
         next_inst = *next_PC;
         *next_PC = (((BEE_INSN_BREAK << 2) | BEE_OP2_INSN) << 2) | BEE_OP_LEVEL2;
     }
-    UWORD save_HANDLER_SP = HANDLER_SP;
-    HANDLER_SP = -1;
+    bee_UWORD save_handler_sp = bee_handler_sp;
+    bee_handler_sp = -1;
     error = bee_run();
     if (next_PC_valid) {
         *next_PC = next_inst;
         if (error == BEE_ERROR_BREAK)
-            PC = next_PC;
+            bee_pc = next_PC;
     }
-    // Restore HANDLER_SP if it wasn't set by CATCH
-    if (HANDLER_SP == (UWORD)-1)
-        HANDLER_SP = save_HANDLER_SP;
+    // Restore bee_handler_sp if it wasn't set by CATCH
+    if (bee_handler_sp == (bee_UWORD)-1)
+        bee_handler_sp = save_handler_sp;
     if ((error != BEE_ERROR_BREAK || inst == ((((BEE_INSN_THROW << 2) | BEE_OP2_INSN) << 2) | BEE_OP_LEVEL2)) &&
-        HANDLER_SP != (UWORD)-1) {
+        bee_handler_sp != (bee_UWORD)-1) {
         // If an error occurred or THROW was executed, and there's a saved
         // error handler, execute it.
-        if (DP < DSIZE)
-            D0[DP++] = error;
-        SP = HANDLER_SP;
-        UWORD addr;
-        POP_RETURN((WORD *)&addr);
-        POP_RETURN((WORD *)&HANDLER_SP);
-        PC = (WORD *)(addr & ~1);
+        if (bee_dp < bee_dsize)
+            bee_d0[bee_dp++] = error;
+        bee_sp = bee_handler_sp;
+        bee_UWORD addr;
+        POP_RETURN((bee_WORD *)&addr);
+        POP_RETURN((bee_WORD *)&bee_handler_sp);
+        bee_pc = (bee_WORD *)(addr & ~1);
     }
  error:
     return error;

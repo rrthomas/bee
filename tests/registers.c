@@ -1,4 +1,4 @@
-// Test the register instructions, except for those operating on SP and DP
+// Test the register instructions, except for those operating on sp and dp
 // (see memory.c).
 //
 // (c) Reuben Thomas 1994-2020
@@ -18,37 +18,37 @@ int main(void)
     unsigned steps = 0;
 
     size_t size = 1024;
-    bee_init_defaults((WORD *)calloc(size, 1), size / WORD_BYTES);
+    bee_init_defaults((bee_WORD *)calloc(size, 1), size / bee_WORD_BYTES);
 
-    ass_goto(M0);
+    ass_goto(bee_m0);
     ass(BEE_INSN_GET_M0);
-    correct[steps++] = xasprintf("%"PRIi32, (WORD)M0);
+    correct[steps++] = xasprintf("%"PRIi32, (bee_WORD)bee_m0);
     ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
     ass(BEE_INSN_GET_MSIZE);
-    correct[steps++] = xasprintf("%"PRIi32, (WORD)MSIZE);
+    correct[steps++] = xasprintf("%"PRIi32, (bee_WORD)bee_msize);
     ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
     ass(BEE_INSN_GET_SSIZE);
-    correct[steps++] = xasprintf("%"PRIi32, (WORD)SSIZE);
+    correct[steps++] = xasprintf("%"PRIi32, (bee_WORD)bee_ssize);
     ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
     ass(BEE_INSN_GET_DSIZE);
-    correct[steps++] = xasprintf("%"PRIi32, (WORD)DSIZE);
+    correct[steps++] = xasprintf("%"PRIi32, (bee_WORD)bee_dsize);
     ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
     ass(BEE_INSN_GET_HANDLER_SP);
-    correct[steps++] = xasprintf("%"PRIi32, (WORD)HANDLER_SP);
+    correct[steps++] = xasprintf("%"PRIi32, (bee_WORD)bee_handler_sp);
     ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
 
     for (unsigned i = 0; i < steps; i++) {
-        printf("Instruction = %s\n", disass(*PC, PC));
+        printf("Instruction = %s\n", disass(*bee_pc, bee_pc));
         assert(single_step() == BEE_ERROR_BREAK);
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {
-            printf("Error in registers tests: PC = %p\n", PC);
+            printf("Error in registers tests: bee_pc = %p\n", bee_pc);
             exit(1);
         }
     }

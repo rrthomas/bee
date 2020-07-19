@@ -13,22 +13,22 @@
 
 int main(void)
 {
-    bee_init_defaults((WORD *)calloc(1024, 1), 256);
+    bee_init_defaults((bee_WORD *)calloc(1024, 1), 256);
 
-    ass_goto(M0);
+    ass_goto(bee_m0);
 
-    const UWORD steps = 10;
-    for (UWORD i = 0; i < steps; i++) {
+    const bee_UWORD steps = 10;
+    for (bee_UWORD i = 0; i < steps; i++) {
         // Assemble the test as we go!
         ass(BEE_INSN_WORD_BYTES);
-        printf("PC = %p\n", PC);
+        printf("bee_pc = %p\n", bee_pc);
         assert(single_step() == BEE_ERROR_BREAK);
     }
 
-    WORD *final_PC = M0 + steps;
-    printf("PC should now be %p\n", final_PC);
-    if (PC != final_PC) {
-        printf("Error in single_step() tests: PC = %p\n", PC);
+    bee_WORD *final_PC = bee_m0 + steps;
+    printf("bee_pc should now be %p\n", final_PC);
+    if (bee_pc != final_PC) {
+        printf("Error in single_step() tests: bee_pc = %p\n", bee_pc);
         exit(1);
     }
 

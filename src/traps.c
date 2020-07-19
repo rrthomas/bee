@@ -10,8 +10,6 @@
 
 #include "config.h"
 
-#include "external_syms.h"
-
 #include <inttypes.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -31,17 +29,17 @@
 
 
 // Assumption for file functions
-verify(sizeof(int) <= sizeof(WORD));
+verify(sizeof(int) <= sizeof(bee_WORD));
 
 
 // I/O support
 
 typedef uint64_t DUWORD;
 #define DOUBLE_WORD(pop1, pop2)                                 \
-    (((DUWORD)(bee_UWORD)pop1) << bee_WORD_BIT | (UWORD)pop2)
+    (((DUWORD)(bee_UWORD)pop1) << bee_WORD_BIT | (bee_UWORD)pop2)
 #define PUSH_DOUBLE(ud)                                             \
-    PUSH((bee_UWORD)(ud & bee_WORD_MASK));                          \
-    PUSH((bee_UWORD)((ud >> bee_WORD_BIT) & bee_WORD_MASK));
+    PUSH((bee_UWORD)(ud & (bee_UWORD)-1));                              \
+    PUSH((bee_UWORD)((ud >> bee_WORD_BIT) & (bee_UWORD)-1));
 
 // Register command-line args
 static int main_argc = 0;
@@ -53,16 +51,16 @@ void bee_register_args(int argc, const char *argv[])
 }
 
 
-WORD trap_libc(UWORD function)
+bee_WORD trap_libc(bee_UWORD function)
 {
-    WORD temp = 0;
+    bee_WORD temp = 0;
 
     int error = BEE_ERROR_OK;
     switch (function) {
     case TRAP_LIBC_STRLEN: // ( a-addr -- u )
         {
             const char *s;
-            POP((WORD *)&s);
+            POP((bee_WORD *)&s);
             PUSH(strlen(s));
         }
         break;
@@ -71,44 +69,44 @@ WORD trap_libc(UWORD function)
             const char *src;
             char *dest;
             size_t n;
-            POP((WORD *)&n);
-            POP((WORD *)&src);
-            POP((WORD *)&dest);
-            PUSH((WORD)(size_t)(void *)strncpy(dest, src, n));
+            POP((bee_WORD *)&n);
+            POP((bee_WORD *)&src);
+            POP((bee_WORD *)&dest);
+            PUSH((bee_WORD)(size_t)(void *)strncpy(dest, src, n));
         }
         break;
     case TRAP_LIBC_STDIN:
-        PUSH((WORD)(STDIN_FILENO));
+        PUSH((bee_WORD)(STDIN_FILENO));
         break;
     case TRAP_LIBC_STDOUT:
-        PUSH((WORD)(STDOUT_FILENO));
+        PUSH((bee_WORD)(STDOUT_FILENO));
         break;
     case TRAP_LIBC_STDERR:
-        PUSH((WORD)(STDERR_FILENO));
+        PUSH((bee_WORD)(STDERR_FILENO));
         break;
     case TRAP_LIBC_O_RDONLY:
-        PUSH((WORD)(O_RDONLY));
+        PUSH((bee_WORD)(O_RDONLY));
         break;
     case TRAP_LIBC_O_WRONLY:
-        PUSH((WORD)(O_WRONLY));
+        PUSH((bee_WORD)(O_WRONLY));
         break;
     case TRAP_LIBC_O_RDWR:
-        PUSH((WORD)(O_RDWR));
+        PUSH((bee_WORD)(O_RDWR));
         break;
     case TRAP_LIBC_O_CREAT:
-        PUSH((WORD)(O_CREAT));
+        PUSH((bee_WORD)(O_CREAT));
         break;
     case TRAP_LIBC_O_TRUNC:
-        PUSH((WORD)(O_TRUNC));
+        PUSH((bee_WORD)(O_TRUNC));
         break;
     case TRAP_LIBC_OPEN: // ( c-addr flags -- fd )
         {
-            UWORD flags;
-            POP((WORD *)&flags);
+            bee_UWORD flags;
+            POP((bee_WORD *)&flags);
             char *file;
-            POP((WORD *)&file);
+            POP((bee_WORD *)&file);
             int fd = open(file, flags, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
-            PUSH((WORD)fd);
+            PUSH((bee_WORD)fd);
             if (fd >= 0)
                 set_binary_mode(fd, O_BINARY); // Best effort
         }
@@ -117,17 +115,17 @@ WORD trap_libc(UWORD function)
         {
             POP(&temp);
             int fd = temp;
-            PUSH((WORD)close(fd));
+            PUSH((bee_WORD)close(fd));
         }
         break;
     case TRAP_LIBC_READ:
         {
             POP(&temp);
             int fd = temp;
-            UWORD nbytes;
-            POP((WORD *)&nbytes);
+            bee_UWORD nbytes;
+            POP((bee_WORD *)&nbytes);
             uint8_t *buf;
-            POP((WORD *)&buf);
+            POP((bee_WORD *)&buf);
             PUSH(read(fd, buf, nbytes));
         }
         break;
@@ -135,27 +133,27 @@ WORD trap_libc(UWORD function)
         {
             POP(&temp);
             int fd = temp;
-            UWORD nbytes;
-            POP((WORD *)&nbytes);
+            bee_UWORD nbytes;
+            POP((bee_WORD *)&nbytes);
             uint8_t *buf;
-            POP((WORD *)&buf);
+            POP((bee_WORD *)&buf);
             PUSH(write(fd, buf, nbytes));
         }
         break;
     case TRAP_LIBC_SEEK_SET:
-        PUSH((WORD)(SEEK_SET));
+        PUSH((bee_WORD)(SEEK_SET));
         break;
     case TRAP_LIBC_SEEK_CUR:
-        PUSH((WORD)(SEEK_CUR));
+        PUSH((bee_WORD)(SEEK_CUR));
         break;
     case TRAP_LIBC_SEEK_END:
-        PUSH((WORD)(SEEK_END));
+        PUSH((bee_WORD)(SEEK_END));
         break;
     case TRAP_LIBC_LSEEK:
         {
             POP(&temp);
             int whence = temp;
-            WORD pop1, pop2;
+            bee_WORD pop1, pop2;
             POP(&pop1);
             POP(&pop2);
             DUWORD ud = DOUBLE_WORD(pop1, pop2);
@@ -175,15 +173,15 @@ WORD trap_libc(UWORD function)
     case TRAP_LIBC_RENAME:
         {
             char *to, *from;
-            POP((WORD *)&to);
-            POP((WORD *)&from);
+            POP((bee_WORD *)&to);
+            POP((bee_WORD *)&from);
             PUSH(rename(from, to));
         }
         break;
     case TRAP_LIBC_REMOVE:
         {
             char *file;
-            POP((WORD *)&file);
+            POP((bee_WORD *)&file);
             PUSH(remove(file));
         }
         break;
@@ -201,7 +199,7 @@ WORD trap_libc(UWORD function)
         {
             POP(&temp);
             int fd = temp;
-            WORD pop1, pop2;
+            bee_WORD pop1, pop2;
             POP(&pop1);
             POP(&pop2);
             DUWORD ud = DOUBLE_WORD(pop1, pop2);
@@ -223,7 +221,7 @@ WORD trap_libc(UWORD function)
         PUSH(main_argc);
         break;
     case TRAP_LIBC_ARGV: // ( -- a-addr )
-        PUSH((WORD)main_argv);
+        PUSH((bee_WORD)main_argv);
         break;
     default:
         error = BEE_ERROR_INVALID_FUNCTION;
@@ -234,14 +232,14 @@ WORD trap_libc(UWORD function)
     return error;
 }
 
-WORD trap(WORD code)
+bee_WORD trap(bee_WORD code)
 {
     int error = BEE_ERROR_OK;
     switch (code) {
     case TRAP_LIBC:
         {
-            UWORD function = 0;
-            POP((WORD *)&function);
+            bee_UWORD function = 0;
+            POP((bee_WORD *)&function);
             return trap_libc(function);
         }
         break;

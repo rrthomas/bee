@@ -16,18 +16,18 @@ const char *correct[] = { "-256", "-256 12345678" };
 
 int main(void)
 {
-    bee_init_defaults((WORD *)calloc(1024, 1), 256);
+    bee_init_defaults((bee_WORD *)calloc(1024, 1), 256);
 
-    ass_goto(M0);
+    ass_goto(bee_m0);
     pushi(BEE_ERROR_BREAK); pushi(12345678);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
-        printf("Instruction = %s\n", disass(*PC, PC));
+        printf("Instruction = %s\n", disass(*bee_pc, bee_pc));
         assert(single_step() == BEE_ERROR_BREAK);
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {
-            printf("Error in literals tests: PC = %p\n", PC);
+            printf("Error in literals tests: bee_pc = %p\n", bee_pc);
             exit(1);
         }
     }

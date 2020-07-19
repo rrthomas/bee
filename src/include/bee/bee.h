@@ -22,15 +22,14 @@
 typedef int32_t bee_WORD;
 typedef uint32_t bee_UWORD;
 #define bee_WORD_BYTES 4    // the number of bytes in a word
-#define bee_WORD_BIT (sizeof(bee_WORD_BYTES) * CHAR_BIT)
+#define bee_WORD_BIT (sizeof(bee_WORD_BYTES) * 8)
 #define bee_WORD_MIN ((bee_WORD)(1UL << (bee_WORD_BIT - 1)))
-#define bee_WORD_MAX (UINT32_MAX)
-#define bee_WORD_MASK bee_WORD_MAX
+#define bee_UWORD_MAX (UINT32_MAX)
 
 // VM registers
-extern bee_WORD *bee_PC, *bee_M0, *bee_S0, *bee_D0;
-extern bee_UWORD bee_MSIZE, bee_SSIZE, bee_DSIZE;
-extern bee_UWORD bee_DP, bee_SP, bee_HANDLER_SP;
+extern bee_WORD *bee_pc, *bee_m0, *bee_s0, *bee_d0;
+extern bee_UWORD bee_msize, bee_ssize, bee_dsize;
+extern bee_UWORD bee_dp, bee_sp, bee_handler_sp;
 
 // Error codes
 enum {
@@ -51,7 +50,7 @@ int bee_pop_stack(bee_WORD *s0, bee_UWORD ssize, bee_UWORD *sp, bee_WORD *val_pt
 int bee_push_stack(bee_WORD *s0, bee_UWORD ssize, bee_UWORD *sp, bee_WORD val);
 
 // Default stacks size in words
-#define bee_DEFAULT_STACK_SIZE   4096
+#define BEE_DEFAULT_STACK_SIZE   4096
 
 // Miscellaneous routines
 bee_WORD bee_run(void);

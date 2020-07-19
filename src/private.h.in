@@ -33,18 +33,18 @@
 
 
 // Stack access
-#define POP(ptr)                                        \
-    THROW_IF_ERROR(bee_pop_stack(D0, DSIZE, &DP, ptr))
-#define PUSH(v)                                                 \
-    do {                                                        \
-        THROW_IF_ERROR(bee_push_stack(D0, DSIZE, &DP, v));      \
+#define POP(ptr)                                                        \
+    THROW_IF_ERROR(bee_pop_stack(bee_d0, bee_dsize, &bee_dp, ptr))
+#define PUSH(v)                                                         \
+    do {                                                                \
+        THROW_IF_ERROR(bee_push_stack(bee_d0, bee_dsize, &bee_dp, v));  \
     } while (0)
 
-#define POP_RETURN(ptr)                                 \
-    THROW_IF_ERROR(bee_pop_stack(S0, SSIZE, &SP, ptr))
-#define PUSH_RETURN(v)                                          \
-    do {                                                        \
-        THROW_IF_ERROR(bee_push_stack(S0, SSIZE, &SP, v));      \
+#define POP_RETURN(ptr)                                                 \
+    THROW_IF_ERROR(bee_pop_stack(bee_s0, bee_ssize, &bee_sp, ptr))
+#define PUSH_RETURN(v)                                                  \
+    do {                                                                \
+        THROW_IF_ERROR(bee_push_stack(bee_s0, bee_ssize, &bee_sp, v));  \
     } while (0)
 
 
@@ -52,16 +52,16 @@
 
 // Align a VM address
 #define ALIGN(a)                                                \
-    (((UWORD)(a) + bee_WORD_BYTES - 1) & (-bee_WORD_BYTES))
+    (((bee_UWORD)(a) + bee_WORD_BYTES - 1) & (-bee_WORD_BYTES))
 
 // Check whether a VM address is aligned
 #define IS_ALIGNED(a)                                           \
-    (((uint8_t *)((UWORD)(a) & (bee_WORD_BYTES - 1)) == 0))
+    (((uint8_t *)((bee_UWORD)(a) & (bee_WORD_BYTES - 1)) == 0))
 
 // Portable left shift (the behaviour of << with overflow (including on any
 // negative number) is undefined)
 #define LSHIFT(n, p)                            \
-    (((n) & ((UWORD)-1 >> p)) << p)
+    (((n) & ((bee_UWORD)-1 >> p)) << p)
 
 // Portable arithmetic right shift (the behaviour of >> on signed
 // quantities is implementation-defined in C99)
@@ -70,5 +70,5 @@
 
 
 // Traps
-WORD trap(WORD code);
-WORD trap_libc(UWORD function);
+bee_WORD trap(bee_WORD code);
+bee_WORD trap_libc(bee_UWORD function);

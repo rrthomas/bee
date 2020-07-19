@@ -14,7 +14,7 @@
 static int correct[] = { 0, 0, 0 };
 
 
-static int try(char *file, WORD *ptr)
+static int try(char *file, bee_WORD *ptr)
 {
     FILE *fp = fopen(file, "r");
     int ret = bee_load_object(fp, ptr);
@@ -51,16 +51,16 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    WORD *_memory = (WORD *)calloc(1024, 1);
+    bee_WORD *_memory = (bee_WORD *)calloc(1024, 1);
     bee_init_defaults(_memory, 256);
 
     for (size_t i = 0; i < sizeof(files) / sizeof(files[0]); i++) {
         char *s = obj_name(prefix, files[i]);
-        res = try(s, M0);
+        res = try(s, bee_m0);
         free(s);
         printf(" should be %d\n", correct[i]);
-        printf("Word 0 of memory is %"PRIX32"; should be 1020304\n", (UWORD)*M0);
-        if (*M0 != 0x1020304) {
+        printf("Word 0 of memory is %"PRIX32"; should be 1020304\n", (bee_UWORD)*bee_m0);
+        if (*bee_m0 != 0x1020304) {
             printf("Error in bee_load_object() tests: file %s\n", files[i]);
             exit(1);
         }
@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
             printf("Error in bee_load_object() tests: file %s\n", files[i]);
             exit(1);
         }
-        memset(_memory, 0, MSIZE); // Zero memory for next test
+        memset(_memory, 0, bee_msize); // Zero memory for next test
     }
 
     printf("bee_load_object() tests ran OK\n");
