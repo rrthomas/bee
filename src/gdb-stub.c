@@ -88,7 +88,6 @@ static _GL_ATTRIBUTE_FORMAT_PRINTF(1, 0) void debug(const char *format, ...)
     }
 }
 
-static char remcomInBuffer[BUFMAX];
 static char remcomOutBuffer[BUFMAX];
 
 /* scan for the sequence $<data>#<checksum>     */
@@ -96,51 +95,46 @@ static char remcomOutBuffer[BUFMAX];
 static char *
 getpacket (void)
 {
-  char *buffer = &remcomInBuffer[0];
-  unsigned char checksum, xmitcsum;
-  int count;
-  char ch;
-
   while (1)
     {
+      static char buffer[BUFMAX];
+
       /* wait around for the start character, ignore all other characters */
+      char ch;
       while ((ch = getc (gdb_in)) != '$')
         ;
 
-retry:
-      checksum = 0;
-      xmitcsum = -1;
-      count = 0;
-
       /* now, read until a # or end of buffer is found */
-      while (count < BUFMAX - 1)
+      unsigned char checksum;
+      int count;
+      for (count = 0; count < BUFMAX - 1; ch = getc (gdb_in))
         {
-          ch = getc (gdb_in);
-          if (ch == '$')
-            goto retry;
-          if (ch == '#')
+          if (ch == '$') {
+            checksum = 0;
+            count = 0;
+          } else if (ch == '#')
             break;
-          checksum = checksum + ch;
-          buffer[count] = (char)ch;
-          count = count + 1;
+          else {
+            checksum += ch;
+            buffer[count++] = ch;
+          }
         }
-      buffer[count] = 0;
+      buffer[count] = '\0';
 
       if (ch == '#')
         {
           char buf[2];
           fread(buf, 2, 1, gdb_in);
           /* fscanf can read() more than 2 chars, which causes confusion. */
-          sscanf(buf, "%2hhx", &xmitcsum);
+          unsigned short xmitcsum = -1;
+          sscanf(buf, "%2hx", &xmitcsum);
           if (checksum != xmitcsum)
-            {
-              putc ('-', gdb_out);	/* failed checksum */
-            }
+            putc ('-', gdb_out);	/* failed checksum */
           else
             {
               putc ('+', gdb_out);	/* successful transfer */
               debug("getpacket: %s\n", &buffer[0]);
-              return &buffer[0];
+              return buffer;
             }
         }
     }
@@ -169,12 +163,8 @@ putpacket (char *buffer)
 static char *
 mem2hex (uint8_t *mem, char *buf, int count)
 {
-  while (count-- > 0)
-    {
-      sprintf(buf, "%.2x", *mem++);
-      buf += 2;
-    }
-
+  for (; count-- > 0; buf += 2)
+    sprintf(buf, "%.2x", *mem++);
   return buf;
 }
 
