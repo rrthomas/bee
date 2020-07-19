@@ -40,7 +40,6 @@
 
 #include "config.h"
 
-#include <assert.h>
 #include <errno.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -62,14 +61,10 @@
  */
 
 FILE *gdb_in, *gdb_out;
-#define putDebugChar(c) putc(c, gdb_out)	/* write a single character      */
-#define getDebugChar() getc(gdb_in)	/* read and return a single char */
 
 /************************************************************************/
 /* If non-zero, print debugging information about remote communication. */
 static int remote_debug = 0;
-
-static const char hexchars[]="0123456789abcdef";
 
 /* Register name enumeration to use as array indices.  */
 enum regnames {
@@ -93,20 +88,6 @@ static _GL_ATTRIBUTE_FORMAT_PRINTF(1, 0) void debug(const char *format, ...)
     }
 }
 
-/* Convert ch from a hex digit to an int */
-
-static int
-hex (unsigned char ch)
-{
-  if (ch >= 'a' && ch <= 'f')
-    return ch-'a'+10;
-  if (ch >= '0' && ch <= '9')
-    return ch-'0';
-  if (ch >= 'A' && ch <= 'F')
-    return ch-'A'+10;
-  return -1;
-}
-
 static char remcomInBuffer[BUFMAX];
 static char remcomOutBuffer[BUFMAX];
 
@@ -116,15 +97,14 @@ static char *
 getpacket (void)
 {
   char *buffer = &remcomInBuffer[0];
-  unsigned char checksum;
-  unsigned char xmitcsum;
+  unsigned char checksum, xmitcsum;
   int count;
   char ch;
 
   while (1)
     {
       /* wait around for the start character, ignore all other characters */
-      while ((ch = getDebugChar ()) != '$')
+      while ((ch = getc (gdb_in)) != '$')
         ;
 
 retry:
@@ -135,7 +115,7 @@ retry:
       /* now, read until a # or end of buffer is found */
       while (count < BUFMAX - 1)
         {
-          ch = getDebugChar ();
+          ch = getc (gdb_in);
           if (ch == '$')
             goto retry;
           if (ch == '#')
@@ -148,18 +128,17 @@ retry:
 
       if (ch == '#')
         {
-          ch = getDebugChar ();
-          xmitcsum = hex (ch) << 4;
-          ch = getDebugChar ();
-          xmitcsum += hex (ch);
-
+          char buf[2];
+          fread(buf, 2, 1, gdb_in);
+          /* fscanf can read() more than 2 chars, which causes confusion. */
+          sscanf(buf, "%2hhx", &xmitcsum);
           if (checksum != xmitcsum)
             {
-              putDebugChar ('-');	/* failed checksum */
+              putc ('-', gdb_out);	/* failed checksum */
             }
           else
             {
-              putDebugChar ('+');	/* successful transfer */
+              putc ('+', gdb_out);	/* successful transfer */
               debug("getpacket: %s\n", &buffer[0]);
               return &buffer[0];
             }
@@ -172,32 +151,15 @@ retry:
 static void
 putpacket (char *buffer)
 {
-  unsigned char checksum;
-  int count;
-  unsigned char ch, ack_char;
-
   debug("putpacket: %s\n", buffer);
   /*  $<packet info>#<checksum>. */
+  unsigned char checksum = 0, ch;
+  for (int count = 0; (ch = buffer[count]) != '\0'; count++)
+    checksum += ch;
+
   do
-    {
-      putDebugChar('$');
-      checksum = 0;
-      count = 0;
-
-      while ((ch = buffer[count]))
-        {
-          putDebugChar(ch);
-          checksum += ch;
-          count += 1;
-        }
-
-      putDebugChar('#');
-      putDebugChar(hexchars[checksum >> 4]);
-      putDebugChar(hexchars[checksum & 0xf]);
-
-      ack_char = getDebugChar();
-    }
-  while (ack_char != '+');
+    fprintf(gdb_out, "$%s#%.2x", buffer, checksum);
+  while (getc (gdb_in) != '+');
 }
 
 /* Convert the memory pointed to by mem into hex, placing result in buf.
@@ -209,30 +171,24 @@ mem2hex (uint8_t *mem, char *buf, int count)
 {
   while (count-- > 0)
     {
-      unsigned ch = *mem++;
-      *buf++ = hexchars[ch >> 4];
-      *buf++ = hexchars[ch & 0xf];
+      sprintf(buf, "%.2x", *mem++);
+      buf += 2;
     }
-
-  *buf = 0;
 
   return buf;
 }
 
-/* Convert the hex array pointed to by buf into binary to be placed in mem.
- * Return a pointer to the character AFTER the last byte written. */
+/* Convert the hex array pointed to by buf into binary to be placed in
+   mem.  */
 
-static uint8_t *
-hex2mem (char *buf, uint8_t *mem, int count)
+static const char *
+hex2mem (const char *buf, uint8_t *mem, unsigned count)
 {
-  for (int i = 0; i < count; i++)
-    {
-      unsigned char ch = hex(*buf++) << 4;
-      ch |= hex(*buf++);
-      *mem++ = ch;
-    }
-
-  return mem;
+  for (unsigned i = 0;
+       i < count && sscanf(buf, "%2hhx", mem) == 1;
+       i++, mem++, buf += 2)
+    ;
+  return buf;
 }
 
 /* This table contains the mapping between Bee error codes and signals,
@@ -255,7 +211,7 @@ static struct error_info
 
 /* Convert the Bee error code to a UNIX signal number. */
 
-static int
+static unsigned
 _GL_ATTRIBUTE_CONST computeSignal (int error)
 {
   for (struct error_info *ei = error_info; ei->error && ei->signo; ei++)
@@ -271,13 +227,15 @@ _GL_ATTRIBUTE_CONST computeSignal (int error)
  * Return flag indicating whether a number was successfully parsed.
  */
 
-static unsigned
-hexToInt(char **ptr, bee_UWORD *intValue)
+static int
+hexToInt(const char **ptr, bee_UWORD *intValue)
 {
   errno = 0;
-  char *start = *ptr;
-  *intValue = (bee_UWORD)strtoul(*ptr, ptr, 16);
-  return errno == 0 && start != *ptr;
+  char *end;
+  *intValue = (bee_UWORD)strtoul(*ptr, &end, 16);
+  int ok = errno == 0 && *ptr != end;
+  *ptr = end;
+  return ok;
 }
 
 /*
@@ -304,44 +262,31 @@ valid_memory_or_stack_range(uint8_t *addr, bee_UWORD length)
 int
 handle_exception (int error)
 {
-  int sigval;
   bee_UWORD addr;
   bee_UWORD length = 0;
 
   /* reply to host that an exception has occurred */
   debug("handle_exception: %d\n", error);
-  sigval = computeSignal(error);
+  unsigned sigval = computeSignal(error);
 
-  /* Send 'T' stop reply packet (summary of state).  */
-  char *ptr = remcomOutBuffer;
-  *ptr++ = 'T';
-  *ptr++ = hexchars[sigval >> 4];
-  *ptr++ = hexchars[sigval & 0xf];
-#define R(reg, type)                                            \
-  *ptr++ = hexchars[reg##_idx >> 4];                            \
-  *ptr++ = hexchars[reg##_idx & 0xf];                           \
-  *ptr++ = ':';                                                 \
-  ptr = mem2hex((uint8_t *)&reg, ptr, bee_WORD_BYTES);              \
-  *ptr++ = ';';
-#include "registers.h"
-#undef R
-  *ptr++ = 0;
+  /* Send 'S' stop reply packet (signal).  */
+  snprintf(remcomOutBuffer, BUFMAX, "S%.2x", sigval);
   putpacket(remcomOutBuffer);
 
   /* Command loop.  */
   while (1)
     {
       char *out_ptr = remcomOutBuffer;
-      *out_ptr = 0;
+      *out_ptr = '\0';
 
-      char *in_ptr = getpacket();
+      const char *in_ptr = getpacket();
       switch (*in_ptr++)
         {
+        /* The '?' packet need not be supported according to the GDB
+           documentation, but GDB hangs if the stub does not implement
+           it.  */
         case '?':
-          *out_ptr++ = 'S';
-          *out_ptr++ = hexchars[sigval >> 4];
-          *out_ptr++ = hexchars[sigval & 0xf];
-          *out_ptr++ = 0;
+          snprintf(remcomOutBuffer, BUFMAX, "S%.2x", sigval);
           break;
 
         case 'd':		/* toggle debug flag */
@@ -349,23 +294,18 @@ handle_exception (int error)
           break;
 
         case 'g':		/* return the value of the CPU registers */
-          {
 #define R(reg, type)                                                    \
-            out_ptr = mem2hex((uint8_t *)&reg, out_ptr, bee_WORD_BYTES);
+          out_ptr = mem2hex((uint8_t *)&reg, out_ptr, bee_WORD_BYTES);
 #include "registers.h"
 #undef R
-          }
           break;
 
         case 'G':	   /* set the value of the CPU registers - return OK */
-          {
 #define R(reg, type)                                                    \
-            hex2mem(in_ptr, (uint8_t *)&reg, bee_WORD_BYTES);     \
-            in_ptr += bee_WORD_BYTES * 2; /* Advance over bee_WORD_BYTES*2 hex characters. */
+          in_ptr = hex2mem(in_ptr, (uint8_t *)&reg, bee_WORD_BYTES);
 #include "registers.h"
 #undef R
-            strcpy(out_ptr, "OK");
-          }
+          strcpy(out_ptr, "OK");
           break;
 
         case 'm':	  /* mAA..AA,LLLL  Read LLLL bytes at address AA..AA */
@@ -414,6 +354,9 @@ handle_exception (int error)
 
         case 'k':    /* kill the program */
           return 0;
+
+        default:     /* unknown command; reply with empty packet */
+          break;
         }
 
       /* reply to the request */
