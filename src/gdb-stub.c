@@ -239,22 +239,6 @@ hexToInt(const char **ptr, bee_UWORD *intValue)
 }
 
 /*
- * Determine whether the given address range is a valid address in Bee's
- * memory or a stack.
- */
-
-static int
-valid_memory_or_stack_range(uint8_t *addr, bee_UWORD length)
-{
-  uint8_t *MEND = (uint8_t *)bee_m0 + (bee_msize * bee_WORD_BYTES);
-  uint8_t *SEND = (uint8_t *)bee_s0 + (bee_ssize * bee_WORD_BYTES);
-  uint8_t *DEND = (uint8_t *)bee_d0 + (bee_dsize * bee_WORD_BYTES);
-  return (addr >= (uint8_t *)bee_m0 && addr <= MEND && length <= (bee_UWORD)(MEND - addr)) ||
-    (addr >= (uint8_t *)bee_s0 && addr <= SEND && length <= (bee_UWORD)(SEND - addr)) ||
-    (addr >= (uint8_t *)bee_d0 && addr <= DEND && length <= (bee_UWORD)(DEND - addr));
-}
-
-/*
  * This function does all command processing for interfacing to gdb.
  * Returns 1 for 'continue' and 0 for 'exit'.
  */
@@ -316,10 +300,7 @@ handle_exception (int error)
               && hexToInt(&in_ptr, &length))
             {
               uint8_t *mem = (uint8_t *)addr;
-              if (valid_memory_or_stack_range(mem, length))
-                mem2hex(mem, out_ptr, length);
-              else
-                strcpy(out_ptr, "E03");
+              mem2hex(mem, out_ptr, length);
             }
           else
             strcpy(out_ptr, "E01");
@@ -333,14 +314,8 @@ handle_exception (int error)
               && hexToInt(&in_ptr, &length)
               && *in_ptr++ == ':')
             {
-              uint8_t *mem = (uint8_t *)addr;
-              if (valid_memory_or_stack_range(mem, length))
-                {
-                  hex2mem(in_ptr, mem, length);
-                  strcpy(out_ptr, "OK");
-                }
-              else
-                strcpy(out_ptr, "E03");
+              hex2mem(in_ptr, (uint8_t *)addr, length);
+              strcpy(out_ptr, "OK");
             }
           else
             strcpy(out_ptr, "E02");
