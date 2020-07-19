@@ -24,8 +24,7 @@
 
 #include "bee/bee.h"
 
-#include "debug.h"
-#include "gdb-stub.h"
+#include "private.h"
 
 
 #define DEFAULT_MEMORY 1048576 // Default size of VM memory in words (4MB)

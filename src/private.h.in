@@ -72,3 +72,7 @@
 // Traps
 bee_WORD trap(bee_WORD code);
 bee_WORD trap_libc(bee_UWORD function);
+
+// GDB remote protocol stub
+int gdb_init(int gdb_fdin, int gdb_fdout);
+int handle_exception (int error);
