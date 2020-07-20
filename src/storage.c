@@ -20,8 +20,8 @@
 
 // VM registers
 
-#define R(name, type) \
-    type name;
+#define R(reg, type) \
+    type bee_##reg;
 #include "bee/registers.h"
 #undef R
 

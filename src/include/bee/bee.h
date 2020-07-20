@@ -27,9 +27,10 @@ typedef uint32_t bee_UWORD;
 #define bee_UWORD_MAX (UINT32_MAX)
 
 // VM registers
-extern bee_WORD *bee_pc, *bee_m0, *bee_s0, *bee_d0;
-extern bee_UWORD bee_msize, bee_ssize, bee_dsize;
-extern bee_UWORD bee_dp, bee_sp, bee_handler_sp;
+#define R(reg, type)                            \
+    extern type bee_##reg;
+#include <bee/registers.h>
+#undef R
 
 // Error codes
 enum {
