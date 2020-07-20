@@ -293,25 +293,25 @@ bee_WORD bee_run(void)
                         break;
                     case BEE_INSN_NEGATE:
                         {
-                            bee_WORD a;
-                            POP(&a);
-                            PUSH(-a);
+                            bee_UWORD a;
+                            POP((bee_WORD *)&a);
+                            PUSH((bee_WORD)-a);
                         }
                         break;
                     case BEE_INSN_ADD:
                         {
-                            bee_WORD a, b;
-                            POP(&a);
-                            POP(&b);
-                            PUSH(b + a);
+                            bee_UWORD a, b;
+                            POP((bee_WORD *)&a);
+                            POP((bee_WORD *)&b);
+                            PUSH((bee_WORD)(b + a));
                         }
                         break;
                     case BEE_INSN_MUL:
                         {
-                            bee_WORD a, b;
-                            POP(&a);
-                            POP(&b);
-                            PUSH(a * b);
+                            bee_UWORD a, b;
+                            POP((bee_WORD *)&a);
+                            POP((bee_WORD *)&b);
+                            PUSH((bee_WORD)(a * b));
                         }
                         break;
                     case BEE_INSN_DIVMOD:
