@@ -20,10 +20,10 @@
 #include "xvasprintf.h"
 
 #include "bee/bee.h"
+#include "bee/opcodes.h"
 
 #include "private.h"
 #include "debug.h"
-#include "opcodes.h"
 
 
 static uint8_t *current; // where we assemble the next instruction word or literal

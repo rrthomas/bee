@@ -13,8 +13,8 @@
 #include <inttypes.h>
 
 #include "bee/bee.h"
+#include "bee/opcodes.h"
 
-#include "opcodes.h"
 #include "private.h"
 
 

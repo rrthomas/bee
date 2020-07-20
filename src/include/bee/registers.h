@@ -1,4 +1,4 @@
-// List of VM register names.
+// Bee registers and their C types.
 //
 // (c) Reuben Thomas 2018-2020
 //

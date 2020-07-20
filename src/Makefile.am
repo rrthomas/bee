@@ -18,8 +18,8 @@ libbee_la_LIBADD = $(top_builddir)/lib/libgnu.la
 bin_PROGRAMS = bee
 man_MANS = bee.1
 bee_LDADD = libbee.la $(top_builddir)/lib/libgnu.la
-bee_SOURCES = main.c gdb-stub.c cmdline.h registers.h opcodes.h debug.h $(include_HEADERS)
-pkginclude_HEADERS = include/bee/bee.h
+bee_SOURCES = main.c gdb-stub.c cmdline.h debug.h $(include_HEADERS)
+pkginclude_HEADERS = include/bee/bee.h include/bee/opcodes.h include/bee/registers.h
 
 # The man page depends on the binary because it is built by running the binary.
 bee.1: bee$(EXEEXT)

@@ -199,14 +199,14 @@ int handle_exception(int error)
         case 'g': // return the value of the CPU registers
 #define R(reg, type)                                                    \
             out_ptr = mem_to_hex((uint8_t *)&reg, out_ptr, bee_WORD_BYTES);
-#include "registers.h"
+#include "bee/registers.h"
 #undef R
             break;
 
         case 'G': // set the value of the CPU registers, return OK
 #define R(reg, type)                                                    \
             in_ptr = hex_to_mem(in_ptr, (uint8_t *)&reg, bee_WORD_BYTES);
-#include "registers.h"
+#include "bee/registers.h"
 #undef R
             strcpy(out_ptr, "OK");
             break;

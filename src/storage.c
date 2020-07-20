@@ -22,7 +22,7 @@
 
 #define R(name, type) \
     type name;
-#include "registers.h"
+#include "bee/registers.h"
 #undef R
 
 

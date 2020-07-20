@@ -18,8 +18,8 @@
 #include "xvasprintf.h"
 
 #include "bee/bee.h"
+#include "bee/opcodes.h"
 
 #include "private.h"
 #include "debug.h"
-#include "opcodes.h"
 #include "stringify.h"
