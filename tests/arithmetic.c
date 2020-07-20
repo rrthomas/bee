@@ -31,7 +31,7 @@ int main(void)
     bee_init_defaults((bee_WORD *)calloc(1024, 1), 256);
 
     ass_goto(bee_m0);
-    pushi(1); ass(BEE_INSN_NEGATE);
+    pushi(1); ass(BEE_INSN_NEG);
     ass(BEE_INSN_WORD_BYTES);
     pushi(-bee_WORD_BYTES);
     pushi(0); ass(BEE_INSN_SWAP);

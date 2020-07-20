@@ -28,7 +28,7 @@ int main(void)
     correct[steps++] = xasprintf("%"PRIi32, MEND);
     ass(BEE_INSN_WORD_BYTES);
     correct[steps++] = xasprintf("%"PRIi32" %d", MEND, bee_WORD_BYTES);
-    ass(BEE_INSN_NEGATE);
+    ass(BEE_INSN_NEG);
     correct[steps++] = xasprintf("%"PRIi32" %d", MEND, -bee_WORD_BYTES);
     ass(BEE_INSN_ADD);
     correct[steps++] = xasprintf("%"PRIi32, MEND - bee_WORD_BYTES);

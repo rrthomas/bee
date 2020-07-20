@@ -291,7 +291,7 @@ bee_WORD bee_run(void)
                             *addr = (uint32_t)value;
                         }
                         break;
-                    case BEE_INSN_NEGATE:
+                    case BEE_INSN_NEG:
                         {
                             bee_UWORD a;
                             POP((bee_WORD *)&a);

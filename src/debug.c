@@ -107,7 +107,7 @@ static const char *mnemonic[BEE_INSN_UNDEFINED + 1] = {
     "POP", "DUP", "SET", "SWAP", "JUMP", "JUMPZ", "CALL", "RET",
 // 0x10
     "LOAD", "STORE", "LOAD1", "STORE1", "LOAD2", "STORE2", "LOAD4", "STORE4",
-    "NEGATE", "ADD", "MUL", "DIVMOD", "UDIVMOD", "EQ", "LT", "ULT",
+    "NEG", "ADD", "MUL", "DIVMOD", "UDIVMOD", "EQ", "LT", "ULT",
 // 0x20
     "PUSHR", "POPR", "DUPR", "CATCH", "THROW", "BREAK", "bee_WORD_BYTES", "GET_M0",
     "GET_MSIZE", "GET_SSIZE", "GET_SP", "SET_SP", "GET_DSIZE", "GET_SP", "SET_SP", "GET_HANDLER_SP",
@@ -300,7 +300,7 @@ static bee_WORD *compute_next_PC(bee_WORD inst)
             case BEE_INSN_STORE2:
             case BEE_INSN_LOAD4:
             case BEE_INSN_STORE4:
-            case BEE_INSN_NEGATE:
+            case BEE_INSN_NEG:
             case BEE_INSN_ADD:
             case BEE_INSN_MUL:
             case BEE_INSN_DIVMOD:
