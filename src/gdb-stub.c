@@ -151,15 +151,15 @@ static struct error_info
      {BEE_ERROR_INVALID_STORE, SIGSEGV},
      {BEE_ERROR_UNALIGNED_ADDRESS, SIGBUS},
      {BEE_ERROR_BREAK, SIGTRAP},
-     {0, 0}
+     {0, 0}, // GDB_SIGNAL_0, sent on initial connection
     };
 
 // Convert the Bee error code to a UNIX signal number
 static unsigned _GL_ATTRIBUTE_CONST error_to_signal(int error)
 {
-    for (struct error_info *ei = error_info; ei->error && ei->signo; ei++)
-        if (ei->error == error)
-            return ei->signo;
+    for (size_t i = 0; i < sizeof(error_info) / sizeof(error_info[0]); i++)
+        if (error_info[i].error == error)
+            return error_info[i].signo;
 
     return SIGHUP; // default for things we don't know about
 }
