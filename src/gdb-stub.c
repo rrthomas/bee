@@ -167,16 +167,22 @@ static unsigned _GL_ATTRIBUTE_CONST error_to_signal(int error)
 
 // Process GDB commands until told to continue or exit
 // Returns 1 for 'continue' and 0 for 'exit'
+static int new_connection = 0;
 int handle_exception(int error)
 {
     debug("handle_exception: %d\n", error);
 
     char buf[BUFFER_SIZE];
 
-    // Tell host an exception has occurred: send 'S' stop reply packet
+    // If this is not the first time we are called, tell host an exception
+    // has occurred: send 'S' stop reply packet
     unsigned sigval = error_to_signal(error);
-    snprintf(buf, BUFFER_SIZE, "S%.2x", sigval);
-    send_packet(buf);
+    if (new_connection)
+        new_connection = 0;
+    else {
+        snprintf(buf, BUFFER_SIZE, "S%.2x", sigval);
+        send_packet(buf);
+    }
 
     // Main loop
     for (;;) {
@@ -267,5 +273,6 @@ int gdb_init(int in, int out)
 
     setbuf(gdb_in, NULL);
     setbuf(gdb_out, NULL);
+    new_connection = 1;
     return 0;
 }
