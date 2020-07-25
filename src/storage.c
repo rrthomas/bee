@@ -65,8 +65,7 @@ int bee_init(bee_WORD *buf, bee_WORD memory_size, bee_WORD stack_size, bee_WORD 
     bee_d0 = (bee_WORD *)calloc(bee_dsize, bee_WORD_BYTES);
     if (bee_d0 == NULL)
         return -1;
-    bee_sp = 0;
-    bee_handler_sp = (bee_UWORD)-1;
+    bee_handler_sp = bee_sp = 0;
 
     bee_ssize = return_stack_size;
     bee_s0 = (bee_WORD *)calloc(bee_ssize, bee_WORD_BYTES);

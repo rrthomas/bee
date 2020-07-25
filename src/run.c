@@ -205,15 +205,14 @@ bee_WORD bee_run(void)
                         break;
                     case BEE_INSN_RET:
                         {
-                            bee_UWORD addr;
+                            bee_WORD *addr;
                             POP_RETURN((bee_WORD *)&addr);
-                            bee_WORD *real_addr = (bee_WORD *)(addr & ~1);
-                            CHECK_ALIGNED(real_addr);
-                            if ((addr & 1) == 1) {
+                            CHECK_ALIGNED(addr);
+                            if (bee_sp < bee_handler_sp) {
                                 POP_RETURN((bee_WORD *)&bee_handler_sp);
                                 PUSH(0);
                             }
-                            bee_pc = real_addr;
+                            bee_pc = addr;
                         }
                         break;
                     case BEE_INSN_LOAD:
@@ -390,7 +389,7 @@ bee_WORD bee_run(void)
                             POP((bee_WORD *)&addr);
                             CHECK_ALIGNED(addr);
                             PUSH_RETURN(bee_handler_sp);
-                            PUSH_RETURN((bee_UWORD)bee_pc | 1);
+                            PUSH_RETURN((bee_UWORD)bee_pc);
                             bee_handler_sp = bee_sp;
                             bee_pc = addr;
                         }
@@ -402,16 +401,16 @@ bee_WORD bee_run(void)
                             else
                                 POP(&error);
                         error:
-                            if (bee_handler_sp == (bee_UWORD)-1)
+                            if (bee_handler_sp == 0)
                                 return error;
                             // Don't push error code if the stack is full.
                             if (bee_dp < bee_dsize)
                                 bee_d0[bee_dp++] = error;
                             bee_sp = bee_handler_sp;
-                            bee_UWORD addr;
+                            bee_WORD *addr;
                             POP_RETURN((bee_WORD *)&addr);
                             POP_RETURN((bee_WORD *)&bee_handler_sp);
-                            bee_pc = (bee_WORD *)(addr & ~1);
+                            bee_pc = addr;
                         }
                         break;
                     case BEE_INSN_BREAK:

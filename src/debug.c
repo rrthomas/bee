@@ -337,9 +337,9 @@ static bee_WORD *compute_next_PC(bee_WORD inst)
                     return NULL;
                 return (bee_WORD *)(bee_s0[bee_sp - 1] & ~1);
             case BEE_INSN_THROW:
-                if (bee_handler_sp == (bee_UWORD)-1 || bee_handler_sp < 2)
+                if (bee_handler_sp < 2)
                     return NULL;
-                return (bee_WORD *)(bee_s0[bee_handler_sp - 1] & ~1);
+                return (bee_WORD *)(bee_s0[bee_handler_sp - 1]);
             case BEE_INSN_BREAK:
             default:
                 return NULL;
@@ -362,7 +362,7 @@ bee_WORD single_step(void)
         *next_PC = (((BEE_INSN_BREAK << 2) | BEE_OP2_INSN) << 2) | BEE_OP_LEVEL2;
     }
     bee_UWORD save_handler_sp = bee_handler_sp;
-    bee_handler_sp = -1;
+    bee_handler_sp = 0;
     error = bee_run();
     if (next_PC_valid) {
         *next_PC = next_inst;
@@ -370,12 +370,14 @@ bee_WORD single_step(void)
             bee_pc = next_PC;
     }
     // Restore bee_handler_sp if it wasn't set by CATCH
-    if (bee_handler_sp == (bee_UWORD)-1)
+    if (bee_handler_sp == 0)
         bee_handler_sp = save_handler_sp;
-    if ((error != BEE_ERROR_BREAK || inst == ((((BEE_INSN_THROW << 2) | BEE_OP2_INSN) << 2) | BEE_OP_LEVEL2)) &&
-        bee_handler_sp != (bee_UWORD)-1) {
-        // If an error occurred or THROW was executed, and there's a saved
-        // error handler, execute it.
+    // If there's a saved error handler, execute any actions that would have
+    // been executed by `run()` had there been an error handler.
+    if (bee_handler_sp != 0) {
+        if ((error != BEE_ERROR_BREAK || inst == ((((BEE_INSN_THROW << 2) | BEE_OP2_INSN) << 2) | BEE_OP_LEVEL2))) {
+        // If an error occurred or THROW was performed, go to the error
+        // handler.
         if (bee_dp < bee_dsize)
             bee_d0[bee_dp++] = error;
         bee_sp = bee_handler_sp;
@@ -383,6 +385,11 @@ bee_WORD single_step(void)
         POP_RETURN((bee_WORD *)&addr);
         POP_RETURN((bee_WORD *)&bee_handler_sp);
         bee_pc = (bee_WORD *)(addr & ~1);
+        } else if (inst == ((((BEE_INSN_RET << 2) | BEE_OP2_INSN) << 2) | BEE_OP_LEVEL2) && bee_sp < bee_handler_sp) {
+            // Otherwise, if the last instruction was RET, pop an error handler if necessary.
+            POP_RETURN((bee_WORD *)&bee_handler_sp);
+            PUSH(0);
+        }
     }
  error:
     return error;
