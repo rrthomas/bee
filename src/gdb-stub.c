@@ -73,11 +73,11 @@ static char *recv_packet(void)
         buffer[count] = '\0';
 
         if (ch == '#') {
-            char buf[2];
-            fread(buf, 2, 1, gdb_in);
-            // fscanf can read() more than 2 chars, which causes confusion
             unsigned short xmitcsum = -1;
-            sscanf(buf, "%2hx", &xmitcsum);
+            char buf[2];
+            // fscanf can read() more than 2 chars, which causes confusion
+            if (fread(buf, 2, 1, gdb_in) == 1)
+                sscanf(buf, "%2hx", &xmitcsum);
             if (checksum != xmitcsum)
                 putc('-', gdb_out); // checksum failed
             else {
