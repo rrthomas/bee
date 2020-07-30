@@ -12,7 +12,8 @@ AM_CPPFLAGS = -I$(top_builddir)/lib -I$(top_srcdir)/lib -I$(srcdir)/include $(WA
 
 lib_LTLIBRARIES = libbee.la
 libbee_la_SOURCES = storage.c run.c traps.h traps.c debug.c loadobj.c \
-	private.h stringify.h
+	stringify.h
+nodist_libbee_la_SOURCES = private.h
 libbee_la_LIBADD = $(top_builddir)/lib/libgnu.la
 
 bin_PROGRAMS = bee
