@@ -11,19 +11,19 @@
 #include "tests.h"
 
 
-bee_WORD result[] = {
+bee_word_t result[] = {
     BEE_ERROR_STACK_OVERFLOW, BEE_ERROR_STACK_OVERFLOW, 0,
     BEE_ERROR_UNALIGNED_ADDRESS,
     BEE_ERROR_UNALIGNED_ADDRESS,
     BEE_ERROR_INVALID_OPCODE,
 };
-bee_WORD *test[sizeof(result) / sizeof(result[0])];
+bee_word_t *test[sizeof(result) / sizeof(result[0])];
 
 
 int main(void)
 {
     size_t size = 4096, tests = 0;
-    bee_init_defaults((bee_WORD *)calloc(size, bee_WORD_BYTES), size);
+    bee_init_defaults((bee_word_t *)calloc(size, BEE_WORD_BYTES), size);
     setbuf(stdout, NULL);
 
     ass_goto(bee_m0);
@@ -51,7 +51,7 @@ int main(void)
     test[tests++] = label();
     ass(BEE_INSN_UNDEFINED);
 
-    bee_UWORD error = 0;
+    bee_uword_t error = 0;
     for (size_t i = 0; i < sizeof(test) / sizeof(test[0]); i++) {
         bee_dp = 0;    // reset stack pointer
 
@@ -60,12 +60,12 @@ int main(void)
         if (i + 1 == 6) {
             // test 6: code to run at end of memory
             // Assemble now because it was overwritten by an earlier test
-            ass_goto(bee_m0 + (bee_msize / bee_WORD_BYTES) - 1);
+            ass_goto(bee_m0 + (bee_msize / BEE_WORD_BYTES) - 1);
             ass(BEE_INSN_WORD_BYTES);
         }
 
         bee_pc = test[i];
-        bee_WORD res = bee_run();
+        bee_word_t res = bee_run();
 
         if (result[i] != res) {
              printf("Error in errors tests: test %zu failed; bee_pc = %p\n", i + 1, bee_pc);

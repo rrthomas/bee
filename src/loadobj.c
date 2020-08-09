@@ -41,7 +41,7 @@ static int skip_hashbang(FILE *fp)
     return 0;
 }
 
-int bee_load_object(FILE *fp, bee_WORD *ptr)
+int bee_load_object(FILE *fp, bee_word_t *ptr)
 {
     if (fp == NULL || skip_hashbang(fp) == -1)
         return -2;

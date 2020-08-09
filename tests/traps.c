@@ -20,7 +20,7 @@ int main(void)
     int argc = 3;
     const char *argv[] = {"foo", "bard", "basilisk"};
 
-    bee_init_defaults((bee_WORD *)malloc(4096), 1024);
+    bee_init_defaults((bee_word_t *)malloc(4096), 1024);
     bee_register_args(argc, argv);
 
     ass_goto(bee_m0);
@@ -32,7 +32,7 @@ int main(void)
     pushi(TRAP_LIBC_ARGV); ass_trap(TRAP_LIBC);
     ass(BEE_INSN_WORD_BYTES); ass(BEE_INSN_ADD); ass(BEE_INSN_LOAD);
     pushi(TRAP_LIBC_STRLEN); ass_trap(TRAP_LIBC);
-    bee_WORD *end = label();
+    bee_word_t *end = label();
 
     assert(single_step() == BEE_ERROR_BREAK);
     assert(single_step() == BEE_ERROR_BREAK);
@@ -47,7 +47,7 @@ int main(void)
         assert(single_step() == BEE_ERROR_BREAK);
     printf("arg 1's length is %"PRId32", and should be %zu\n", bee_d0[bee_dp - 1], strlen(argv[1]));
     assert(bee_dp > 0);
-    if ((bee_UWORD)bee_d0[--bee_dp] != strlen(argv[1])) {
+    if ((bee_uword_t)bee_d0[--bee_dp] != strlen(argv[1])) {
         printf("Error in traps tests: bee_pc = %p\n", bee_pc);
         exit(1);
     }

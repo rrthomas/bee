@@ -12,7 +12,7 @@
 #include "tests.h"
 
 
-bee_WORD correct[] = { 0, 1, 0, 1, 1, 0, 0, 1, 0, 0 };
+bee_word_t correct[] = { 0, 1, 0, 1, 1, 0, 0, 1, 0, 0 };
 
 
 static void stack1(void)
@@ -51,7 +51,7 @@ static void step(unsigned start, unsigned end)
 
 int main(void)
 {
-    bee_init_defaults((bee_WORD *)malloc(1024), 256);
+    bee_init_defaults((bee_word_t *)malloc(1024), 256);
 
     ass_goto(bee_m0);
     ass(BEE_INSN_LT); ass(BEE_INSN_LT); ass(BEE_INSN_LT); ass(BEE_INSN_LT);

@@ -29,8 +29,8 @@
 
 #define DEFAULT_MEMORY 1048576 // Default size of VM memory in words (4MB)
 #define MAX_MEMORY 1073741824 // Maximum size of memory in words (4GB)
-static bee_UWORD memory_size = DEFAULT_MEMORY; // Size of VM memory in words
-bee_WORD *memory;
+static bee_uword_t memory_size = DEFAULT_MEMORY; // Size of VM memory in words
+bee_word_t *memory;
 
 static bool gdb_target = false;
 static int gdb_fdin = STDIN_FILENO, gdb_fdout = STDOUT_FILENO;
@@ -91,24 +91,24 @@ static void usage(void)
 #undef DOC
 }
 
-static bee_UWORD parse_number(bee_UWORD min, bee_UWORD max, char **end, const char *type)
+static bee_uword_t parse_number(bee_uword_t min, bee_uword_t max, char **end, const char *type)
 {
     char *endptr;
     unsigned long size = strtoul(optarg, &endptr, 10);
     if (*optarg == '\0' || (end == NULL && *endptr != '\0') ||
-        (bee_UWORD)size < min || (bee_UWORD)size > max)
+        (bee_uword_t)size < min || (bee_uword_t)size > max)
         die("%s must be a positive number between %"PRIu32 " and %"PRIu32, type, min, max);
     if (end != NULL)
         *end = endptr;
-    return (bee_UWORD)size;
+    return (bee_uword_t)size;
 }
 
 int main(int argc, char *argv[])
 {
     set_program_name(argv[0]);
 
-    bee_WORD stack_size = BEE_DEFAULT_STACK_SIZE;
-    bee_WORD return_stack_size = BEE_DEFAULT_STACK_SIZE;
+    bee_word_t stack_size = BEE_DEFAULT_STACK_SIZE;
+    bee_word_t return_stack_size = BEE_DEFAULT_STACK_SIZE;
 
     // Options string starts with '+' to stop option processing at first non-option, then
     // leading ':' so as to return ':' for a missing arg, not '?'
@@ -131,22 +131,22 @@ int main(int argc, char *argv[])
 
         switch (longindex) {
             case 0:
-                memory_size = parse_number(1, (bee_UWORD)MAX_MEMORY, NULL, "memory size");
+                memory_size = parse_number(1, (bee_uword_t)MAX_MEMORY, NULL, "memory size");
                 break;
             case 1:
-                stack_size = parse_number(1, (bee_UWORD)MAX_MEMORY, NULL, "stack size");
+                stack_size = parse_number(1, (bee_uword_t)MAX_MEMORY, NULL, "stack size");
                 break;
             case 2:
-                return_stack_size = parse_number(1, (bee_UWORD)MAX_MEMORY, NULL, "stack size");
+                return_stack_size = parse_number(1, (bee_uword_t)MAX_MEMORY, NULL, "stack size");
                 break;
             case 3:
                 gdb_target = true;
                 if (optarg != NULL) {
                     char *end;
-                    gdb_fdin = (int)parse_number(0, (bee_UWORD)INT_MAX, &end, "file descriptor");
+                    gdb_fdin = (int)parse_number(0, (bee_uword_t)INT_MAX, &end, "file descriptor");
                     if (*end == ',') {
                         optarg = end + 1;
-                        gdb_fdout = (int)parse_number(0, (bee_UWORD)INT_MAX, NULL, "file descriptor");
+                        gdb_fdout = (int)parse_number(0, (bee_uword_t)INT_MAX, NULL, "file descriptor");
                     } else
                         die("option '--gdb' takes two comma-separated file descriptors");
                     if (gdb_fdin == gdb_fdout)
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
             }
     }
 
-    if ((memory = (bee_WORD *)calloc(memory_size, bee_WORD_BYTES)) == NULL)
+    if ((memory = (bee_word_t *)calloc(memory_size, BEE_WORD_BYTES)) == NULL)
         die("could not allocate %"PRIu32" words of memory", memory_size);
     bee_init(memory, memory_size, stack_size, return_stack_size);
 

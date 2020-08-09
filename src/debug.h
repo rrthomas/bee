@@ -9,25 +9,25 @@
 // THIS PROGRAM IS PROVIDED AS IS, WITH NO WARRANTY. USE IS AT THE USER’S
 // RISK.
 
-int byte_size(bee_WORD v); // return number of significant bytes in a bee_WORD quantity
+int byte_size(bee_word_t v); // return number of significant bytes in a bee_word_t quantity
 
 void align(void);		// align assembly pointer to next word
-void word(bee_WORD value);	// assemble the given word
-void ass(bee_UWORD instr);	// assemble an instruction
-void ass_trap(bee_UWORD code);	// assemble a trap
+void word(bee_word_t value);	// assemble the given word
+void ass(bee_uword_t instr);	// assemble an instruction
+void ass_trap(bee_uword_t code);	// assemble a trap
 void ass_byte(uint8_t b);	// assemble a byte
-void calli(bee_WORD *addr);	// assemble an immediate call
-void pushi(bee_WORD literal);	// assemble a literal
-void pushreli(bee_WORD *addr);	// assemble an offset to the given word-aligned address
-void jumpi(bee_WORD *addr);	// assemble an immediate jump
-void jumpzi(bee_WORD *addr);	// assemble an immediate jumpz
-void ass_goto(bee_WORD *addr);	// start assembly at the given word-aligned address
-bee_WORD *label(void);	// return address of bee_WORD currently being assembled to
-const char *disass(bee_WORD opcode, bee_WORD *addr);  // disassemble an instruction
+void calli(bee_word_t *addr);	// assemble an immediate call
+void pushi(bee_word_t literal);	// assemble a literal
+void pushreli(bee_word_t *addr);	// assemble an offset to the given word-aligned address
+void jumpi(bee_word_t *addr);	// assemble an immediate jump
+void jumpzi(bee_word_t *addr);	// assemble an immediate jumpz
+void ass_goto(bee_word_t *addr);	// start assembly at the given word-aligned address
+bee_word_t *label(void);	// return address of bee_word_t currently being assembled to
+const char *disass(bee_word_t opcode, bee_word_t *addr);  // disassemble an instruction
 uint8_t toass(const char *token);    // convert a instruction to its opcode
 
 char *val_data_stack(void); // return the current data stack as a string
 void show_data_stack(void); // show the current contents of the data stack
 void show_return_stack(void);	// show the current contents of the return stack
 const char *error_to_msg(int code);	// translate error code to message
-bee_WORD single_step(void); // single step
+bee_word_t single_step(void); // single step

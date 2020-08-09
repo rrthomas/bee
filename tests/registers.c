@@ -18,27 +18,27 @@ int main(void)
     unsigned steps = 0;
 
     size_t size = 1024;
-    bee_init_defaults((bee_WORD *)calloc(size, 1), size / bee_WORD_BYTES);
+    bee_init_defaults((bee_word_t *)calloc(size, 1), size / BEE_WORD_BYTES);
 
     ass_goto(bee_m0);
     ass(BEE_INSN_GET_M0);
-    correct[steps++] = xasprintf("%"PRIi32, (bee_WORD)bee_m0);
+    correct[steps++] = xasprintf("%"PRIi32, (bee_word_t)bee_m0);
     ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
     ass(BEE_INSN_GET_MSIZE);
-    correct[steps++] = xasprintf("%"PRIi32, (bee_WORD)bee_msize);
+    correct[steps++] = xasprintf("%"PRIi32, (bee_word_t)bee_msize);
     ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
     ass(BEE_INSN_GET_SSIZE);
-    correct[steps++] = xasprintf("%"PRIi32, (bee_WORD)bee_ssize);
+    correct[steps++] = xasprintf("%"PRIi32, (bee_word_t)bee_ssize);
     ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
     ass(BEE_INSN_GET_DSIZE);
-    correct[steps++] = xasprintf("%"PRIi32, (bee_WORD)bee_dsize);
+    correct[steps++] = xasprintf("%"PRIi32, (bee_word_t)bee_dsize);
     ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
     ass(BEE_INSN_GET_HANDLER_SP);
-    correct[steps++] = xasprintf("%"PRIi32, (bee_WORD)bee_handler_sp);
+    correct[steps++] = xasprintf("%"PRIi32, (bee_word_t)bee_handler_sp);
     ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
 

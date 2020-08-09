@@ -18,47 +18,47 @@ int main(void)
     unsigned steps = 0;
 
     size_t size = 4096;
-    bee_init_defaults((bee_WORD *)calloc(size, bee_WORD_BYTES), size);
+    bee_init_defaults((bee_word_t *)calloc(size, BEE_WORD_BYTES), size);
 
-    // Naturally bee_UWORD, but must be printed as bee_WORD for comparison with
+    // Naturally bee_uword_t, but must be printed as bee_word_t for comparison with
     // output of val_data_stack().
-    bee_WORD MEND = (bee_WORD)(uint8_t *)bee_m0 + bee_msize;
+    bee_word_t MEND = (bee_word_t)(uint8_t *)bee_m0 + bee_msize;
     ass_goto(bee_m0);
-    pushreli((bee_WORD *)MEND);
+    pushreli((bee_word_t *)MEND);
     correct[steps++] = xasprintf("%"PRIi32, MEND);
     ass(BEE_INSN_WORD_BYTES);
-    correct[steps++] = xasprintf("%"PRIi32" %d", MEND, bee_WORD_BYTES);
+    correct[steps++] = xasprintf("%"PRIi32" %d", MEND, BEE_WORD_BYTES);
     ass(BEE_INSN_NEG);
-    correct[steps++] = xasprintf("%"PRIi32" %d", MEND, -bee_WORD_BYTES);
+    correct[steps++] = xasprintf("%"PRIi32" %d", MEND, -BEE_WORD_BYTES);
     ass(BEE_INSN_ADD);
-    correct[steps++] = xasprintf("%"PRIi32, MEND - bee_WORD_BYTES);
+    correct[steps++] = xasprintf("%"PRIi32, MEND - BEE_WORD_BYTES);
     pushi(513);
-    correct[steps++] = xasprintf("%"PRIi32" %d", MEND - bee_WORD_BYTES, 513);
+    correct[steps++] = xasprintf("%"PRIi32" %d", MEND - BEE_WORD_BYTES, 513);
     pushi(1);
-    correct[steps++] = xasprintf("%"PRIi32" %d %d", MEND - bee_WORD_BYTES, 513, 1);
+    correct[steps++] = xasprintf("%"PRIi32" %d %d", MEND - BEE_WORD_BYTES, 513, 1);
     ass(BEE_INSN_DUP);
-    correct[steps++] = xasprintf("%"PRIi32" %d %"PRIi32, MEND - bee_WORD_BYTES, 513, MEND - bee_WORD_BYTES);
+    correct[steps++] = xasprintf("%"PRIi32" %d %"PRIi32, MEND - BEE_WORD_BYTES, 513, MEND - BEE_WORD_BYTES);
     ass(BEE_INSN_STORE);
-    correct[steps++] = xasprintf("%"PRIi32, MEND - bee_WORD_BYTES);
+    correct[steps++] = xasprintf("%"PRIi32, MEND - BEE_WORD_BYTES);
     pushi(0);
-    correct[steps++] = xasprintf("%"PRIi32" %d", MEND - bee_WORD_BYTES, 0);
+    correct[steps++] = xasprintf("%"PRIi32" %d", MEND - BEE_WORD_BYTES, 0);
     ass(BEE_INSN_DUP);
-    correct[steps++] = xasprintf("%"PRIi32" %"PRIi32, MEND - bee_WORD_BYTES, MEND - bee_WORD_BYTES);
+    correct[steps++] = xasprintf("%"PRIi32" %"PRIi32, MEND - BEE_WORD_BYTES, MEND - BEE_WORD_BYTES);
     ass(BEE_INSN_LOAD);
-    correct[steps++] = xasprintf("%"PRIi32" %d", MEND - bee_WORD_BYTES, 513);
+    correct[steps++] = xasprintf("%"PRIi32" %d", MEND - BEE_WORD_BYTES, 513);
     ass(BEE_INSN_POP);
-    correct[steps++] = xasprintf("%"PRIi32, MEND - bee_WORD_BYTES);
+    correct[steps++] = xasprintf("%"PRIi32, MEND - BEE_WORD_BYTES);
     pushi(0);
-    correct[steps++] = xasprintf("%"PRIi32" %d", MEND - bee_WORD_BYTES, 0);
+    correct[steps++] = xasprintf("%"PRIi32" %d", MEND - BEE_WORD_BYTES, 0);
     ass(BEE_INSN_DUP);
-    correct[steps++] = xasprintf("%"PRIi32" %"PRIi32, MEND - bee_WORD_BYTES, MEND - bee_WORD_BYTES);
+    correct[steps++] = xasprintf("%"PRIi32" %"PRIi32, MEND - BEE_WORD_BYTES, MEND - BEE_WORD_BYTES);
     ass(BEE_INSN_LOAD1);
-    correct[steps++] = xasprintf("%"PRIi32" %d", MEND - bee_WORD_BYTES, 1);
+    correct[steps++] = xasprintf("%"PRIi32" %d", MEND - BEE_WORD_BYTES, 1);
     ass(BEE_INSN_ADD);
-    correct[steps++] = xasprintf("%"PRIi32, MEND - bee_WORD_BYTES + 1);
+    correct[steps++] = xasprintf("%"PRIi32, MEND - BEE_WORD_BYTES + 1);
     ass(BEE_INSN_LOAD1);
     correct[steps++] = xasprintf("%d", 2);
-    pushreli((bee_WORD *)MEND);
+    pushreli((bee_word_t *)MEND);
     correct[steps++] = xasprintf("%d %"PRIi32, 2, MEND);
     pushi(-1);
     correct[steps++] = xasprintf("%d %"PRIi32" %d", 2, MEND, -1);
@@ -66,7 +66,7 @@ int main(void)
     correct[steps++] = xasprintf("%d %"PRIi32, 2, MEND - 1);
     ass(BEE_INSN_STORE1);
     correct[steps++] = xasprintf("%s", "");
-    pushreli((bee_WORD *)MEND);
+    pushreli((bee_word_t *)MEND);
     correct[steps++] = xasprintf("%"PRIi32, MEND);
     pushi(-4);
     correct[steps++] = xasprintf("%"PRIi32" %d", MEND, -4);
@@ -76,7 +76,7 @@ int main(void)
     correct[steps++] = xasprintf("%"PRIi32, 33554945);
     ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
-    pushreli((bee_WORD *)MEND);
+    pushreli((bee_word_t *)MEND);
     correct[steps++] = xasprintf("%"PRIi32, MEND);
     pushi(-4);
     correct[steps++] = xasprintf("%"PRIi32" %d", MEND, -4);
@@ -84,7 +84,7 @@ int main(void)
     correct[steps++] = xasprintf("%"PRIi32, MEND - 4);
     ass(BEE_INSN_LOAD2);
     correct[steps++] = xasprintf("%d", 513);
-    pushreli((bee_WORD *)MEND);
+    pushreli((bee_word_t *)MEND);
     correct[steps++] = xasprintf("%d %"PRIi32, 513, MEND);
     pushi(-2);
     correct[steps++] = xasprintf("%d %"PRIi32" %d", 513, MEND, -2);
@@ -92,7 +92,7 @@ int main(void)
     correct[steps++] = xasprintf("%d %"PRIi32, 513, MEND - 2);
     ass(BEE_INSN_STORE2);
     correct[steps++] = xasprintf("%s", "");
-    pushreli((bee_WORD *)MEND);
+    pushreli((bee_word_t *)MEND);
     correct[steps++] = xasprintf("%"PRIi32, MEND);
     pushi(-4);
     correct[steps++] = xasprintf("%"PRIi32" %d", MEND, -4);

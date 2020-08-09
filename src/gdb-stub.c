@@ -126,11 +126,11 @@ static const char *hex_to_mem(const char *buf, uint8_t *mem, unsigned count)
 // Parse all hex digits starting at *ptr, and update *ptr
 // Keep reading characters even if it overflows
 // Return flag indicating whether a number was successfully parsed
-static int hex_to_int(const char **ptr, bee_UWORD *intValue)
+static int hex_to_int(const char **ptr, bee_uword_t *intValue)
 {
     errno = 0;
     char *end;
-    *intValue = (bee_UWORD)strtoul(*ptr, &end, 16);
+    *intValue = (bee_uword_t)strtoul(*ptr, &end, 16);
     int ok = errno == 0 && *ptr != end;
     *ptr = end;
     return ok;
@@ -186,7 +186,7 @@ int handle_exception(int error)
 
     // Main loop
     for (;;) {
-        bee_UWORD addr, length = 0;
+        bee_uword_t addr, length = 0;
         char *out_ptr = buf;
         *out_ptr = '\0';
 
@@ -204,14 +204,14 @@ int handle_exception(int error)
 
         case 'g': // return the value of the CPU registers
 #define R(reg, type)                                                    \
-            out_ptr = mem_to_hex((uint8_t *)&bee_##reg, out_ptr, bee_WORD_BYTES);
+            out_ptr = mem_to_hex((uint8_t *)&bee_##reg, out_ptr, BEE_WORD_BYTES);
 #include "bee/registers.h"
 #undef R
             break;
 
         case 'G': // set the value of the CPU registers, return OK
 #define R(reg, type)                                                    \
-            in_ptr = hex_to_mem(in_ptr, (uint8_t *)&bee_##reg, bee_WORD_BYTES);
+            in_ptr = hex_to_mem(in_ptr, (uint8_t *)&bee_##reg, BEE_WORD_BYTES);
 #include "bee/registers.h"
 #undef R
             strcpy(out_ptr, "OK");
@@ -244,7 +244,7 @@ int handle_exception(int error)
         case 'c': // cAA..AA    Continue at address AA..AA (optional)
             // If no parameter, pc is unchanged
             if (hex_to_int(&in_ptr, &addr))
-                bee_pc = (bee_WORD *)addr;
+                bee_pc = (bee_word_t *)addr;
             return 1;
 
         case 'k': // Kill the program

@@ -36,7 +36,7 @@ const char *correct[] = {
 
 int main(void)
 {
-    bee_init_defaults((bee_WORD *)malloc(1024), 256);
+    bee_init_defaults((bee_word_t *)malloc(1024), 256);
 
     bee_d0[bee_dp++] = 0xff000000; bee_d0[bee_dp++] = 8; bee_d0[bee_dp++] = 0xff; bee_d0[bee_dp++] = 8;
 

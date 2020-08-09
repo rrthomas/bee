@@ -52,26 +52,26 @@
 
 // Align a VM address
 #define ALIGN(a)                                                \
-    (((bee_UWORD)(a) + bee_WORD_BYTES - 1) & (-bee_WORD_BYTES))
+    (((bee_uword_t)(a) + BEE_WORD_BYTES - 1) & (-BEE_WORD_BYTES))
 
 // Check whether a VM address is aligned
 #define IS_ALIGNED(a)                                           \
-    (((uint8_t *)((bee_UWORD)(a) & (bee_WORD_BYTES - 1)) == 0))
+    (((uint8_t *)((bee_uword_t)(a) & (BEE_WORD_BYTES - 1)) == 0))
 
 // Portable left shift (the behaviour of << with overflow (including on any
 // negative number) is undefined)
 #define LSHIFT(n, p)                            \
-    (((n) & ((bee_UWORD)-1 >> p)) << p)
+    (((n) & ((bee_uword_t)-1 >> p)) << p)
 
 // Portable arithmetic right shift (the behaviour of >> on signed
 // quantities is implementation-defined in C99)
 #define ARSHIFT(n, p)                                           \
-    (((n) >> (p)) | (LSHIFT(-((n) < 0), (bee_WORD_BIT - p))))
+    (((n) >> (p)) | (LSHIFT(-((n) < 0), (BEE_WORD_BIT - p))))
 
 
 // Traps
-bee_WORD trap(bee_WORD code);
-bee_WORD trap_libc(bee_UWORD function);
+bee_word_t trap(bee_word_t code);
+bee_word_t trap_libc(bee_uword_t function);
 
 // GDB remote protocol stub
 int gdb_init(int gdb_fdin, int gdb_fdout);

@@ -28,7 +28,7 @@
 
 // Stacks
 
-int bee_pop_stack(bee_WORD *s0, bee_UWORD ssize, bee_UWORD *sp, bee_WORD *val_ptr)
+int bee_pop_stack(bee_word_t *s0, bee_uword_t ssize, bee_uword_t *sp, bee_word_t *val_ptr)
 {
     if (unlikely(*sp == 0))
         return BEE_ERROR_STACK_UNDERFLOW;
@@ -39,7 +39,7 @@ int bee_pop_stack(bee_WORD *s0, bee_UWORD ssize, bee_UWORD *sp, bee_WORD *val_pt
     return BEE_ERROR_OK;
 }
 
-int bee_push_stack(bee_WORD *s0, bee_UWORD ssize, bee_UWORD *sp, bee_WORD val)
+int bee_push_stack(bee_word_t *s0, bee_uword_t ssize, bee_uword_t *sp, bee_word_t val)
 {
     if (unlikely(*sp >= ssize))
         return BEE_ERROR_STACK_OVERFLOW;
@@ -50,25 +50,25 @@ int bee_push_stack(bee_WORD *s0, bee_UWORD ssize, bee_UWORD *sp, bee_WORD val)
 
 
 // Initialise VM state.
-int bee_init(bee_WORD *buf, bee_WORD memory_size, bee_WORD stack_size, bee_WORD return_stack_size)
+int bee_init(bee_word_t *buf, bee_word_t memory_size, bee_word_t stack_size, bee_word_t return_stack_size)
 {
     if (buf == NULL)
         return -1;
     bee_m0 = buf;
-    bee_msize = memory_size * bee_WORD_BYTES;
+    bee_msize = memory_size * BEE_WORD_BYTES;
     memset(bee_m0, 0, bee_msize);
 
     bee_pc = bee_m0;
     bee_dp = 0;
 
     bee_dsize = stack_size;
-    bee_d0 = (bee_WORD *)calloc(bee_dsize, bee_WORD_BYTES);
+    bee_d0 = (bee_word_t *)calloc(bee_dsize, BEE_WORD_BYTES);
     if (bee_d0 == NULL)
         return -1;
     bee_handler_sp = bee_sp = 0;
 
     bee_ssize = return_stack_size;
-    bee_s0 = (bee_WORD *)calloc(bee_ssize, bee_WORD_BYTES);
+    bee_s0 = (bee_word_t *)calloc(bee_ssize, BEE_WORD_BYTES);
     if (bee_s0 == NULL) {
         free(bee_s0);
         return -1;
@@ -77,7 +77,7 @@ int bee_init(bee_WORD *buf, bee_WORD memory_size, bee_WORD stack_size, bee_WORD 
     return 0;
 }
 
-int bee_init_defaults(bee_WORD *buf, bee_WORD memory_size)
+int bee_init_defaults(bee_word_t *buf, bee_word_t memory_size)
 {
     return bee_init(buf, memory_size, BEE_DEFAULT_STACK_SIZE, BEE_DEFAULT_STACK_SIZE);
 }

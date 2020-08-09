@@ -19,7 +19,7 @@ const char *correct[] = {
 
 int main(void)
 {
-    bee_init_defaults((bee_WORD *)malloc(1024), 256);
+    bee_init_defaults((bee_word_t *)malloc(1024), 256);
 
     bee_d0[bee_dp++] = 3; bee_d0[bee_dp++] =2; bee_d0[bee_dp++] = 1;	// initialise the stack
 

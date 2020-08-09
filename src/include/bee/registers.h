@@ -8,13 +8,13 @@
 // THIS PROGRAM IS PROVIDED AS IS, WITH NO WARRANTY. USE IS AT THE USER’S
 // RISK.
 
-R(pc, bee_WORD *)
-R(m0, bee_WORD *)
-R(msize, bee_UWORD)
-R(s0, bee_WORD *)
-R(ssize, bee_UWORD)
-R(sp, bee_UWORD)
-R(d0, bee_WORD *)
-R(dsize, bee_UWORD)
-R(dp, bee_UWORD)
-R(handler_sp, bee_UWORD)
+R(pc, bee_word_t *)
+R(m0, bee_word_t *)
+R(msize, bee_uword_t)
+R(s0, bee_word_t *)
+R(ssize, bee_uword_t)
+R(sp, bee_uword_t)
+R(d0, bee_word_t *)
+R(dsize, bee_uword_t)
+R(dp, bee_uword_t)
+R(handler_sp, bee_uword_t)
