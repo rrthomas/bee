@@ -17,7 +17,8 @@ void ass(bee_uword_t instr);	// assemble an instruction
 void ass_trap(bee_uword_t code);	// assemble a trap
 void ass_byte(uint8_t b);	// assemble a byte
 void calli(bee_word_t *addr);	// assemble an immediate call
-void pushi(bee_word_t literal);	// assemble a literal
+void pushi(bee_word_t literal);	// assemble an immediate literal
+void push(bee_word_t literal);	// assemble a full-word literal
 void pushreli(bee_word_t *addr);	// assemble an offset to the given word-aligned address
 void jumpi(bee_word_t *addr);	// assemble an immediate jump
 void jumpzi(bee_word_t *addr);	// assemble an immediate jumpz

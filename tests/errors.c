@@ -69,7 +69,7 @@ int main(void)
 
         if (result[i] != res) {
              printf("Error in errors tests: test %zu failed; bee_pc = %p\n", i + 1, bee_pc);
-             printf("Return code is %d (%s); should be %d (%s)\n",
+             printf("Return code is %zd (%s); should be %zd (%s)\n",
                     res, error_to_msg(res), result[i], error_to_msg(result[i]));
              error++;
         }

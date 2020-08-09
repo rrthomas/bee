@@ -14,7 +14,8 @@
 
 int main(void)
 {
-    int i = bee_init_defaults((bee_word_t *)calloc(1024, 1), 256);
+    size_t size = 256;
+    int i = bee_init_defaults((bee_word_t *)calloc(size, BEE_WORD_BYTES), size);
     if (i != 0) {
         printf("Error in run() tests: init with valid parameters failed\n");
         exit(1);
@@ -29,7 +30,7 @@ int main(void)
 
     bee_word_t ret = bee_run();
 
-    printf("Return value should be %d and is %"PRId32"\n", ret_code, ret);
+    printf("Return value should be %d and is %zd\n", ret_code, ret);
     if (ret != ret_code) {
         printf("Error in run() tests: incorrect return value from run\n");
         exit(1);

@@ -60,7 +60,7 @@ int main(void)
 
     for (unsigned i = 0; i < steps; i++) {
         printf("Instruction = %s\n", disass(*bee_pc, bee_pc));
-        printf("Instruction %zu: bee_pc = %p; should be %p\n\n", i, bee_pc, correct[i]);
+        printf("Instruction %u: bee_pc = %p; should be %p\n\n", i, bee_pc, correct[i]);
         if (correct[i] != bee_pc) {
             printf("Error in branch tests: bee_pc = %p\n", bee_pc);
             exit(1);

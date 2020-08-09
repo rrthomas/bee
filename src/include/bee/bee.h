@@ -22,8 +22,8 @@
 // Basic types
 typedef ssize_t bee_word_t;
 typedef size_t bee_uword_t;
-#define BEE_WORD_BYTES 4    // the number of bytes in a word
-#define BEE_WORD_BIT (sizeof(BEE_WORD_BYTES) * 8)
+#define BEE_WORD_BYTES ((int)sizeof(bee_word_t))
+#define BEE_WORD_BIT (BEE_WORD_BYTES * 8)
 #define BEE_WORD_MIN ((bee_word_t)(1UL << (BEE_WORD_BIT - 1)))
 #define BEE_UWORD_MAX (SIZE_MAX)
 

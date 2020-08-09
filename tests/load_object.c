@@ -51,15 +51,16 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    bee_word_t *_memory = (bee_word_t *)calloc(1024, 1);
-    bee_init_defaults(_memory, 256);
+    size_t size = 256;
+    bee_word_t *_memory = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
+    bee_init_defaults(_memory, size);
 
     for (size_t i = 0; i < sizeof(files) / sizeof(files[0]); i++) {
         char *s = obj_name(prefix, files[i]);
         res = try(s, bee_m0);
         free(s);
         printf(" should be %d\n", correct[i]);
-        printf("Word 0 of memory is %"PRIX32"; should be 1020304\n", (bee_uword_t)*bee_m0);
+        printf("Word 0 of memory is %zx; should be 1020304\n", (bee_uword_t)*bee_m0);
         if (*bee_m0 != 0x1020304) {
             printf("Error in bee_load_object() tests: file %s\n", files[i]);
             exit(1);

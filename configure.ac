@@ -66,8 +66,8 @@ dnl Check features
 AC_C_BIGENDIAN
 AC_CHECK_SIZEOF([size_t]) # word_bytes
 SIZEOF_SIZE_T=$ac_cv_sizeof_size_t
-AS_IF([test "$SIZEOF_SIZE_T" != 4],
-   AC_MSG_ERROR([sizeof(size_t) must be 4!]))
+AS_IF([test "$SIZEOF_SIZE_T" != 4 -a "$SIZEOF_SIZE_T" != 8],
+   AC_MSG_ERROR([sizeof(size_t) must be 4 or 8!]))
 
 dnl Generate output files
 AC_CONFIG_HEADERS([config.h])

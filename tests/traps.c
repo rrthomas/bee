@@ -20,7 +20,8 @@ int main(void)
     int argc = 3;
     const char *argv[] = {"foo", "bard", "basilisk"};
 
-    bee_init_defaults((bee_word_t *)malloc(4096), 1024);
+    size_t size = 1024;
+    bee_init_defaults((bee_word_t *)calloc(size, BEE_WORD_BYTES), size);
     bee_register_args(argc, argv);
 
     ass_goto(bee_m0);
@@ -36,7 +37,7 @@ int main(void)
 
     assert(single_step() == BEE_ERROR_BREAK);
     assert(single_step() == BEE_ERROR_BREAK);
-    printf("argc is %"PRId32", and should be %d\n", bee_d0[bee_dp - 1], argc);
+    printf("argc is %zd, and should be %d\n", bee_d0[bee_dp - 1], argc);
     assert(bee_dp > 0);
     if (bee_d0[--bee_dp] != argc) {
         printf("Error in traps tests: bee_pc = %p\n", bee_pc);
@@ -45,7 +46,7 @@ int main(void)
 
     while (bee_pc < end)
         assert(single_step() == BEE_ERROR_BREAK);
-    printf("arg 1's length is %"PRId32", and should be %zu\n", bee_d0[bee_dp - 1], strlen(argv[1]));
+    printf("arg 1's length is %zd, and should be %zu\n", bee_d0[bee_dp - 1], strlen(argv[1]));
     assert(bee_dp > 0);
     if ((bee_uword_t)bee_d0[--bee_dp] != strlen(argv[1])) {
         printf("Error in traps tests: bee_pc = %p\n", bee_pc);

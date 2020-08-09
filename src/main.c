@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdarg.h>
-#include <inttypes.h>
 #include <limits.h>
 #include <string.h>
 #include <unistd.h>
@@ -97,7 +96,7 @@ static bee_uword_t parse_number(bee_uword_t min, bee_uword_t max, char **end, co
     unsigned long size = strtoul(optarg, &endptr, 10);
     if (*optarg == '\0' || (end == NULL && *endptr != '\0') ||
         (bee_uword_t)size < min || (bee_uword_t)size > max)
-        die("%s must be a positive number between %"PRIu32 " and %"PRIu32, type, min, max);
+        die("%s must be a positive number between %zu and %zu", type, min, max);
     if (end != NULL)
         *end = endptr;
     return (bee_uword_t)size;
@@ -172,7 +171,7 @@ int main(int argc, char *argv[])
     }
 
     if ((memory = (bee_word_t *)calloc(memory_size, BEE_WORD_BYTES)) == NULL)
-        die("could not allocate %"PRIu32" words of memory", memory_size);
+        die("could not allocate %zu words of memory", memory_size);
     bee_init(memory, memory_size, stack_size, return_stack_size);
 
     argc -= optind;

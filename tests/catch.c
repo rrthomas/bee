@@ -18,7 +18,8 @@ int main(void)
     unsigned steps = 0;
     setbuf(stdout, NULL);
 
-    bee_init_defaults((bee_word_t *)malloc(4096), 1024);
+    size_t size = 1024;
+    bee_init_defaults((bee_word_t *)calloc(size, BEE_WORD_BYTES), size);
 
     ass_goto(bee_m0);
     pushi(8);
@@ -26,7 +27,7 @@ int main(void)
     pushi(5);
     correct[steps++] = xasprintf("%d %d", 8, 5);
     pushreli(bee_m0 + 0x200 / BEE_WORD_BYTES);
-    correct[steps++] = xasprintf("%d %d %"PRIi32, 8, 5, (bee_word_t)(bee_m0 + 0x200 / BEE_WORD_BYTES));
+    correct[steps++] = xasprintf("%d %d %zd", 8, 5, (bee_word_t)(bee_m0 + 0x200 / BEE_WORD_BYTES));
     ass(BEE_INSN_CATCH);
     bee_word_t *ret_addr = label();
     ass_goto(bee_m0 + 0x200 / BEE_WORD_BYTES);
@@ -39,7 +40,7 @@ int main(void)
     ass_goto(ret_addr);
 
     pushreli(bee_m0 + 0x400 / BEE_WORD_BYTES);
-    correct[steps++] = xasprintf("%d %d %d %"PRIi32, 1, 3, 0, (bee_word_t)(bee_m0 + 0x400 / BEE_WORD_BYTES));
+    correct[steps++] = xasprintf("%d %d %d %zd", 1, 3, 0, (bee_word_t)(bee_m0 + 0x400 / BEE_WORD_BYTES));
     ass(BEE_INSN_CATCH);
     correct[steps++] = xasprintf("%d %d %d", 1, 3, 0);
     ret_addr = label();
@@ -58,7 +59,7 @@ int main(void)
     ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
     pushreli(bee_m0 + 0x600 / BEE_WORD_BYTES);
-    correct[steps++] = xasprintf("%"PRIi32, (bee_word_t)(bee_m0 + 0x600 / BEE_WORD_BYTES));
+    correct[steps++] = xasprintf("%zd", (bee_word_t)(bee_m0 + 0x600 / BEE_WORD_BYTES));
     ass(BEE_INSN_CATCH);
     correct[steps++] = xasprintf("%s", "");
     ret_addr = label();
@@ -78,7 +79,7 @@ int main(void)
     for (unsigned i = 0; i < steps; i++) {
         printf("Instruction = %s\n", disass(*bee_pc, bee_pc));
         bee_word_t ret = single_step();
-        printf("single_step() returns %d (%s)\n", ret, error_to_msg(ret)); // Some instructions will error.
+        printf("single_step() returns %zd (%s)\n", ret, error_to_msg(ret)); // Some instructions will error.
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {

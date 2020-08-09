@@ -16,7 +16,8 @@
 // O(long name, short name ('\0' for none), argument, argument docstring, docstring)
 // A(argument, docstring)
 
-#include "stringify.h"
+#define xstr(s) #s
+#define str(s) xstr(s)
 
 #define MEMORY_MESSAGE(type, max, def) \
   "set " type " size to the given NUMBER of words\n"                    \

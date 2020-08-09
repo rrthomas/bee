@@ -13,7 +13,8 @@
 
 int main(void)
 {
-    bee_init_defaults((bee_word_t *)calloc(1024, 1), 256);
+    size_t size = 256;
+    bee_init_defaults((bee_word_t *)calloc(size, BEE_WORD_BYTES), size);
 
     ass_goto(bee_m0);
 

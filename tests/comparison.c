@@ -40,7 +40,7 @@ static void step(unsigned start, unsigned end)
             printf("Instruction = %s\n", disass(*bee_pc, bee_pc));
             assert(single_step() == BEE_ERROR_BREAK);
             show_data_stack();
-            printf("Result: %d; correct result: %d\n\n", bee_d0[bee_dp - 1], correct[i]);
+            printf("Result: %zd; correct result: %zd\n\n", bee_d0[bee_dp - 1], correct[i]);
             if (correct[i] != bee_d0[bee_dp - 1]) {
                 printf("Error in comparison tests: bee_pc = %p\n", bee_pc);
                 exit(1);
@@ -51,7 +51,8 @@ static void step(unsigned start, unsigned end)
 
 int main(void)
 {
-    bee_init_defaults((bee_word_t *)malloc(1024), 256);
+    size_t size = 256;
+    bee_init_defaults((bee_word_t *)calloc(size, BEE_WORD_BYTES), size);
 
     ass_goto(bee_m0);
     ass(BEE_INSN_LT); ass(BEE_INSN_LT); ass(BEE_INSN_LT); ass(BEE_INSN_LT);

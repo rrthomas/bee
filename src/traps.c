@@ -10,7 +10,6 @@
 
 #include "config.h"
 
-#include <inttypes.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -34,12 +33,21 @@ verify(sizeof(int) <= sizeof(bee_word_t));
 
 // I/O support
 
-typedef uint64_t DUWORD;
-#define DOUBLE_WORD(pop1, pop2)                                 \
-    (((DUWORD)(bee_uword_t)pop1) << BEE_WORD_BIT | (bee_uword_t)pop2)
+#if SIZEOF_SIZE_T == 4
+typedef uint64_t bee_duword_t;
 #define PUSH_DOUBLE(ud)                                             \
-    PUSH((bee_uword_t)(ud & (bee_uword_t)-1));                              \
+    PUSH((bee_uword_t)(ud & (bee_uword_t)-1));                      \
     PUSH((bee_uword_t)((ud >> BEE_WORD_BIT) & (bee_uword_t)-1));
+#define POP_DOUBLE(ud)                                                  \
+    bee_word_t pop1, pop2;                                              \
+    POP(&pop1);                                                         \
+    POP(&pop2);                                                         \
+    *ud = (((bee_duword_t)(bee_uword_t)pop1) << BEE_WORD_BIT | (bee_uword_t)pop2)
+#else
+typedef size_t bee_duword_t;
+#define PUSH_DOUBLE(res) PUSH(res)
+#define POP_DOUBLE(res)  POP((bee_word_t *)res)
+#endif
 
 // Register command-line args
 static int main_argc = 0;
@@ -153,14 +161,12 @@ bee_word_t trap_libc(bee_uword_t function)
         {
             POP(&temp);
             int whence = temp;
-            bee_word_t pop1, pop2;
-            POP(&pop1);
-            POP(&pop2);
-            DUWORD ud = DOUBLE_WORD(pop1, pop2);
+            bee_duword_t ud;
+            POP_DOUBLE(&ud);
             POP(&temp);
             int fd = temp;
             off_t res = lseek(fd, (off_t)ud, whence);
-            PUSH_DOUBLE((DUWORD)res);
+            PUSH_DOUBLE((bee_duword_t)res);
         }
         break;
     case TRAP_LIBC_FDATASYNC:
@@ -191,7 +197,7 @@ bee_word_t trap_libc(bee_uword_t function)
             POP(&temp);
             int fd = temp;
             int res = fstat(fd, &st);
-            PUSH_DOUBLE((DUWORD)st.st_size);
+            PUSH_DOUBLE((bee_duword_t)st.st_size);
             PUSH(res);
         }
         break;
@@ -199,10 +205,8 @@ bee_word_t trap_libc(bee_uword_t function)
         {
             POP(&temp);
             int fd = temp;
-            bee_word_t pop1, pop2;
-            POP(&pop1);
-            POP(&pop2);
-            DUWORD ud = DOUBLE_WORD(pop1, pop2);
+            bee_duword_t ud;
+            POP_DOUBLE(&ud);
             int res = ftruncate(fd, (off_t)ud);
             PUSH(res);
         }

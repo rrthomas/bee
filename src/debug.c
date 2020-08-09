@@ -15,7 +15,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <inttypes.h>
 
 #include "xvasprintf.h"
 
@@ -58,6 +57,14 @@ void pushi(bee_word_t literal)
     word(temp | BEE_OP_PUSHI);
 }
 
+void push(bee_word_t literal)
+{
+    calli((bee_word_t *)current + 2);
+    word(literal);
+    ass(BEE_INSN_POPR);
+    ass(BEE_INSN_LOAD);
+}
+
 static void addr_op(int op, bee_word_t *addr)
 {
     word(LSHIFT(addr - (bee_word_t *)current, 2) | op);
@@ -77,7 +84,7 @@ static void addr_op2(int op, bee_word_t *addr)
 {
     bee_word_t offset = LSHIFT(addr - (bee_word_t *)current, 2);
     bee_word_t temp = LSHIFT(offset, 2);
-    assert(temp >> 2 == offset);
+    assert(ARSHIFT(temp, 2) == offset);
     word(LSHIFT(offset | op, 2) | BEE_OP_LEVEL2);
 }
 
@@ -124,17 +131,17 @@ _GL_ATTRIBUTE_CONST const char *disass(bee_word_t opcode, bee_word_t *pc)
     case BEE_OP_CALLI:
         {
             bee_word_t *addr = pc + ARSHIFT(opcode, 2);
-            text = xasprintf("CALLI $%"PRIX32, (bee_uword_t)addr);
+            text = xasprintf("CALLI $%zx", (bee_uword_t)addr);
         }
         break;
     case BEE_OP_PUSHI:
         {
             opcode = ARSHIFT(opcode, 2);
-            text = xasprintf("PUSHI %"PRIi32"=$%"PRIX32, opcode, (bee_uword_t)opcode);
+            text = xasprintf("PUSHI %zd=$%zx", opcode, (bee_uword_t)opcode);
         }
         break;
     case BEE_OP_PUSHRELI:
-        text = xasprintf("PUSHRELI $%"PRIX32, (bee_uword_t)(pc + (opcode & ~BEE_OP_MASK)));
+        text = xasprintf("PUSHRELI $%zx", (bee_uword_t)(pc + (opcode & ~BEE_OP_MASK)));
         break;
     default:
         opcode = ARSHIFT(opcode, 2);
@@ -142,20 +149,20 @@ _GL_ATTRIBUTE_CONST const char *disass(bee_word_t opcode, bee_word_t *pc)
         case BEE_OP2_JUMPI:
             {
                 bee_word_t *addr = pc + ARSHIFT(opcode, 2);
-                text = xasprintf("JUMPI $%"PRIX32, (bee_uword_t)addr);
+                text = xasprintf("JUMPI $%zx", (bee_uword_t)addr);
             }
             break;
         case BEE_OP2_JUMPZI:
             {
                 bee_word_t *addr = pc + ARSHIFT(opcode, 2);
-                text = xasprintf("JUMPZI $%"PRIX32, (bee_uword_t)addr);
+                text = xasprintf("JUMPZI $%zx", (bee_uword_t)addr);
             }
             break;
         case BEE_OP2_TRAP:
-            text = xasprintf("TRAP $%"PRIX32, (bee_uword_t)opcode >> 2);
+            text = xasprintf("TRAP $%zx", (bee_uword_t)opcode >> 2);
             break;
         case BEE_OP2_INSN:
-            opcode >>= 2;
+            opcode = (bee_uword_t)opcode >> 2;
             if ((bee_uword_t)opcode <= sizeof(mnemonic) / sizeof(mnemonic[0]) &&
                 mnemonic[(bee_uword_t)opcode] != NULL)
                 text = xasprintf("%s", mnemonic[(bee_uword_t)opcode]);
@@ -185,11 +192,11 @@ static char *_val_data_stack(bool with_hex)
         picture = xasprintf("%s", "stack overflow");
     } else
         for (bee_uword_t i = 0; i < bee_dp; i++) {
-            char *ptr = xasprintf("%s%"PRId32, picture, bee_d0[i]);
+            char *ptr = xasprintf("%s%zd", picture, bee_d0[i]);
             free(picture);
             picture = ptr;
             if (with_hex) {
-                ptr = xasprintf("%s ($%"PRIX32") ", picture, (bee_uword_t)bee_d0[i]);
+                ptr = xasprintf("%s ($%zx) ", picture, (bee_uword_t)bee_d0[i]);
                 free(picture);
                 picture = ptr;
             }
@@ -227,7 +234,7 @@ void show_return_stack(void)
     else {
         printf("Return stack: ");
         for (bee_uword_t i = 0; i < bee_sp; i++)
-            printf("$%"PRIX32" ", (bee_uword_t)bee_s0[i]);
+            printf("$%zx ", (bee_uword_t)bee_s0[i]);
         putchar('\n');
     }
 }

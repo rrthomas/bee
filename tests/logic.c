@@ -14,49 +14,52 @@
 #include "tests.h"
 
 
-const char *correct[] = {
-    "-16777216 8 65280",
-    "-16777216 8 65280 1",
-    "65280 8 -16777216",
-    "65280 8 -16777216 0",
-    "65280 -16777216 8",
-    "65280 16711680",
-    "16776960",
-    "16776960 1",
-    "33553920",
-    "33553920 1",
-    "16776960",
-    "-16776961",
-    "-16776961 1",
-    "-16776961 1 -1",
-    "-16776961 -2",
-    "-16776962",
-};
-
-
 int main(void)
 {
-    bee_init_defaults((bee_word_t *)malloc(1024), 256);
+    const char *correct[64];
+    unsigned steps = 0;
 
-    bee_d0[bee_dp++] = 0xff000000; bee_d0[bee_dp++] = 8; bee_d0[bee_dp++] = 0xff; bee_d0[bee_dp++] = 8;
+    size_t size = 256;
+    bee_init_defaults((bee_word_t *)calloc(size, BEE_WORD_BYTES), size);
+
+    int BYTE_BIT = 8;
+    bee_word_t BOTTOM_BYTE_SET = 0xffUL;
+    bee_word_t SECOND_BYTE_SET = 0xffUL << BYTE_BIT;
+    bee_word_t PENULTIMATE_BYTE_SET = 0xffUL << (BEE_WORD_BIT - 2 * BYTE_BIT);
+    bee_word_t TOP_BYTE_SET = LSHIFT(-1, BEE_WORD_BIT - BYTE_BIT);
 
     ass_goto(bee_m0);
-    ass(BEE_INSN_LSHIFT);
-    pushi(1); ass(BEE_INSN_SWAP);
-    pushi(0); ass(BEE_INSN_SWAP);
-    ass(BEE_INSN_RSHIFT);
-    ass(BEE_INSN_OR);
-    pushi(1);
-    ass(BEE_INSN_LSHIFT);
-    pushi(1);
-    ass(BEE_INSN_RSHIFT);
-    ass(BEE_INSN_NOT);
-    pushi(1);
-    pushi(-1);
-    ass(BEE_INSN_XOR);
-    ass(BEE_INSN_AND);
 
-    for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
+    pushi(BYTE_BIT);
+    correct[steps++] = xasprintf("%d", BYTE_BIT);
+    pushi(TOP_BYTE_SET);
+    correct[steps++] = xasprintf("%d %zd", BYTE_BIT, TOP_BYTE_SET);
+    pushi(BOTTOM_BYTE_SET);
+    correct[steps++] = xasprintf("%d %zd %zd", BYTE_BIT, TOP_BYTE_SET, BOTTOM_BYTE_SET);
+    pushi(BYTE_BIT);
+    correct[steps++] = xasprintf("%d %zd %zd %d", BYTE_BIT, TOP_BYTE_SET, BOTTOM_BYTE_SET, BYTE_BIT);
+    ass(BEE_INSN_LSHIFT);
+    correct[steps++] = xasprintf("%d %zd %zd", BYTE_BIT, TOP_BYTE_SET, SECOND_BYTE_SET);
+    pushi(1);
+    correct[steps++] = xasprintf("%d %zd %zd %d", BYTE_BIT, TOP_BYTE_SET, SECOND_BYTE_SET, 1);
+    ass(BEE_INSN_SWAP);
+    correct[steps++] = xasprintf("%zd %zd %d", SECOND_BYTE_SET, TOP_BYTE_SET, BYTE_BIT);
+    ass(BEE_INSN_RSHIFT);
+    correct[steps++] = xasprintf("%zd %zd", SECOND_BYTE_SET, PENULTIMATE_BYTE_SET);
+    ass(BEE_INSN_OR);
+    correct[steps++] = xasprintf("%zd", SECOND_BYTE_SET | PENULTIMATE_BYTE_SET);
+    ass(BEE_INSN_NOT);
+    correct[steps++] = xasprintf("%zd", ~(SECOND_BYTE_SET | PENULTIMATE_BYTE_SET));
+    pushi(1024);
+    correct[steps++] = xasprintf("%zd %d", ~(SECOND_BYTE_SET | PENULTIMATE_BYTE_SET), 1024);
+    pushi(-1);
+    correct[steps++] = xasprintf("%zd %d %d", ~(SECOND_BYTE_SET | PENULTIMATE_BYTE_SET), 1024, -1);
+    ass(BEE_INSN_XOR);
+    correct[steps++] = xasprintf("%zd %d", ~(SECOND_BYTE_SET | PENULTIMATE_BYTE_SET), -1025);
+    ass(BEE_INSN_AND);
+    correct[steps++] = xasprintf("%zd", ~(SECOND_BYTE_SET | PENULTIMATE_BYTE_SET) & -1025);
+
+    for (size_t i = 0; i < steps; i++) {
         printf("Instruction = %s\n", disass(*bee_pc, bee_pc));
         assert(single_step() == BEE_ERROR_BREAK);
         show_data_stack();

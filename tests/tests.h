@@ -13,7 +13,6 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-#include <inttypes.h>
 
 #include "xvasprintf.h"
 
@@ -22,4 +21,3 @@
 
 #include "private.h"
 #include "debug.h"
-#include "stringify.h"
