@@ -61,12 +61,12 @@
 // Portable left shift (the behaviour of << with overflow (including on any
 // negative number) is undefined)
 #define LSHIFT(n, p)                            \
-    (((n) & ((bee_uword_t)-1 >> (p))) << (p))
+    (((n) & (BEE_UWORD_MAX >> (p))) << (p))
 
 // Portable arithmetic right shift (the behaviour of >> on signed
 // quantities is implementation-defined in C99)
 #define ARSHIFT(n, p)                                           \
-    (((n) >> (p)) | (LSHIFT(-((n) < 0), (BEE_WORD_BIT - p))))
+    (((n) >> (p)) | (bee_word_t)(LSHIFT(-((n) < 0), (BEE_WORD_BIT - p))))
 
 
 // Traps

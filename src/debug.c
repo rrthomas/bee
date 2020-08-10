@@ -54,7 +54,7 @@ void ass_byte(uint8_t b)
 void pushi(bee_word_t literal)
 {
     bee_word_t temp = LSHIFT(literal, 2);
-    assert(ARSHIFT(temp, 2) == (bee_uword_t)literal);
+    assert(ARSHIFT(temp, 2) == literal);
     word(temp | BEE_OP_PUSHI);
 }
 

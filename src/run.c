@@ -38,7 +38,7 @@ bee_word_t bee_run(void)
         case BEE_OP_CALLI:
             {
                 PUSH_RETURN((bee_uword_t)bee_pc);
-                bee_word_t *addr = (bee_pc - 1) + (ir >> 2);
+                bee_word_t *addr = (bee_pc - 1) + ARSHIFT(ir, 2);
                 CHECK_ALIGNED(addr);
                 bee_pc = addr;
             }
@@ -47,21 +47,21 @@ bee_word_t bee_run(void)
             PUSH(ARSHIFT(ir, 2));
             break;
         case BEE_OP_PUSHRELI:
-            PUSH((bee_uword_t)((bee_pc - 1) + (ir >> 2)));
+            PUSH((bee_uword_t)((bee_pc - 1) + ARSHIFT(ir, 2)));
             break;
         case BEE_OP_LEVEL2:
             ir = ARSHIFT(ir, 2);
             switch (ir & BEE_OP2_MASK) {
             case BEE_OP2_JUMPI:
                 {
-                    bee_word_t *addr = (bee_pc - 1) + (ir >> 2);
+                    bee_word_t *addr = (bee_pc - 1) + ARSHIFT(ir, 2);
                     CHECK_ALIGNED(addr);
                     bee_pc = addr;
                 }
                 break;
             case BEE_OP2_JUMPZI:
                 {
-                    bee_word_t *addr = (bee_pc - 1) + (ir >> 2);
+                    bee_word_t *addr = (bee_pc - 1) + ARSHIFT(ir, 2);
                     bee_word_t flag;
                     POP(&flag);
                     if (flag == 0) {
@@ -71,11 +71,11 @@ bee_word_t bee_run(void)
                 }
                 break;
             case BEE_OP2_TRAP:
-                THROW_IF_ERROR(trap(ir >> 2));
+                THROW_IF_ERROR(trap((bee_uword_t)ir >> 2));
                 break;
             case BEE_OP2_INSN:
                 {
-                    bee_word_t opcode = ir >> 2;
+                    bee_uword_t opcode = (bee_uword_t)ir >> 2;
                     switch (opcode) {
                     case BEE_INSN_NOP:
                         break;
