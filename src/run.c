@@ -32,33 +32,33 @@ bee_word_t bee_run(void)
     for (;;) {
         bee_word_t error = BEE_ERROR_OK, ir = *bee_pc++;
 
-        switch (ir & BEE_OP_MASK1) {
+        switch (ir & BEE_OP1_MASK) {
         case BEE_OP_CALLI:
             {
                 PUSH_RETURN((bee_uword_t)bee_pc);
-                bee_word_t *addr = (bee_pc - 1) + ARSHIFT(ir, 2);
+                bee_word_t *addr = (bee_pc - 1) + ARSHIFT(ir, BEE_OP1_SHIFT);
                 CHECK_ALIGNED(addr);
                 bee_pc = addr;
             }
             break;
         case BEE_OP_PUSHI:
-            PUSH(ARSHIFT(ir, 2));
+            PUSH(ARSHIFT(ir, BEE_OP1_SHIFT));
             break;
         case BEE_OP_PUSHRELI:
-            PUSH((bee_uword_t)((bee_pc - 1) + ARSHIFT(ir, 2)));
+            PUSH((bee_uword_t)((bee_pc - 1) + ARSHIFT(ir, BEE_OP1_SHIFT)));
             break;
         default:
-            switch (ir & BEE_OP_MASK2) {
+            switch (ir & BEE_OP2_MASK) {
             case BEE_OP_JUMPI:
                 {
-                    bee_word_t *addr = (bee_pc - 1) + ARSHIFT(ir, 4);
+                    bee_word_t *addr = (bee_pc - 1) + ARSHIFT(ir, BEE_OP2_SHIFT);
                     CHECK_ALIGNED(addr);
                     bee_pc = addr;
                 }
                 break;
             case BEE_OP_JUMPZI:
                 {
-                    bee_word_t *addr = (bee_pc - 1) + ARSHIFT(ir, 4);
+                    bee_word_t *addr = (bee_pc - 1) + ARSHIFT(ir, BEE_OP2_SHIFT);
                     bee_word_t flag;
                     POP(&flag);
                     if (flag == 0) {
@@ -68,11 +68,11 @@ bee_word_t bee_run(void)
                 }
                 break;
             case BEE_OP_TRAP:
-                THROW_IF_ERROR(trap((bee_uword_t)ir >> 4));
+                THROW_IF_ERROR(trap((bee_uword_t)ir >> BEE_OP2_SHIFT));
                 break;
             case BEE_OP_INSN:
                 {
-                    bee_uword_t opcode = (bee_uword_t)ir >> 4;
+                    bee_uword_t opcode = (bee_uword_t)ir >> BEE_OP2_SHIFT;
                     switch (opcode) {
                     case BEE_INSN_NOP:
                         break;

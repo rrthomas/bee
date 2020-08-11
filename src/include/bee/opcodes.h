@@ -11,11 +11,20 @@
 
 /* Instructions occupy a word, and take the following forms:
 
+   32-bit Bee:
+
    1. Opcode in bits 0-1, rest of word is immediate operand.
-      The opcodes are BEE_OP_* below.
-   2. Bits 0-1 are 11, opcode in bits 2-3, rest of word is immediate
-      operand.  The opcodes are BEE_OP2_* below.
+      The opcodes are BEE_OP_* below masked with BEE_OP1_MASK.
+   2. Bits 0-1 are 11, opcode in bits 2-3, rest of word is immediate operand.
+      The opcodes are BEE_OP_* below masked with BEE_OP2_MASK.
    3. Bits 0-3 are 1111, rest of word is instruction opcode.
+      The opcodes are BEE_INSN_* below.
+
+   64-bit Bee:
+
+   1. Opcode in bits 0-2, rest of word is immediate operand.
+      The opcodes are BEE_OP_* below masked with BEE_OP1_MASK == BEE_OP2_MASK.
+   2. Bits 0-3 are 111, rest of word is instruction opcode.
       The opcodes are BEE_INSN_* below.
 */
 
@@ -35,22 +44,43 @@ extern const bee_opc_info_t bee_inst_info[0x40];
 /* Largest trap code.  */
 #define BEE_MAX_TRAP ((1 << 28) - 1)
 
+#if BEE_WORD_BYTES == 4
+#define BEE_OP1_SHIFT 2
+#define BEE_OP2_SHIFT 4
 /* 32-bit Instruction types.  */
 enum {
   /* Bits 0-1.  */
-  BEE_OP_MASK1    = 0x3,
+  BEE_OP1_MASK    = 0x3,
   BEE_OP_CALLI    = 0x0,
   BEE_OP_PUSHI    = 0x1,
   BEE_OP_PUSHRELI = 0x2,
   BEE_OP_LEVEL2   = 0x3,
 
   /* Bits 0-3 when bits 0-1 are 11.  */
-  BEE_OP_MASK2   = 0xf,
-  BEE_OP_JUMPI   = 0x3,
-  BEE_OP_JUMPZI  = 0x7,
-  BEE_OP_TRAP    = 0xb,
-  BEE_OP_INSN    = 0xf,
+  BEE_OP2_MASK    = 0xf,
+  BEE_OP_JUMPI    = 0x3,
+  BEE_OP_JUMPZI   = 0x7,
+  BEE_OP_TRAP     = 0xb,
+  BEE_OP_INSN     = 0xf,
 };
+#else
+/* 64-bit Instruction types.  */
+#define BEE_OP1_SHIFT 3
+#define BEE_OP2_SHIFT 3
+enum {
+  BEE_OP1_MASK    = 0x7,
+  BEE_OP2_MASK    = 0x7,
+
+  /* Bits 0-2.  */
+  BEE_OP_CALLI    = 0x0,
+  BEE_OP_PUSHI    = 0x1,
+  BEE_OP_PUSHRELI = 0x2,
+  BEE_OP_JUMPI    = 0x3,
+  BEE_OP_JUMPZI   = 0x4,
+  BEE_OP_TRAP     = 0x5,
+  BEE_OP_INSN     = 0x7,
+};
+#endif
 
 /* OP_INSN opcodes.  */
 enum {

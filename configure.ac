@@ -68,6 +68,7 @@ AC_CHECK_SIZEOF([size_t]) # word_bytes
 SIZEOF_SIZE_T=$ac_cv_sizeof_size_t
 AS_IF([test "$SIZEOF_SIZE_T" != 4 -a "$SIZEOF_SIZE_T" != 8],
    AC_MSG_ERROR([sizeof(size_t) must be 4 or 8!]))
+AC_SUBST([SIZEOF_SIZE_T])
 
 dnl Generate output files
 AC_CONFIG_HEADERS([config.h])
@@ -76,6 +77,7 @@ AC_CONFIG_FILES([
         lib/Makefile
         src/Makefile
         src/private.h
+        src/include/bee/bee.h
         tests/Makefile
 ])
 AC_OUTPUT

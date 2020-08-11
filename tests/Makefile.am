@@ -8,7 +8,7 @@
 # THIS PROGRAM IS PROVIDED AS IS, WITH NO WARRANTY. USE IS AT THE USER’S
 # RISK.
 
-AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src -I$(top_builddir)/lib -I$(top_srcdir)/lib -I$(top_srcdir)/src/include $(WARN_CFLAGS)
+AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src -I$(top_builddir)/lib -I$(top_srcdir)/lib -I$(top_srcdir)/src/include -I$(top_builddir)/src/include $(WARN_CFLAGS)
 
 LOG_COMPILER = env $(LOG_ENV) $(srcdir)/run-test
 
