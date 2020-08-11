@@ -37,12 +37,12 @@ void word(bee_word_t value)
 
 void ass(bee_uword_t inst)
 {
-    word((((inst << 2) | BEE_OP2_INSN) << 2) | BEE_OP_LEVEL2);
+    word((inst << 4) | BEE_OP_INSN);
 }
 
 void ass_trap(bee_uword_t code)
 {
-    word((((code << 2) | BEE_OP2_TRAP) << 2) | BEE_OP_LEVEL2);
+    word((code << 4) | BEE_OP_TRAP);
 }
 
 void ass_byte(uint8_t b)
@@ -85,17 +85,17 @@ static void addr_op2(int op, bee_word_t *addr)
     bee_word_t offset = LSHIFT(addr - (bee_word_t *)current, 2);
     bee_word_t temp = LSHIFT(offset, 2);
     assert(ARSHIFT(temp, 2) == offset);
-    word(LSHIFT(offset | op, 2) | BEE_OP_LEVEL2);
+    word(temp | op);
 }
 
 void jumpi(bee_word_t *addr)
 {
-    addr_op2(BEE_OP2_JUMPI, addr);
+    addr_op2(BEE_OP_JUMPI, addr);
 }
 
 void jumpzi(bee_word_t *addr)
 {
-    addr_op2(BEE_OP2_JUMPZI, addr);
+    addr_op2(BEE_OP_JUMPZI, addr);
 }
 
 void ass_goto(bee_word_t *addr)
@@ -127,7 +127,7 @@ _GL_ATTRIBUTE_CONST const char *disass(bee_word_t opcode, bee_word_t *pc)
     static char *text = NULL;
 
     free(text);
-    switch (opcode & BEE_OP_MASK) {
+    switch (opcode & BEE_OP_MASK1) {
     case BEE_OP_CALLI:
         {
             bee_word_t *addr = pc + ARSHIFT(opcode, 2);
@@ -141,28 +141,27 @@ _GL_ATTRIBUTE_CONST const char *disass(bee_word_t opcode, bee_word_t *pc)
         }
         break;
     case BEE_OP_PUSHRELI:
-        text = xasprintf("PUSHRELI $%zx", (bee_uword_t)(pc + (opcode & ~BEE_OP_MASK)));
+        text = xasprintf("PUSHRELI $%zx", (bee_uword_t)(pc + (opcode & ~BEE_OP_MASK1)));
         break;
     default:
-        opcode = ARSHIFT(opcode, 2);
-        switch (opcode & BEE_OP2_MASK) {
-        case BEE_OP2_JUMPI:
+        switch (opcode & BEE_OP_MASK2) {
+        case BEE_OP_JUMPI:
             {
-                bee_word_t *addr = pc + ARSHIFT(opcode, 2);
+                bee_word_t *addr = pc + ARSHIFT(opcode, 4);
                 text = xasprintf("JUMPI $%zx", (bee_uword_t)addr);
             }
             break;
-        case BEE_OP2_JUMPZI:
+        case BEE_OP_JUMPZI:
             {
-                bee_word_t *addr = pc + ARSHIFT(opcode, 2);
+                bee_word_t *addr = pc + ARSHIFT(opcode, 4);
                 text = xasprintf("JUMPZI $%zx", (bee_uword_t)addr);
             }
             break;
-        case BEE_OP2_TRAP:
-            text = xasprintf("TRAP $%zx", (bee_uword_t)opcode >> 2);
+        case BEE_OP_TRAP:
+            text = xasprintf("TRAP $%zx", (bee_uword_t)opcode >> 4);
             break;
-        case BEE_OP2_INSN:
-            opcode = (bee_uword_t)opcode >> 2;
+        case BEE_OP_INSN:
+            opcode = (bee_uword_t)opcode >> 4;
             if ((bee_uword_t)opcode <= sizeof(mnemonic) / sizeof(mnemonic[0]) &&
                 mnemonic[(bee_uword_t)opcode] != NULL)
                 text = xasprintf("%s", mnemonic[(bee_uword_t)opcode]);
@@ -269,24 +268,23 @@ _GL_ATTRIBUTE_PURE const char *error_to_msg(int code)
 // computed.
 static bee_word_t *compute_next_PC(bee_word_t inst)
 {
-    switch (inst & BEE_OP_MASK) {
+    switch (inst & BEE_OP_MASK1) {
     case BEE_OP_CALLI:
         return bee_pc + ARSHIFT(inst, 2);
     case BEE_OP_PUSHI:
     case BEE_OP_PUSHRELI:
         return bee_pc + 1;
-    case BEE_OP_LEVEL2:
-        inst = ARSHIFT(inst, 2);
-        switch (inst & BEE_OP2_MASK) {
-        case BEE_OP2_JUMPI:
-        case BEE_OP2_JUMPZI:
-            return bee_pc + ARSHIFT(inst, 2);
+    default:
+        switch (inst & BEE_OP_MASK2) {
+        case BEE_OP_JUMPI:
+        case BEE_OP_JUMPZI:
+            return bee_pc + ARSHIFT(inst, 4);
             break;
-        case BEE_OP2_TRAP:
+        case BEE_OP_TRAP:
             return bee_pc + 1;
             break;
-        case BEE_OP2_INSN:
-            switch (inst >> 2) {
+        case BEE_OP_INSN:
+            switch (inst >> 4) {
             case BEE_INSN_NOP:
             case BEE_INSN_NOT:
             case BEE_INSN_AND:
@@ -352,9 +350,9 @@ static bee_word_t *compute_next_PC(bee_word_t inst)
                 return NULL;
             }
             break;
+        default:
+            return NULL;
         }
-    default:
-        return NULL;
     }
 }
 
@@ -366,7 +364,7 @@ bee_word_t single_step(void)
     int next_PC_valid = next_PC != NULL && IS_ALIGNED(next_PC);
     if (next_PC_valid) {
         next_inst = *next_PC;
-        *next_PC = (((BEE_INSN_BREAK << 2) | BEE_OP2_INSN) << 2) | BEE_OP_LEVEL2;
+        *next_PC = (BEE_INSN_BREAK << 4) | BEE_OP_INSN;
     }
     bee_uword_t save_handler_sp = bee_handler_sp;
     bee_handler_sp = 0;
@@ -382,7 +380,7 @@ bee_word_t single_step(void)
     // If there's a saved error handler, execute any actions that would have
     // been executed by `run()` had there been an error handler.
     if (bee_handler_sp != 0) {
-        if ((error != BEE_ERROR_BREAK || inst == ((((BEE_INSN_THROW << 2) | BEE_OP2_INSN) << 2) | BEE_OP_LEVEL2))) {
+        if (error != BEE_ERROR_BREAK || inst == ((BEE_INSN_THROW << 4) | BEE_OP_INSN)) {
         // If an error occurred or THROW was performed, go to the error
         // handler.
         if (bee_dp < bee_dsize)
@@ -392,7 +390,7 @@ bee_word_t single_step(void)
         POP_RETURN((bee_word_t *)&addr);
         POP_RETURN((bee_word_t *)&bee_handler_sp);
         bee_pc = (bee_word_t *)(addr & ~1);
-        } else if (inst == ((((BEE_INSN_RET << 2) | BEE_OP2_INSN) << 2) | BEE_OP_LEVEL2) && bee_sp < bee_handler_sp) {
+        } else if (inst == ((BEE_INSN_RET << 4) | BEE_OP_INSN) && bee_sp < bee_handler_sp) {
             // Otherwise, if the last instruction was RET, pop an error handler if necessary.
             POP_RETURN((bee_word_t *)&bee_handler_sp);
             PUSH(0);

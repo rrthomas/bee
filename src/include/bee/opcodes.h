@@ -29,29 +29,27 @@ typedef struct bee_opc_info_t
 
 /* Table to identify an instruction from its 4 LSbits.  */
 extern const bee_opc_info_t bee_opc_info[16];
-/* Table of information about short instructions (BEE_OP2_INSN).  */
+/* Table of information about short instructions (BEE_INSN_*).  */
 extern const bee_opc_info_t bee_inst_info[0x40];
 
 /* Largest trap code.  */
 #define BEE_MAX_TRAP ((1 << 28) - 1)
 
-/* Instruction types.  */
+/* 32-bit Instruction types.  */
 enum {
-  /* Bits 0 and 1.  */
+  /* Bits 0-1.  */
+  BEE_OP_MASK1    = 0x3,
   BEE_OP_CALLI    = 0x0,
   BEE_OP_PUSHI    = 0x1,
   BEE_OP_PUSHRELI = 0x2,
   BEE_OP_LEVEL2   = 0x3,
-  BEE_OP_MASK     = 0x3,
 
-  /* Bits 2 and 3 when bits 0 and 1 are 11.  */
-  BEE_OP2_JUMPI   = 0x0,
-  BEE_OP2_JUMPZI  = 0x1,
-  BEE_OP2_TRAP    = 0x2,
-  BEE_OP2_INSN    = 0x3,
-  BEE_OP2_MASK    = 0x3,
-
-  BEE_OP2_BAD     = 0x4,
+  /* Bits 0-3 when bits 0-1 are 11.  */
+  BEE_OP_MASK2   = 0xf,
+  BEE_OP_JUMPI   = 0x3,
+  BEE_OP_JUMPZI  = 0x7,
+  BEE_OP_TRAP    = 0xb,
+  BEE_OP_INSN    = 0xf,
 };
 
 /* OP_INSN opcodes.  */
