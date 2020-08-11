@@ -83,7 +83,7 @@ int main(void)
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {
-            printf("Error in catch tests: bee_pc = %p\n", bee_pc);
+            printf("Error in catch tests: pc = %p\n", bee_pc);
             exit(1);
         }
     }

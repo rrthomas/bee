@@ -68,7 +68,7 @@ int main(void)
         bee_word_t res = bee_run();
 
         if (result[i] != res) {
-             printf("Error in errors tests: test %zu failed; bee_pc = %p\n", i + 1, bee_pc);
+             printf("Error in errors tests: test %zu failed; pc = %p\n", i + 1, bee_pc);
              printf("Return code is %zd (%s); should be %zd (%s)\n",
                     res, error_to_msg(res), result[i], error_to_msg(result[i]));
              error++;

@@ -42,7 +42,7 @@ static void step(unsigned start, unsigned end)
             show_data_stack();
             printf("Result: %zd; correct result: %zd\n\n", bee_d0[bee_dp - 1], correct[i]);
             if (correct[i] != bee_d0[bee_dp - 1]) {
-                printf("Error in comparison tests: bee_pc = %p\n", bee_pc);
+                printf("Error in comparison tests: pc = %p\n", bee_pc);
                 exit(1);
             }
             bee_dp--;	// drop result of comparison

@@ -38,7 +38,7 @@ int main(void)
 
     printf("bee_pc should now be %p\n", final_PC);
     if (bee_pc != (bee_word_t *)final_PC) {
-        printf("Error in bee_run() tests: bee_pc = %p\n", bee_pc);
+        printf("Error in bee_run() tests: pc = %p\n", bee_pc);
         exit(1);
     }
 

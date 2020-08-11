@@ -67,7 +67,7 @@ int main(void)
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {
-            printf("Error in arithmetic tests: bee_pc = %p\n", bee_pc);
+            printf("Error in arithmetic tests: pc = %p\n", bee_pc);
             exit(1);
         }
     }

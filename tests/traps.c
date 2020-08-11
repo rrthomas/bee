@@ -40,7 +40,7 @@ int main(void)
     printf("argc is %zd, and should be %d\n", bee_d0[bee_dp - 1], argc);
     assert(bee_dp > 0);
     if (bee_d0[--bee_dp] != argc) {
-        printf("Error in traps tests: bee_pc = %p\n", bee_pc);
+        printf("Error in traps tests: pc = %p\n", bee_pc);
         exit(1);
     }
 
@@ -49,7 +49,7 @@ int main(void)
     printf("arg 1's length is %zd, and should be %zu\n", bee_d0[bee_dp - 1], strlen(argv[1]));
     assert(bee_dp > 0);
     if ((bee_uword_t)bee_d0[--bee_dp] != strlen(argv[1])) {
-        printf("Error in traps tests: bee_pc = %p\n", bee_pc);
+        printf("Error in traps tests: pc = %p\n", bee_pc);
         exit(1);
     }
 

@@ -22,14 +22,14 @@ int main(void)
     for (bee_uword_t i = 0; i < steps; i++) {
         // Assemble the test as we go!
         ass(BEE_INSN_WORD_BYTES);
-        printf("bee_pc = %p\n", bee_pc);
+        printf("pc = %p\n", bee_pc);
         assert(single_step() == BEE_ERROR_BREAK);
     }
 
     bee_word_t *final_PC = bee_m0 + steps;
     printf("bee_pc should now be %p\n", final_PC);
     if (bee_pc != final_PC) {
-        printf("Error in single_step() tests: bee_pc = %p\n", bee_pc);
+        printf("Error in single_step() tests: pc = %p\n", bee_pc);
         exit(1);
     }
 

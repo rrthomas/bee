@@ -41,7 +41,7 @@ int main(void)
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {
-            printf("Error in stack tests: bee_pc = %p\n", bee_pc);
+            printf("Error in stack tests: pc = %p\n", bee_pc);
             exit(1);
         }
         printf("Instruction = %s\n", disass(*bee_pc, bee_pc));
