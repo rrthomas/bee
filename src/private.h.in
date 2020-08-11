@@ -65,9 +65,13 @@
 
 // Portable arithmetic right shift (the behaviour of >> on signed
 // quantities is implementation-defined in C99)
-#define ARSHIFT(n, p)                                           \
+#if HAVE_ARITHMETIC_RSHIFT
+#define ARSHIFT(n, p)                           \
+    ((bee_word_t)(n) >> (p))
+#else
+#define ARSHIFT(n, p)                                                   \
     (((n) >> (p)) | (bee_word_t)(LSHIFT(-((n) < 0), (BEE_WORD_BIT - p))))
-
+#endif
 
 // Traps
 bee_word_t trap(bee_word_t code);
