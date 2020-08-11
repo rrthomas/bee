@@ -1,4 +1,4 @@
-// Test the literal instructions.
+// Test PUSHI.
 //
 // (c) Reuben Thomas 1994-2020
 //
@@ -28,11 +28,11 @@ int main(void)
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {
-            printf("Error in literals tests: bee_pc = %p\n", bee_pc);
+            printf("Error in constants tests: bee_pc = %p\n", bee_pc);
             exit(1);
         }
     }
 
-    printf("Literals tests ran OK\n");
+    printf("Constants tests ran OK\n");
     return 0;
 }
