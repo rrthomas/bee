@@ -64,11 +64,11 @@ gl_INIT
 
 dnl Check features
 AC_C_BIGENDIAN
-AC_CHECK_SIZEOF([size_t]) # word_bytes
-SIZEOF_SIZE_T=$ac_cv_sizeof_size_t
-AS_IF([test "$SIZEOF_SIZE_T" != 4 -a "$SIZEOF_SIZE_T" != 8],
-   AC_MSG_ERROR([sizeof(size_t) must be 4 or 8!]))
-AC_SUBST([SIZEOF_SIZE_T])
+AC_CHECK_SIZEOF([intptr_t]) # word_bytes
+SIZEOF_INTPTR_T=$ac_cv_sizeof_intptr_t
+AS_IF([test "$SIZEOF_INTPTR_T" != 4 -a "$SIZEOF_INTPTR_T" != 8],
+   AC_MSG_ERROR([sizeof(intptr_t) must be 4 or 8!]))
+AC_SUBST([SIZEOF_INTPTR_T])
 AX_C_ARITHMETIC_RSHIFT
 
 dnl Generate output files

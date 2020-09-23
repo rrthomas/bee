@@ -33,7 +33,7 @@ verify(sizeof(int) <= sizeof(bee_word_t));
 
 // I/O support
 
-#if SIZEOF_SIZE_T == 4
+#if SIZEOF_INTPTR_T == 4
 typedef uint64_t bee_duword_t;
 #define PUSH_DOUBLE(ud)                                             \
     PUSH((bee_uword_t)(ud & (bee_uword_t)-1));                      \

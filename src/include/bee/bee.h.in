@@ -15,16 +15,15 @@
 
 #include <stdint.h>
 #include <limits.h>
-#include <sys/types.h>
 
 
 // Basic types
-typedef ssize_t bee_word_t;
-typedef size_t bee_uword_t;
-#define BEE_WORD_BYTES @SIZEOF_SIZE_T@
+typedef intptr_t bee_word_t;
+typedef uintptr_t bee_uword_t;
+#define BEE_WORD_BYTES @SIZEOF_INTPTR_T@
 #define BEE_WORD_BIT (BEE_WORD_BYTES * 8)
 #define BEE_WORD_MIN ((bee_word_t)(1UL << (BEE_WORD_BIT - 1)))
-#define BEE_UWORD_MAX (SIZE_MAX)
+#define BEE_UWORD_MAX (UINTPTR_MAX)
 
 // VM registers
 #define R(reg, type)                            \
