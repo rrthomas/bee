@@ -14,7 +14,7 @@ LOG_COMPILER = env $(LOG_ENV) $(srcdir)/run-test
 
 LDADD = $(top_builddir)/src/libbee.la
 
-check_PROGRAMS = $(TESTS) load_object
+check_PROGRAMS = $(TESTS)
 
 TESTS = arithmetic catch comparison constants init jump logic memory \
 	registers stack single_step run errors traps
@@ -29,18 +29,9 @@ test-binutils:
 	( $(TESTS_ENVIRONMENT) $(LOG_COMPILER) $(top_builddir)/src/bee$(EXEEXT) ./hello.bin > hello.output ) && \
 	diff hello.output $(srcdir)/hello.correct
 
-do_load_object: load_object
-	$(TESTS_ENVIRONMENT) $(LOG_COMPILER) $(builddir)/load_object $(srcdir)
-
-check-local: do_load_object
-
 EXTRA_DIST = \
 	run-test \
 	tests.h \
-	testobj1-le \
-	testobj2-le \
-	testobj1-be \
-	testobj2-be \
 	hello.S \
 	hello.correct
 

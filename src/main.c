@@ -10,6 +10,7 @@
 
 #include "config.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdarg.h>
@@ -48,6 +49,41 @@ static _GL_ATTRIBUTE_FORMAT_PRINTF(1, 2) void die(const char *format, ...)
     verror(format, args);
     va_end(args);
     exit(1);
+}
+
+
+// Return the length of a seekable stream, or `-1` if not seekable
+static off_t fleno(FILE *fp)
+{
+    off_t pos = ftello(fp);
+    if (pos != -1 && fseeko(fp, 0, SEEK_END) == 0) {
+        off_t end = ftello(fp);
+        if (end != -1 && fseeko(fp, pos, SEEK_SET) == 0)
+            return end - pos;
+    }
+    return -1;
+}
+
+// Skip any #! header
+static int skip_hashbang(FILE *fp)
+{
+    if (getc(fp) != '#' || getc(fp) != '!')
+        return fseeko(fp, 0, SEEK_SET);
+    for (int res; (res = getc(fp)) != '\n'; )
+        if (res == EOF)
+            return -1;
+    return 0;
+}
+
+// Load an object file
+static bool load_object(FILE *fp, bee_word_t *ptr)
+{
+    off_t len;
+    return fp != NULL &&
+        skip_hashbang(fp) != -1 &&
+        (len = fleno(fp)) >= 0 &&
+        (off_t)fread(ptr, 1, len, fp) == len &&
+        fclose(fp) != EOF;
 }
 
 
@@ -184,7 +220,7 @@ int main(int argc, char *argv[])
     FILE *handle = fopen(argv[optind], "rb");
     if (handle == NULL)
         die("cannot not open file %s", argv[optind]);
-    if (bee_load_object(handle, bee_m0) != 0)
+    if (!load_object(handle, bee_m0))
         die("could not read file %s, or file is invalid", argv[optind]);
 
     if (gdb_target == true) {

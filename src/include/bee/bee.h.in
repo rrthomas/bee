@@ -13,7 +13,6 @@
 #define BEE_BEE
 
 
-#include <stdio.h>      // for the FILE type
 #include <stdint.h>
 #include <limits.h>
 #include <sys/types.h>
@@ -56,7 +55,6 @@ int bee_push_stack(bee_word_t *s0, bee_uword_t ssize, bee_uword_t *sp, bee_word_
 
 // Miscellaneous routines
 bee_word_t bee_run(void);
-int bee_load_object(FILE *file, bee_word_t *ptr);
 int bee_init(bee_word_t *c_array, bee_word_t memory_size, bee_word_t stack_size, bee_word_t return_stack_size);
 int bee_init_defaults(bee_word_t *c_array, bee_word_t memory_size);
 void bee_register_args(int argc, const char *argv[]);
