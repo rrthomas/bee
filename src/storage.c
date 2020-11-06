@@ -50,7 +50,7 @@ int bee_push_stack(bee_word_t *s0, bee_uword_t ssize, bee_uword_t *sp, bee_word_
 
 
 // Initialise VM state.
-int bee_init(bee_word_t *buf, bee_word_t memory_size, bee_word_t stack_size, bee_word_t return_stack_size)
+int bee_init(bee_word_t *buf, bee_uword_t memory_size, bee_uword_t stack_size, bee_uword_t return_stack_size)
 {
     if (buf == NULL)
         return -1;
@@ -77,7 +77,7 @@ int bee_init(bee_word_t *buf, bee_word_t memory_size, bee_word_t stack_size, bee
     return 0;
 }
 
-int bee_init_defaults(bee_word_t *buf, bee_word_t memory_size)
+int bee_init_defaults(bee_word_t *buf, bee_uword_t memory_size)
 {
     return bee_init(buf, memory_size, BEE_DEFAULT_STACK_SIZE, BEE_DEFAULT_STACK_SIZE);
 }
