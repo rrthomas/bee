@@ -60,9 +60,6 @@ enum {
   BEE_OP_TRAP     = 0xb,
   BEE_OP_INSN     = 0xf,
 };
-
-/* Largest trap code.  */
-#define BEE_MAX_TRAP ((1 << 28) - 1)
 #else
 /* 64-bit Instruction types.  */
 #define BEE_OP1_SHIFT 3
@@ -80,10 +77,10 @@ enum {
   BEE_OP_TRAP     = 0x5,
   BEE_OP_INSN     = 0x7,
 };
+#endif
 
 /* Largest trap code.  */
-#define BEE_MAX_TRAP ((1 << 59) - 1)
-#endif
+#define BEE_MAX_TRAP ((1 << (BEE_WORD_BIT - BEE_OP2_SHIFT)) - 1)
 
 /* OP_INSN opcodes.  */
 enum {
