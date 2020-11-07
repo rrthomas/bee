@@ -28,24 +28,22 @@
     } while (0)
 
 #define THROW_IF_ERROR(code)                    \
-    if (code != BEE_ERROR_OK)                   \
-        THROW(code)
+    do {                                        \
+        if (code != BEE_ERROR_OK)               \
+            THROW(code);                        \
+    } while (0)
 
 
 // Stack access
 #define POP(ptr)                                                        \
     THROW_IF_ERROR(bee_pop_stack(bee_d0, bee_dsize, &bee_dp, ptr))
 #define PUSH(v)                                                         \
-    do {                                                                \
-        THROW_IF_ERROR(bee_push_stack(bee_d0, bee_dsize, &bee_dp, v));  \
-    } while (0)
+    THROW_IF_ERROR(bee_push_stack(bee_d0, bee_dsize, &bee_dp, v))
 
 #define POP_RETURN(ptr)                                                 \
     THROW_IF_ERROR(bee_pop_stack(bee_s0, bee_ssize, &bee_sp, ptr))
 #define PUSH_RETURN(v)                                                  \
-    do {                                                                \
-        THROW_IF_ERROR(bee_push_stack(bee_s0, bee_ssize, &bee_sp, v));  \
-    } while (0)
+    THROW_IF_ERROR(bee_push_stack(bee_s0, bee_ssize, &bee_sp, v))
 
 
 // Memory access
