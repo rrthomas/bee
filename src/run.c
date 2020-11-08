@@ -29,8 +29,10 @@
 // Execution function
 bee_word_t bee_run(void)
 {
+    bee_word_t error = BEE_ERROR_OK;
+
     for (;;) {
-        bee_word_t error = BEE_ERROR_OK, ir = *bee_pc++;
+        bee_word_t ir = *bee_pc++;
 
         switch (ir & BEE_OP1_MASK) {
         case BEE_OP_CALLI:
