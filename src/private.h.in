@@ -37,13 +37,13 @@
 // Stack access
 #define POP(ptr)                                                        \
     THROW_IF_ERROR(bee_pop_stack(bee_d0, bee_dsize, &bee_dp, ptr))
-#define PUSH(v)                                                         \
-    THROW_IF_ERROR(bee_push_stack(bee_d0, bee_dsize, &bee_dp, v))
+#define PUSH(val)                                                       \
+    THROW_IF_ERROR(bee_push_stack(bee_d0, bee_dsize, &bee_dp, val))
 
 #define POP_RETURN(ptr)                                                 \
     THROW_IF_ERROR(bee_pop_stack(bee_s0, bee_ssize, &bee_sp, ptr))
-#define PUSH_RETURN(v)                                                  \
-    THROW_IF_ERROR(bee_push_stack(bee_s0, bee_ssize, &bee_sp, v))
+#define PUSH_RETURN(val)                                                \
+    THROW_IF_ERROR(bee_push_stack(bee_s0, bee_ssize, &bee_sp, val))
 
 
 // Memory access
