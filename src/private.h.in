@@ -29,8 +29,9 @@
 
 #define THROW_IF_ERROR(code)                    \
     do {                                        \
-        if (code != BEE_ERROR_OK)               \
-            THROW(code);                        \
+        bee_word_t _err = code;                 \
+        if (_err != BEE_ERROR_OK)               \
+            THROW(_err);                        \
     } while (0)
 
 
