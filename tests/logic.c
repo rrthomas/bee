@@ -24,8 +24,8 @@ int main(void)
 
     int BYTE_BIT = 8;
     bee_word_t BOTTOM_BYTE_SET = 0xffUL;
-    bee_word_t SECOND_BYTE_SET = 0xffUL << BYTE_BIT;
-    bee_word_t PENULTIMATE_BYTE_SET = 0xffUL << (BEE_WORD_BIT - 2 * BYTE_BIT);
+    bee_word_t SECOND_BYTE_SET = LSHIFT(0xffUL, BYTE_BIT);
+    bee_word_t PENULTIMATE_BYTE_SET = LSHIFT(0xffUL, BEE_WORD_BIT - 2 * BYTE_BIT);
     bee_word_t TOP_BYTE_SET = LSHIFT(-1, BEE_WORD_BIT - BYTE_BIT);
 
     ass_goto(bee_m0);
