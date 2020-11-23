@@ -16,7 +16,7 @@
 
 int main(void)
 {
-    const char *correct[64];
+    char *correct[64];
     unsigned steps = 0;
 
     size_t size = 256;
@@ -68,6 +68,7 @@ int main(void)
             printf("Error in logic tests: pc = %p\n", bee_pc);
             exit(1);
         }
+        free(correct[i]);
     }
 
     printf("Logic tests ran OK\n");

@@ -14,7 +14,7 @@
 
 int main(void)
 {
-    const char *correct[64];
+    char *correct[64];
     unsigned steps = 0;
 
     size_t size = 1024;
@@ -51,6 +51,7 @@ int main(void)
             printf("Error in registers tests: pc = %p\n", bee_pc);
             exit(1);
         }
+        free(correct[i]);
     }
 
     printf("Registers tests ran OK\n");

@@ -19,7 +19,7 @@
 
 int main(void)
 {
-    const char *correct[64];
+    char *correct[64];
     unsigned steps = 0;
 
     size_t size = 256;
@@ -70,6 +70,7 @@ int main(void)
             printf("Error in arithmetic tests: pc = %p\n", bee_pc);
             exit(1);
         }
+        free(correct[i]);
     }
 
     printf("Arithmetic tests ran OK\n");

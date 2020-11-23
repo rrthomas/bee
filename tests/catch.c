@@ -14,7 +14,7 @@
 
 int main(void)
 {
-    const char *correct[64];
+    char *correct[64];
     unsigned steps = 0;
     setbuf(stdout, NULL);
 
@@ -86,6 +86,7 @@ int main(void)
             printf("Error in catch tests: pc = %p\n", bee_pc);
             exit(1);
         }
+        free(correct[i]);
     }
 
     printf("Catch tests ran OK\n");

@@ -5,9 +5,9 @@ environment:
     VERBOSE: 1 # Get test logs in output
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu
+    - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu
       ASAN: 'yes'
       LSAN_OPTIONS: verbosity=1:log_threads=1
-    - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu
     - APPVEYOR_BUILD_WORKER_IMAGE: macos
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       MSYSTEM: MSYS
