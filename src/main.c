@@ -35,13 +35,13 @@ bee_word_t *memory;
 static bool gdb_target = false;
 static int gdb_fdin = STDIN_FILENO, gdb_fdout = STDOUT_FILENO;
 
-static _GL_ATTRIBUTE_FORMAT_PRINTF(1, 0) void verror(const char *format, va_list args)
+static _GL_ATTRIBUTE_FORMAT_PRINTF_STANDARD(1, 0) void verror(const char *format, va_list args)
 {
     vfprintf(stderr, format, args);
     fprintf(stderr, "\n");
 }
 
-static _GL_ATTRIBUTE_FORMAT_PRINTF(1, 2) void die(const char *format, ...)
+static _GL_ATTRIBUTE_FORMAT_PRINTF_STANDARD(1, 2) void die(const char *format, ...)
 {
     va_list args;
 

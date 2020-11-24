@@ -34,7 +34,7 @@ FILE *gdb_in, *gdb_out;
 static int remote_debug = 0;
 
 
-static _GL_ATTRIBUTE_FORMAT_PRINTF(1, 0) void debug(const char *format, ...)
+static _GL_ATTRIBUTE_FORMAT_PRINTF_STANDARD(1, 0) void debug(const char *format, ...)
 {
     if (remote_debug) {
         va_list args;
