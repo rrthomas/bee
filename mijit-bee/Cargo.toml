@@ -1,0 +1,18 @@
+[package]
+name = "mijit-bee"
+authors = ["Reuben Thomas", "Alistair Turnbull"]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.56"
+build = "build.rs"
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[build-dependencies]
+libtool = { git = "https://github.com/rrthomas/libtool-rs" }
+
+[lib]
+crate_type = ["rlib", "staticlib"]
+
+[dependencies]
+mijit = "=0.1.7"
+memoffset = "0.6"
