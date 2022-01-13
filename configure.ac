@@ -33,6 +33,25 @@ else
 fi
 AC_SUBST([HAVE___BUILTIN_EXPECT])
 
+# beetle-mijit
+AC_ARG_WITH([mijit],
+  [AS_HELP_STRING([--with-mijit], [use mijit-bee JIT compiler])],
+  [case $withval in
+     yes|no) ;;
+     *)      AC_MSG_ERROR([bad value $withval for mijit option]) ;;
+   esac
+   with_mijit=$withval],
+  [with_mijit=no]
+)
+if test "$with_mijit" = yes; then
+  AC_PATH_PROG(CARGO, cargo)
+  if test -z "$ac_cv_path_CARGO"; then
+    AC_MSG_ERROR(cargo not found)
+  fi
+  AC_DEFINE(HAVE_MIJIT, 1, [Whether we are using Mijit.])
+fi
+AM_CONDITIONAL([HAVE_MIJIT], [test "$with_mijit" = yes])
+
 # Extra warnings with GCC
 AC_ARG_ENABLE([gcc-warnings],
   [AS_HELP_STRING([--disable-gcc-warnings],

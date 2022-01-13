@@ -57,10 +57,12 @@
 #define IS_ALIGNED(a)                                           \
     (((uint8_t *)((bee_uword_t)(a) & (BEE_WORD_BYTES - 1)) == 0))
 
+
 // Portable left shift (the behaviour of << with overflow (including on any
 // negative number) is undefined)
 #define LSHIFT(n, p)                            \
     (((n) & (BEE_UWORD_MAX >> (p))) << (p))
+
 
 // Portable arithmetic right shift (the behaviour of >> on signed
 // quantities is implementation-defined in C99)
@@ -72,10 +74,19 @@
     (((n) >> (p)) | (bee_word_t)(LSHIFT(-((n) < 0), (BEE_WORD_BIT - p))))
 #endif
 
+
 // Traps
 bee_word_t trap(bee_word_t code);
 bee_word_t trap_libc(bee_uword_t function);
 
+
 // GDB remote protocol stub
 int gdb_init(int gdb_fdin, int gdb_fdout);
 void gdb_run(void);
+
+
+// Jit compiler
+#ifdef HAVE_MIJIT
+#include "../mijit-bee/mijit-bee.h"
+extern mijit_bee_jit *bee_jit;
+#endif

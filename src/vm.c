@@ -16,7 +16,18 @@
 #include "bee/bee.h"
 #include "bee/opcodes.h"
 
+#ifdef HAVE_MIJIT
+#include "../mijit-bee/mijit-bee.h"
+#endif
+
 #include "private.h"
+
+
+// JIT compiler
+
+#ifdef HAVE_MIJIT
+mijit_bee_jit *bee_jit;
+#endif
 
 
 // VM registers
@@ -61,23 +72,38 @@ int bee_init(bee_word_t *buf, bee_uword_t memory_size, bee_uword_t stack_size, b
 
     bee_R(dsize) = stack_size;
     bee_R(d0) = (bee_word_t *)calloc(bee_R(dsize), BEE_WORD_BYTES);
-    if (bee_R(d0) == NULL)
-        return -1;
-    bee_R(handler_sp) = bee_R(sp) = 0;
-
-    bee_R(ssize) = return_stack_size;
-    bee_R(s0) = (bee_word_t *)calloc(bee_R(ssize), BEE_WORD_BYTES);
-    if (bee_R(s0) == NULL) {
-        free(bee_R(d0));
-        return -1;
+    if (bee_R(d0) != NULL) {
+        bee_R(handler_sp) = bee_R(sp) = 0;
+        bee_R(ssize) = return_stack_size;
+        bee_R(s0) = (bee_word_t *)calloc(bee_R(ssize), BEE_WORD_BYTES);
+        if (bee_R(s0) != NULL) {
+#ifdef HAVE_MIJIT
+            bee_jit = mijit_bee_new();
+            if (bee_jit != NULL)
+                return 0;
+#else
+            return 0;
+#endif
+        }
+        free(bee_R(s0));
     }
 
-    return 0;
+    free(bee_R(d0));
+    return -1;
 }
 
 int bee_init_defaults(bee_word_t *buf, bee_uword_t memory_size)
 {
     return bee_init(buf, memory_size, BEE_DEFAULT_STACK_SIZE, BEE_DEFAULT_STACK_SIZE);
+}
+
+void bee_destroy(void)
+{
+#ifdef HAVE_MIJIT
+    mijit_bee_drop(bee_jit);
+#endif
+    free(bee_R(s0));
+    free(bee_R(d0));
 }
 
 
@@ -97,6 +123,10 @@ bee_word_t bee_run(void)
     bee_word_t error = BEE_ERROR_OK;
 
     for (;;) {
+#ifdef HAVE_MIJIT
+        mijit_bee_run(bee_jit, (mijit_bee_registers *)(void *)&bee_registers);
+#endif
+
         bee_word_t ir = *bee_R(pc)++;
 
         switch (ir & BEE_OP1_MASK) {

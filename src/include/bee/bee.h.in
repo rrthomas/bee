@@ -58,6 +58,7 @@ int bee_push_stack(bee_word_t *s0, bee_uword_t ssize, bee_uword_t *sp, bee_word_
 bee_word_t bee_run(void);
 int bee_init(bee_word_t *c_array, bee_uword_t memory_size, bee_uword_t stack_size, bee_uword_t return_stack_size);
 int bee_init_defaults(bee_word_t *c_array, bee_uword_t memory_size);
+void bee_destroy(void);
 void bee_register_args(int argc, const char *argv[]);
 
 

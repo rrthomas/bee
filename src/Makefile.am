@@ -14,6 +14,9 @@ lib_LTLIBRARIES = libbee@PACKAGE_SUFFIX@.la
 libbee@PACKAGE_SUFFIX@_la_SOURCES = vm.c traps.h traps.c debug.c
 nodist_libbee@PACKAGE_SUFFIX@_la_SOURCES = private.h
 libbee@PACKAGE_SUFFIX@_la_LIBADD = $(top_builddir)/lib/libgnu.la
+if HAVE_MIJIT
+libbee@PACKAGE_SUFFIX@_la_LIBADD += $(top_srcdir)/mijit-bee/target/release/libmijit_bee.la
+endif
 
 bin_PROGRAMS = bee@PACKAGE_SUFFIX@
 man_MANS = bee@PACKAGE_SUFFIX@.1
@@ -24,6 +27,12 @@ nodist_pkginclude_HEADERS = include/bee/bee.h
 
 include/bee/bee.h: include/bee/bee.h.in $(top_builddir)/config.status
 	cd $(top_builddir) && $(SHELL) ./config.status src/include/bee/bee.h
+
+if HAVE_MIJIT
+.PHONY: mijit-bee
+$(top_srcdir)/mijit-bee/target/release/libmijit_bee.la: mijit-bee
+	cargo build --release --manifest-path $(top_srcdir)/mijit-bee/Cargo.toml
+endif
 
 # The man page depends on the binary because it is built by running the binary.
 bee@PACKAGE_SUFFIX@.1: bee@PACKAGE_SUFFIX@$(EXEEXT)
