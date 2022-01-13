@@ -70,7 +70,7 @@ int bee_init(bee_word_t *buf, bee_uword_t memory_size, bee_uword_t stack_size, b
     bee_ssize = return_stack_size;
     bee_s0 = (bee_word_t *)calloc(bee_ssize, BEE_WORD_BYTES);
     if (bee_s0 == NULL) {
-        free(bee_s0);
+        free(bee_d0);
         return -1;
     }
 
