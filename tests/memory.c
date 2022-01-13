@@ -22,7 +22,8 @@ int main(void)
 
     // Naturally bee_uword_t, but must be printed as bee_word_t for comparison with
     // output of val_data_stack().
-    bee_word_t *MEND = (bee_word_t *)((uint8_t *)bee_m0 + bee_msize);
+    assert(IS_ALIGNED(bee_msize));
+    bee_word_t *MEND = bee_m0 + bee_msize / BEE_WORD_BYTES;
     bee_word_t *LAST_WORD = MEND - 1;
     bee_word_t MAGIC_NUMBER = 0xf201;
     int endism =
