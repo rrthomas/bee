@@ -19,16 +19,16 @@ int main(void)
     size_t size = 256;
     bee_init_defaults((bee_word_t *)calloc(size, BEE_WORD_BYTES), size);
 
-    ass_goto(bee_m0);
+    ass_goto(bee_R(m0));
     pushi(BEE_ERROR_BREAK); pushi(12345678);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
-        printf("Instruction = %s\n", disass(*bee_pc, bee_pc));
+        printf("Instruction = %s\n", disass(*bee_R(pc), bee_R(pc)));
         assert(single_step() == BEE_ERROR_BREAK);
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {
-            printf("Error in constants tests: pc = %p\n", bee_pc);
+            printf("Error in constants tests: pc = %p\n", bee_R(pc));
             exit(1);
         }
     }

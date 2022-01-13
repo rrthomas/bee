@@ -21,7 +21,7 @@ int main(void)
         exit(1);
     }
 
-    ass_goto(bee_m0);
+    ass_goto(bee_R(m0));
 
     int ret_code = 37;
     pushi(ret_code);
@@ -37,9 +37,9 @@ int main(void)
         exit(1);
     }
 
-    printf("bee_pc should now be %p\n", final_PC);
-    if (bee_pc != (bee_word_t *)final_PC) {
-        printf("Error in bee_run() tests: pc = %p\n", bee_pc);
+    printf("bee_R(pc) should now be %p\n", final_PC);
+    if (bee_R(pc) != (bee_word_t *)final_PC) {
+        printf("Error in bee_run() tests: pc = %p\n", bee_R(pc));
         exit(1);
     }
 

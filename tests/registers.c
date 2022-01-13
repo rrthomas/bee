@@ -20,35 +20,35 @@ int main(void)
     size_t size = 1024;
     bee_init_defaults((bee_word_t *)calloc(size, 1), size / BEE_WORD_BYTES);
 
-    ass_goto(bee_m0);
+    ass_goto(bee_R(m0));
     ass(BEE_INSN_GET_M0);
-    correct[steps++] = xasprintf("%zd", (bee_word_t)bee_m0);
+    correct[steps++] = xasprintf("%zd", (bee_word_t)bee_R(m0));
     ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
     ass(BEE_INSN_GET_MSIZE);
-    correct[steps++] = xasprintf("%zd", (bee_word_t)bee_msize);
+    correct[steps++] = xasprintf("%zd", (bee_word_t)bee_R(msize));
     ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
     ass(BEE_INSN_GET_SSIZE);
-    correct[steps++] = xasprintf("%zd", (bee_word_t)bee_ssize);
+    correct[steps++] = xasprintf("%zd", (bee_word_t)bee_R(ssize));
     ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
     ass(BEE_INSN_GET_DSIZE);
-    correct[steps++] = xasprintf("%zd", (bee_word_t)bee_dsize);
+    correct[steps++] = xasprintf("%zd", (bee_word_t)bee_R(dsize));
     ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
     ass(BEE_INSN_GET_HANDLER_SP);
-    correct[steps++] = xasprintf("%zd", (bee_word_t)bee_handler_sp);
+    correct[steps++] = xasprintf("%zd", (bee_word_t)bee_R(handler_sp));
     ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
 
     for (unsigned i = 0; i < steps; i++) {
-        printf("Instruction = %s\n", disass(*bee_pc, bee_pc));
+        printf("Instruction = %s\n", disass(*bee_R(pc), bee_R(pc)));
         assert(single_step() == BEE_ERROR_BREAK);
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {
-            printf("Error in registers tests: pc = %p\n", bee_pc);
+            printf("Error in registers tests: pc = %p\n", bee_R(pc));
             exit(1);
         }
         free(correct[i]);

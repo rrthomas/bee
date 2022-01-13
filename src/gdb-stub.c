@@ -194,14 +194,14 @@ static int handle_exception(void)
 
         case 'g': // return the value of the CPU registers
 #define R(reg, type)                                                    \
-            out_ptr = mem_to_hex((uint8_t *)&bee_##reg, out_ptr, BEE_WORD_BYTES);
+            out_ptr = mem_to_hex((uint8_t *)&bee_R(reg), out_ptr, BEE_WORD_BYTES);
 #include "bee/registers.h"
 #undef R
             break;
 
         case 'G': // set the value of the CPU registers, return OK
 #define R(reg, type)                                                    \
-            in_ptr = hex_to_mem(in_ptr, (uint8_t *)&bee_##reg, BEE_WORD_BYTES);
+            in_ptr = hex_to_mem(in_ptr, (uint8_t *)&bee_R(reg), BEE_WORD_BYTES);
 #include "bee/registers.h"
 #undef R
             strcpy(out_ptr, "OK");
@@ -234,7 +234,7 @@ static int handle_exception(void)
         case 'c': // cAA..AA    Continue at address AA..AA (optional)
             // If no parameter, pc is unchanged
             if (hex_to_int(&in_ptr, &addr))
-                bee_pc = (bee_word_t *)addr;
+                bee_R(pc) = (bee_word_t *)addr;
             return 1;
 
         case 'k': // Kill the program

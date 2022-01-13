@@ -22,8 +22,8 @@ int main(void)
 
     // Naturally bee_uword_t, but must be printed as bee_word_t for comparison with
     // output of val_data_stack().
-    assert(IS_ALIGNED(bee_msize));
-    bee_word_t *MEND = bee_m0 + bee_msize / BEE_WORD_BYTES;
+    assert(IS_ALIGNED(bee_R(msize)));
+    bee_word_t *MEND = bee_R(m0) + bee_R(msize) / BEE_WORD_BYTES;
     bee_word_t *LAST_WORD = MEND - 1;
     bee_word_t MAGIC_NUMBER = 0xf201;
     int endism =
@@ -34,7 +34,7 @@ int main(void)
 #endif
         ;
 
-    ass_goto(bee_m0);
+    ass_goto(bee_R(m0));
 
     pushi(MAGIC_NUMBER);
     correct[steps++] = xasprintf("%zd", MAGIC_NUMBER);
@@ -90,12 +90,12 @@ int main(void)
     correct[steps++] = xasprintf("%d", 0);
 
     for (size_t i = 0; i < steps; i++) {
-        printf("Instruction = %s\n", disass(*bee_pc, bee_pc));
+        printf("Instruction = %s\n", disass(*bee_R(pc), bee_R(pc)));
         assert(single_step() == BEE_ERROR_BREAK);
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {
-            printf("Error in memory tests: pc = %p\n", bee_pc);
+            printf("Error in memory tests: pc = %p\n", bee_R(pc));
             exit(1);
         }
         free(correct[i]);

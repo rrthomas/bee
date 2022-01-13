@@ -221,7 +221,7 @@ int main(int argc, char *argv[])
     FILE *handle = fopen(argv[optind], "rb");
     if (handle == NULL)
         die("cannot not open file %s", argv[optind]);
-    if (!load_object(handle, bee_m0))
+    if (!load_object(handle, bee_R(m0)))
         die("could not read file %s, or file is invalid", argv[optind]);
 
     if (gdb_target == true) {

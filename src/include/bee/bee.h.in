@@ -27,9 +27,13 @@ typedef uintptr_t bee_uword_t;
 
 // VM registers
 #define R(reg, type)                            \
-    extern type bee_##reg;
+    type reg;
+extern struct bee_registers {
 #include <bee/registers.h>
+} bee_registers;
 #undef R
+
+#define bee_R(reg) (bee_registers.reg)
 
 // Error codes
 enum {

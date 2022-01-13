@@ -16,20 +16,20 @@ int main(void)
     size_t size = 256;
     bee_init_defaults((bee_word_t *)calloc(size, BEE_WORD_BYTES), size);
 
-    ass_goto(bee_m0);
+    ass_goto(bee_R(m0));
 
     const bee_uword_t steps = 10;
     for (bee_uword_t i = 0; i < steps; i++) {
         // Assemble the test as we go!
         ass(BEE_INSN_WORD_BYTES);
-        printf("pc = %p\n", bee_pc);
+        printf("pc = %p\n", bee_R(pc));
         assert(single_step() == BEE_ERROR_BREAK);
     }
 
-    bee_word_t *final_PC = bee_m0 + steps;
-    printf("bee_pc should now be %p\n", final_PC);
-    if (bee_pc != final_PC) {
-        printf("Error in single_step() tests: pc = %p\n", bee_pc);
+    bee_word_t *final_PC = bee_R(m0) + steps;
+    printf("bee_R(pc) should now be %p\n", final_PC);
+    if (bee_R(pc) != final_PC) {
+        printf("Error in single_step() tests: pc = %p\n", bee_R(pc));
         exit(1);
     }
 
