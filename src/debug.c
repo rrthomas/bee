@@ -31,7 +31,10 @@ static uint8_t *current; // where we assemble the next instruction word or liter
 void word(bee_word_t value)
 {
     current = (uint8_t *)ALIGN(current);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
     *(bee_word_t *)current = value;
+#pragma GCC diagnostic pop
     current += BEE_WORD_BYTES;
 }
 
@@ -59,7 +62,11 @@ void pushi(bee_word_t literal)
 
 void push(bee_word_t literal)
 {
+    assert(IS_ALIGNED(current));
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
     calli((bee_word_t *)current + 2);
+#pragma GCC diagnostic pop
     word(literal);
     ass(BEE_INSN_POPR);
     ass(BEE_INSN_LOAD);
@@ -67,7 +74,11 @@ void push(bee_word_t literal)
 
 static void addr_op(int op, bee_word_t *addr)
 {
+    assert(IS_ALIGNED(current));
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
     word(LSHIFT(addr - (bee_word_t *)current, BEE_OP1_SHIFT) | op);
+#pragma GCC diagnostic pop
 }
 
 void calli(bee_word_t *addr)
@@ -82,7 +93,11 @@ void pushreli(bee_word_t *addr)
 
 static void addr_op2(int op, bee_word_t *addr)
 {
+    assert(IS_ALIGNED(current));
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
     bee_word_t offset = addr - (bee_word_t *)current;
+#pragma GCC diagnostic pop
     bee_word_t temp = LSHIFT(offset, BEE_OP2_SHIFT);
     assert(ARSHIFT(temp, BEE_OP2_SHIFT) == offset);
     word(temp | op);
@@ -105,7 +120,11 @@ void ass_goto(bee_word_t *addr)
 
 _GL_ATTRIBUTE_PURE bee_word_t *label(void)
 {
+    assert(IS_ALIGNED(current));
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
     return (bee_word_t *)current;
+#pragma GCC diagnostic pop
 }
 
 static const char *mnemonic[BEE_INSN_UNDEFINED + 1] = {
