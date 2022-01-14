@@ -22,6 +22,9 @@ bee_SOURCES = main.c gdb-stub.c cmdline.h debug.h $(include_HEADERS)
 pkginclude_HEADERS = include/bee/opcodes.h include/bee/registers.h
 nodist_pkginclude_HEADERS = include/bee/bee.h
 
+include/bee/bee.h: include/bee/bee.h.in $(top_builddir)/config.status
+	cd $(top_builddir) && $(SHELL) ./config.status src/include/bee/bee.h
+
 # The man page depends on the binary because it is built by running the binary.
 bee.1: bee$(EXEEXT)
 ## Exit gracefully if bee.1 is not writeable, such as during distcheck!
