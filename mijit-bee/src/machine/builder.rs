@@ -1,0 +1,187 @@
+use mijit::code::{
+    UnaryOp, BinaryOp, Precision, Width, AliasMask,
+    Register, REGISTERS, Variable,
+    Action, Switch, EBB, Ending,
+};
+use Precision::*;
+use BinaryOp::*;
+use Width::*;
+
+pub const TEMP: Register = REGISTERS[0];
+
+pub fn build<T>(callback: &dyn Fn(Builder) -> T) -> T {
+    callback(Builder::new())
+}
+
+//-----------------------------------------------------------------------------
+
+/** A utility for building [`EBB`]s. */
+#[derive(Debug)]
+pub struct Builder {
+    pub actions: Vec<Action>,
+}
+
+impl Builder {
+    pub fn new() -> Self {
+        Builder {actions: Vec::new()}
+    }
+
+    pub fn move_(&mut self, dest: impl Into<Variable>, src: impl Into<Variable>) {
+        self.actions.push(Action::Move(dest.into(), src.into()));
+    }
+
+    pub fn const_(&mut self, dest: impl Into<Register>, value: i64) {
+        self.actions.push(Action::Constant(P64, dest.into(), value));
+    }
+
+    pub fn unary(
+        &mut self,
+        op: UnaryOp,
+        dest: impl Into<Register>,
+        src: impl Into<Variable>,
+    ) {
+        self.actions.push(Action::Unary(op, P64, dest.into(), src.into()));
+    }
+
+    pub fn binary(
+        &mut self,
+        op: BinaryOp,
+        dest: impl Into<Register>,
+        src1: impl Into<Variable>,
+        src2: impl Into<Variable>,
+    ) {
+        self.actions.push(Action::Binary(op, P64, dest.into(), src1.into(), src2.into()));
+    }
+
+    /** [`TEMP`] is corrupted if `dest == src`. */
+    pub fn const_binary(
+        &mut self,
+        op: BinaryOp,
+        dest: impl Into<Register>,
+        src: impl Into<Variable>,
+        value: i64,
+    ) {
+        let dest = dest.into();
+        let src = src.into();
+        let temp = if src != dest.into() {
+            dest
+        } else if src != TEMP.into() {
+            TEMP
+        } else {
+            panic!("dest and src cannot both be TEMP");
+        };
+        self.const_(temp, value);
+        self.binary(op, dest, src, temp);
+    }
+
+    /** [`TEMP`] is corrupted if `dest == addr.0`. */
+    pub fn load(
+        &mut self,
+        dest: impl Into<Register>,
+        addr: (impl Into<Variable>, i64),
+        width: Width,
+        am: AliasMask,
+    ) {
+        let dest = dest.into();
+        self.const_binary(Add, dest, addr.0, addr.1);
+        self.actions.push(Action::Load(dest, (dest.into(), width), am));
+    }
+
+    /** [`TEMP`] is corrupted. */
+    pub fn store(
+        &mut self,
+        src: impl Into<Variable>,
+        addr: (impl Into<Variable>, i64),
+        width: Width,
+        am: AliasMask,
+    ) {
+        self.const_binary(Add, TEMP, addr.0, addr.1);
+        self.actions.push(Action::Store(TEMP, src.into(), (TEMP.into(), width), am));
+    }
+
+    /** [`TEMP`] is corrupted. */
+    pub fn array_load(
+        &mut self,
+        dest: impl Into<Register>,
+        addr: (impl Into<Variable>, impl Into<Variable>),
+        width: Width,
+        am: AliasMask,
+    ) {
+        self.const_binary(Lsl, TEMP, addr.1, width as i64);
+        self.binary(Add, TEMP, addr.0, TEMP);
+        self.actions.push(Action::Load(dest.into(), (TEMP.into(), width), am));
+    }
+
+    /** [`TEMP`] is corrupted. */
+    pub fn array_store(
+        &mut self,
+        src: impl Into<Variable>,
+        addr: (impl Into<Variable>, impl Into<Variable>),
+        width: Width,
+        am: AliasMask,
+    ) {
+        self.const_binary(Lsl, TEMP, addr.1, width as i64);
+        self.binary(Add, TEMP, addr.0, TEMP);
+        self.actions.push(Action::Store(TEMP, src.into(), (TEMP.into(), width), am));
+    }
+
+    /** [`TEMP`] is corrupted. */
+    pub fn pop(
+        &mut self,
+        dest: impl Into<Register>,
+        sp: impl Into<Register>,
+        am: AliasMask,
+    ) {
+        let dest = dest.into();
+        let sp = sp.into();
+        self.load(dest, (sp, 0), Eight, am);
+        self.const_binary(Add, sp, sp, 8);
+    }
+
+    /** [`TEMP`] is corrupted. */
+    pub fn push(
+        &mut self,
+        src: impl Into<Variable>,
+        sp: impl Into<Register>,
+        am: AliasMask,
+    ) {
+        let src = src.into();
+        let sp = sp.into();
+        self.const_binary(Sub, sp, sp, 8);
+        self.store(src, (sp, 0), Eight, am);
+    }
+
+    pub fn debug(&mut self, src: impl Into<Variable>) {
+        self.actions.push(Action::Debug(src.into()));
+    }
+
+    pub fn ending<T>(self, ending: Ending<T>) -> EBB<T> {
+        EBB {actions: self.actions, ending}
+    }
+
+    pub fn jump<T>(self, target: T) -> EBB<T> {
+        self.ending(Ending::Leaf(target))
+    }
+
+    pub fn switch<T>(self, switch: Switch<EBB<T>>) -> EBB<T> {
+        self.ending(Ending::Switch(switch))
+    }
+
+    pub fn index<T>(
+        self,
+        discriminant: impl Into<Variable>,
+        cases: Box<[EBB<T>]>,
+        default_: EBB<T>,
+    ) -> EBB<T> {
+        self.switch(Switch::new(discriminant.into(), cases, default_))
+    }
+
+    pub fn if_<T>(
+        self,
+        condition: impl Into<Variable>,
+        if_true: EBB<T>,
+        if_false: EBB<T>,
+    ) -> EBB<T> {
+        self.switch(Switch::if_(condition.into(), if_true, if_false))
+    }
+}
