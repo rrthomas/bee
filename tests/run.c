@@ -1,7 +1,7 @@
-// Test that bee_run() works, and that the return value of the THROW
-// instruction is correctly returned.
+// Test that bee_run() works, that the NOP instruction works, and that the
+// return value of the THROW instruction is correctly returned.
 //
-// (c) Reuben Thomas 1995-2020
+// (c) Reuben Thomas 1995-2022
 //
 // The package is distributed under the GNU Public License version 3, or,
 // at your option, any later version.
@@ -25,6 +25,7 @@ int main(void)
 
     int ret_code = 37;
     pushi(ret_code);
+    ass(BEE_INSN_NOP);
     ass(BEE_INSN_THROW);
     bee_word_t *final_PC = label();
 
