@@ -40,7 +40,7 @@ const NUM_OP_TYPES: usize = 8;
 const NUM_OP_INSNS: usize = 0x40;
 
 mod builder;
-use builder::{build, Builder};
+use builder::{build, build_block, Builder};
 
 //-----------------------------------------------------------------------------
 
@@ -56,21 +56,19 @@ impl<T: Target> Bee<T> {
     pub fn new(target: T) -> Self {
         let mut jit = Jit::new(target, 1);
         let marshal = Marshal {
-            prologue: build(&|mut b| {
+            prologue: build_block(&|b| {
                 for (reg, offset) in offsets() {
                     b.load(reg, (Global(0), offset as i64), Eight, am::REGISTERS);
                 }
                 b.const_binary(Sub, SP, SP, 1);
                 b.const_binary(Sub, DP, DP, 1);
-                b.actions.into()
             }),
-            epilogue: build(&|mut b| {
+            epilogue: build_block(&|b| {
                 b.const_binary(Add, SP, SP, 1);
                 b.const_binary(Add, DP, DP, 1);
                 for (reg, offset) in offsets() {
                     b.store(reg, (Global(0), offset as i64), Eight, am::REGISTERS);
                 }
-                b.actions.into()
             }),
         };
         let root = jit.new_entry(&marshal, UNDEFINED);
@@ -92,19 +90,19 @@ impl<T: Target> Bee<T> {
         ).collect();
 
         // Helper functions.
-        let pop = |b: &mut Builder, dest| {
+        let pop = |b: &mut Builder<EntryId>, dest| {
             b.array_load(dest, (D0, DP), Eight, am::DATA_STACK);
             b.const_binary(Sub, DP, DP, 1);
         };
-        let push = |b: &mut Builder, src| {
+        let push = |b: &mut Builder<EntryId>, src| {
             b.const_binary(Add, DP, DP, 1);
             b.array_store(src, (D0, DP), Eight, am::DATA_STACK);
         };
-        let pop_s = |b: &mut Builder, dest| {
+        let pop_s = |b: &mut Builder<EntryId>, dest| {
             b.array_load(dest, (S0, SP), Eight, am::RETURN_STACK);
             b.const_binary(Sub, SP, SP, 1);
         };
-        let push_s = |b: &mut Builder, src| {
+        let push_s = |b: &mut Builder<EntryId>, src| {
             b.const_binary(Add, SP, SP, 1);
             b.array_store(src, (S0, SP), Eight, am::RETURN_STACK);
         };
@@ -144,7 +142,7 @@ impl<T: Target> Bee<T> {
             push(&mut b, R1);
             b.jump(root)
         });
-        let binary_with_callback = |callback: &dyn Fn(&mut Builder)| build(&move |mut b| {
+        let binary_with_callback = |callback: &dyn Fn(&mut Builder<EntryId>)| build(&move |mut b| {
             pop(&mut b, R1);
             pop(&mut b, R2);
             callback(&mut b);
@@ -218,9 +216,7 @@ impl<T: Target> Bee<T> {
             pop(&mut b, R1);
             pop(&mut b, TEST);
             b.if_(TEST,
-                build(&move |mut b| {
-                    b.jump(root)
-                }),
+                build(&move |b| { b.jump(root) }),
                 build(&move |mut b| {
                     b.const_binary(And, TEST, R1, 7);
                     b.if_(TEST,
@@ -299,7 +295,7 @@ impl<T: Target> Bee<T> {
                     push(&mut b, R2);
                     b.jump(root)
                 }),
-                build(&move |mut b| {
+                build(&move |b| {
                     b.if_(R1,
                         build(&move |mut b| {
                             b.binary(SDiv, TEST, R2, R1);

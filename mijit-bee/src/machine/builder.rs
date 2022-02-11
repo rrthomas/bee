@@ -9,21 +9,47 @@ use Width::*;
 
 pub const TEMP: Register = REGISTERS[0];
 
-pub fn build<T>(callback: &dyn Fn(Builder) -> T) -> T {
+/** Build an EBB. Equivalent to `callback(Builder::new())`. */
+pub fn build<T>(callback: &dyn Fn(Builder<T>) -> EBB<T>) -> EBB<T> {
     callback(Builder::new())
+}
+
+/** Similar to `build()` but only builds a basic block. */
+pub fn build_block(callback: &dyn Fn(&mut Builder<()>)) -> Box<[Action]> {
+    let mut b = Builder::new();
+    callback(&mut b);
+    b.actions.into()
 }
 
 //-----------------------------------------------------------------------------
 
-/** A utility for building [`EBB`]s. */
+/** Represents everything that was built up to and including a [`guard()`]. */
 #[derive(Debug)]
-pub struct Builder {
+pub struct Guard<T> {
     pub actions: Vec<Action>,
+    pub condition: Variable,
+    pub expected: bool,
+    pub if_fail: EBB<T>,
 }
 
-impl Builder {
+//-----------------------------------------------------------------------------
+
+/**
+ * A utility for building [`EBB`]s. `T` is usually [`EntryId`].
+ *
+ * [`EntryId`]: mijit::jit::EntryId
+ */
+#[derive(Debug)]
+pub struct Builder<T> {
+    /** All [`Action`]s generated since the last call to `guard()`. */
+    pub actions: Vec<Action>,
+    /** One per call to `guard()`. */
+    pub guards: Vec<Guard<T>>,
+}
+
+impl<T> Builder<T> {
     pub fn new() -> Self {
-        Builder {actions: Vec::new()}
+        Builder {actions: Vec::new(), guards: Vec::new()}
     }
 
     pub fn move_(&mut self, dest: impl Into<Variable>, src: impl Into<Variable>) {
@@ -157,19 +183,55 @@ impl Builder {
         self.actions.push(Action::Debug(src.into()));
     }
 
-    pub fn ending<T>(self, ending: Ending<T>) -> EBB<T> {
-        EBB {actions: self.actions, ending}
+    /**
+     * If `condition` is not `expected`, abort by running `if_fail`.
+     * See also [`if_()`] which is more symmetrical.
+     */
+    pub fn guard(&mut self, condition: Variable, expected: bool, if_fail: EBB<T>) {
+        let mut actions = Vec::new();
+        std::mem::swap(&mut actions, &mut self.actions);
+        self.guards.push(Guard {actions, condition, expected, if_fail});
     }
 
-    pub fn jump<T>(self, target: T) -> EBB<T> {
+    /**
+     * Consume this `Builder` and return the finished `EBB`.
+     * Usually, you will prefer to call one of [`jump()`], [`index()`] or
+     * [`if_()`] which call this.
+     */
+    pub fn ending(mut self, ending: Ending<T>) -> EBB<T> {
+        let mut ret = EBB {actions: self.actions, ending};
+        while let Some(Guard {actions, condition, expected, if_fail}) = self.guards.pop() {
+            let switch = if expected {
+                Switch::if_(condition, ret, if_fail)
+            } else {
+                Switch::if_(condition, if_fail, ret)
+            };
+            ret = EBB {actions, ending: Ending::Switch(switch)};
+        }
+        ret
+    }
+
+    /** Jump to `target`. Equivalent to `ending(Ending::Leaf(target))`. */
+    pub fn jump(self, target: T) -> EBB<T> {
         self.ending(Ending::Leaf(target))
     }
 
-    pub fn switch<T>(self, switch: Switch<EBB<T>>) -> EBB<T> {
+    /**
+     * Select a continuation based on `switch`.
+     * Equivalent to `ending(Ending::Leaf(target))`.
+     * Usually, you will prefer to call one of [`index()`] or [`if_()`] which
+     * call this.
+     */
+    pub fn switch(self, switch: Switch<EBB<T>>) -> EBB<T> {
         self.ending(Ending::Switch(switch))
     }
 
-    pub fn index<T>(
+    /**
+     * Select one of `cases` based on `discriminant`.
+     * Select `default_` if `discriminant` exceeds `cases.len()`.
+     * Equivalent to `switch(Switch::new(discriminant, cases, default_))`.
+     */
+    pub fn index(
         self,
         discriminant: impl Into<Variable>,
         cases: Box<[EBB<T>]>,
@@ -178,8 +240,13 @@ impl Builder {
         self.switch(Switch::new(discriminant.into(), cases, default_))
     }
 
+    /**
+     * Select `if_true` if `condition` is non-zero, otherwise `if_false`.
+     * Equivalent to `switch(Switch::new(condition, if_true, if_false))`.
+     * See also `guard()` which favours one outcome.
+     */
     #[allow(unused)]
-    pub fn if_<T>(
+    pub fn if_(
         self,
         condition: impl Into<Variable>,
         if_true: EBB<T>,
