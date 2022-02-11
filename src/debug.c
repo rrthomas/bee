@@ -130,7 +130,7 @@ _GL_ATTRIBUTE_PURE bee_word_t *label(void)
 static const char *mnemonic[BEE_INSN_UNDEFINED + 1] = {
 // 0x00
     "NOP", "NOT", "AND", "OR", "XOR", "LSHIFT", "RSHIFT", "ARSHIFT",
-    "POP", "DUP", "SET", "SWAP", "JUMP", "JUMPZ", "CALL", "RET",
+    "POPD", "DUP", "SET", "SWAP", "JUMP", "JUMPZ", "CALL", "RET",
 // 0x10
     "LOAD", "STORE", "LOAD1", "STORE1", "LOAD2", "STORE2", "LOAD4", "STORE4",
     "NEG", "ADD", "MUL", "DIVMOD", "UDIVMOD", "EQ", "LT", "ULT",
@@ -412,7 +412,7 @@ bee_word_t single_step(void)
         } else if (inst == ((BEE_INSN_RET << BEE_OP2_SHIFT) | BEE_OP_INSN) && bee_sp < bee_handler_sp) {
             // Otherwise, if the last instruction was RET, pop an error handler if necessary.
             POPS((bee_word_t *)&bee_handler_sp);
-            PUSH(0);
+            PUSHD(0);
         }
     }
  error:

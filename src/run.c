@@ -44,10 +44,10 @@ bee_word_t bee_run(void)
             }
             break;
         case BEE_OP_PUSHI:
-            PUSH(ARSHIFT(ir, BEE_OP1_SHIFT));
+            PUSHD(ARSHIFT(ir, BEE_OP1_SHIFT));
             break;
         case BEE_OP_PUSHRELI:
-            PUSH((bee_uword_t)((bee_pc - 1) + ARSHIFT(ir, BEE_OP1_SHIFT)));
+            PUSHD((bee_uword_t)((bee_pc - 1) + ARSHIFT(ir, BEE_OP1_SHIFT)));
             break;
         default:
             switch (ir & BEE_OP2_MASK) {
@@ -62,7 +62,7 @@ bee_word_t bee_run(void)
                 {
                     bee_word_t *addr = (bee_pc - 1) + ARSHIFT(ir, BEE_OP2_SHIFT);
                     bee_word_t flag;
-                    POP(&flag);
+                    POPD(&flag);
                     if (flag == 0) {
                         CHECK_ALIGNED(addr);
                         bee_pc = addr;
@@ -81,56 +81,56 @@ bee_word_t bee_run(void)
                     case BEE_INSN_NOT:
                         {
                             bee_word_t a;
-                            POP(&a);
-                            PUSH(~a);
+                            POPD(&a);
+                            PUSHD(~a);
                         }
                         break;
                     case BEE_INSN_AND:
                         {
                             bee_word_t a, b;
-                            POP(&a);
-                            POP(&b);
-                            PUSH(a & b);
+                            POPD(&a);
+                            POPD(&b);
+                            PUSHD(a & b);
                         }
                         break;
                     case BEE_INSN_OR:
                         {
                             bee_word_t a, b;
-                            POP(&a);
-                            POP(&b);
-                            PUSH(a | b);
+                            POPD(&a);
+                            POPD(&b);
+                            PUSHD(a | b);
                         }
                         break;
                     case BEE_INSN_XOR:
                         {
                             bee_word_t a, b;
-                            POP(&a);
-                            POP(&b);
-                            PUSH(a ^ b);
+                            POPD(&a);
+                            POPD(&b);
+                            PUSHD(a ^ b);
                         }
                         break;
                     case BEE_INSN_LSHIFT:
                         {
                             bee_word_t shift, value;
-                            POP(&shift);
-                            POP(&value);
-                            PUSH(shift < (bee_word_t)BEE_WORD_BIT ? LSHIFT(value, shift) : 0);
+                            POPD(&shift);
+                            POPD(&value);
+                            PUSHD(shift < (bee_word_t)BEE_WORD_BIT ? LSHIFT(value, shift) : 0);
                         }
                         break;
                     case BEE_INSN_RSHIFT:
                         {
                             bee_word_t shift, value;
-                            POP(&shift);
-                            POP(&value);
-                            PUSH(shift < (bee_word_t)BEE_WORD_BIT ? (bee_word_t)((bee_uword_t)value >> shift) : 0);
+                            POPD(&shift);
+                            POPD(&value);
+                            PUSHD(shift < (bee_word_t)BEE_WORD_BIT ? (bee_word_t)((bee_uword_t)value >> shift) : 0);
                         }
                         break;
                     case BEE_INSN_ARSHIFT:
                         {
                             bee_word_t shift, value;
-                            POP(&shift);
-                            POP(&value);
-                            PUSH(ARSHIFT(value, shift));
+                            POPD(&shift);
+                            POPD(&value);
+                            PUSHD(ARSHIFT(value, shift));
                         }
                         break;
                     case BEE_INSN_POP:
@@ -141,19 +141,19 @@ bee_word_t bee_run(void)
                     case BEE_INSN_DUP:
                         {
                             bee_uword_t depth;
-                            POP((bee_word_t *)&depth);
+                            POPD((bee_word_t *)&depth);
                             if (depth >= bee_dp)
                                 THROW(BEE_ERROR_STACK_UNDERFLOW);
                             else
-                                PUSH(bee_d0[bee_dp - (depth + 1)]);
+                                PUSHD(bee_d0[bee_dp - (depth + 1)]);
                         }
                         break;
                     case BEE_INSN_SET:
                         {
                             bee_uword_t depth;
-                            POP((bee_word_t *)&depth);
+                            POPD((bee_word_t *)&depth);
                             bee_word_t value;
-                            POP(&value);
+                            POPD(&value);
                             if (depth >= bee_dp)
                                 THROW(BEE_ERROR_STACK_UNDERFLOW);
                             else
@@ -163,7 +163,7 @@ bee_word_t bee_run(void)
                     case BEE_INSN_SWAP:
                         {
                             bee_uword_t depth;
-                            POP((bee_word_t *)&depth);
+                            POPD((bee_word_t *)&depth);
                             if (bee_dp == 0 || depth >= bee_dp - 1)
                                 THROW(BEE_ERROR_STACK_UNDERFLOW);
                             else {
@@ -176,7 +176,7 @@ bee_word_t bee_run(void)
                     case BEE_INSN_JUMP:
                         {
                             bee_word_t *addr;
-                            POP((bee_word_t *)&addr);
+                            POPD((bee_word_t *)&addr);
                             CHECK_ALIGNED(addr);
                             bee_pc = addr;
                         }
@@ -184,9 +184,9 @@ bee_word_t bee_run(void)
                     case BEE_INSN_JUMPZ:
                         {
                             bee_word_t *addr;
-                            POP((bee_word_t *)&addr);
+                            POPD((bee_word_t *)&addr);
                             bee_word_t flag;
-                            POP(&flag);
+                            POPD(&flag);
                             if (flag == 0) {
                                 CHECK_ALIGNED(addr);
                                 bee_pc = addr;
@@ -196,7 +196,7 @@ bee_word_t bee_run(void)
                     case BEE_INSN_CALL:
                         {
                             bee_word_t *addr;
-                            POP((bee_word_t *)&addr);
+                            POPD((bee_word_t *)&addr);
                             CHECK_ALIGNED(addr);
                             PUSHS((bee_uword_t)bee_pc);
                             bee_pc = addr;
@@ -209,7 +209,7 @@ bee_word_t bee_run(void)
                             CHECK_ALIGNED(addr);
                             if (bee_sp < bee_handler_sp) {
                                 POPS((bee_word_t *)&bee_handler_sp);
-                                PUSH(0);
+                                PUSHD(0);
                             }
                             bee_pc = addr;
                         }
@@ -217,152 +217,152 @@ bee_word_t bee_run(void)
                     case BEE_INSN_LOAD:
                         {
                             bee_word_t *addr;
-                            POP((bee_word_t *)&addr);
+                            POPD((bee_word_t *)&addr);
                             CHECK_ALIGNED(addr);
-                            PUSH(*addr);
+                            PUSHD(*addr);
                         }
                         break;
                     case BEE_INSN_STORE:
                         {
                             bee_word_t *addr;
-                            POP((bee_word_t *)&addr);
+                            POPD((bee_word_t *)&addr);
                             CHECK_ALIGNED(addr);
                             bee_word_t value;
-                            POP(&value);
+                            POPD(&value);
                             *addr = value;
                         }
                         break;
                     case BEE_INSN_LOAD1:
                         {
                             uint8_t *addr;
-                            POP((bee_word_t *)&addr);
+                            POPD((bee_word_t *)&addr);
                             uint8_t value = *(uint8_t *)addr;
-                            PUSH((bee_word_t)value);
+                            PUSHD((bee_word_t)value);
                         }
                         break;
                     case BEE_INSN_STORE1:
                         {
                             uint8_t *addr;
-                            POP((bee_word_t *)&addr);
+                            POPD((bee_word_t *)&addr);
                             bee_word_t value;
-                            POP(&value);
+                            POPD(&value);
                             *(uint8_t *)addr = (uint8_t)value;
                         }
                         break;
                     case BEE_INSN_LOAD2:
                         {
                             uint16_t *addr;
-                            POP((bee_word_t *)&addr);
+                            POPD((bee_word_t *)&addr);
                             if ((bee_uword_t)addr % 2 != 0)
                                 THROW(BEE_ERROR_UNALIGNED_ADDRESS);
-                            PUSH(*addr);
+                            PUSHD(*addr);
                         }
                         break;
                     case BEE_INSN_STORE2:
                         {
                             uint16_t *addr;
-                            POP((bee_word_t *)&addr);
+                            POPD((bee_word_t *)&addr);
                             if ((bee_uword_t)addr % 2 != 0)
                                 THROW(BEE_ERROR_UNALIGNED_ADDRESS);
                             bee_word_t value;
-                            POP(&value);
+                            POPD(&value);
                             *addr = (uint16_t)value;
                         }
                         break;
                     case BEE_INSN_LOAD4:
                         {
                             uint32_t *addr;
-                            POP((bee_word_t *)&addr);
+                            POPD((bee_word_t *)&addr);
                             if ((bee_uword_t)addr % 4 != 0)
                                 THROW(BEE_ERROR_UNALIGNED_ADDRESS);
-                            PUSH(*addr);
+                            PUSHD(*addr);
                         }
                         break;
                     case BEE_INSN_STORE4:
                         {
                             uint32_t *addr;
-                            POP((bee_word_t *)&addr);
+                            POPD((bee_word_t *)&addr);
                             if ((bee_uword_t)addr % 4 != 0)
                                 THROW(BEE_ERROR_UNALIGNED_ADDRESS);
                             bee_word_t value;
-                            POP(&value);
+                            POPD(&value);
                             *addr = (uint32_t)value;
                         }
                         break;
                     case BEE_INSN_NEG:
                         {
                             bee_uword_t a;
-                            POP((bee_word_t *)&a);
-                            PUSH((bee_word_t)-a);
+                            POPD((bee_word_t *)&a);
+                            PUSHD((bee_word_t)-a);
                         }
                         break;
                     case BEE_INSN_ADD:
                         {
                             bee_uword_t a, b;
-                            POP((bee_word_t *)&a);
-                            POP((bee_word_t *)&b);
-                            PUSH((bee_word_t)(b + a));
+                            POPD((bee_word_t *)&a);
+                            POPD((bee_word_t *)&b);
+                            PUSHD((bee_word_t)(b + a));
                         }
                         break;
                     case BEE_INSN_MUL:
                         {
                             bee_uword_t a, b;
-                            POP((bee_word_t *)&a);
-                            POP((bee_word_t *)&b);
-                            PUSH((bee_word_t)(a * b));
+                            POPD((bee_word_t *)&a);
+                            POPD((bee_word_t *)&b);
+                            PUSHD((bee_word_t)(a * b));
                         }
                         break;
                     case BEE_INSN_DIVMOD:
                         {
                             bee_word_t divisor, dividend;
-                            POP(&divisor);
-                            POP(&dividend);
+                            POPD(&divisor);
+                            POPD(&dividend);
                             if (dividend == BEE_WORD_MIN && divisor == -1) {
-                                PUSH(BEE_WORD_MIN);
-                                PUSH(0);
+                                PUSHD(BEE_WORD_MIN);
+                                PUSHD(0);
                             } else {
-                                PUSH(DIV_CATCH_ZERO(dividend, divisor));
-                                PUSH(MOD_CATCH_ZERO(dividend, divisor));
+                                PUSHD(DIV_CATCH_ZERO(dividend, divisor));
+                                PUSHD(MOD_CATCH_ZERO(dividend, divisor));
                             }
                         }
                         break;
                     case BEE_INSN_UDIVMOD:
                         {
                             bee_uword_t divisor, dividend;
-                            POP((bee_word_t *)&divisor);
-                            POP((bee_word_t *)&dividend);
-                            PUSH(DIV_CATCH_ZERO(dividend, divisor));
-                            PUSH(MOD_CATCH_ZERO(dividend, divisor));
+                            POPD((bee_word_t *)&divisor);
+                            POPD((bee_word_t *)&dividend);
+                            PUSHD(DIV_CATCH_ZERO(dividend, divisor));
+                            PUSHD(MOD_CATCH_ZERO(dividend, divisor));
                         }
                         break;
                     case BEE_INSN_EQ:
                         {
                             bee_word_t a, b;
-                            POP(&a);
-                            POP(&b);
-                            PUSH(a == b);
+                            POPD(&a);
+                            POPD(&b);
+                            PUSHD(a == b);
                         }
                         break;
                     case BEE_INSN_LT:
                         {
                             bee_word_t a, b;
-                            POP(&a);
-                            POP(&b);
-                            PUSH(b < a);
+                            POPD(&a);
+                            POPD(&b);
+                            PUSHD(b < a);
                         }
                         break;
                     case BEE_INSN_ULT:
                         {
                             bee_uword_t a, b;
-                            POP((bee_word_t *)&a);
-                            POP((bee_word_t *)&b);
-                            PUSH(b < a);
+                            POPD((bee_word_t *)&a);
+                            POPD((bee_word_t *)&b);
+                            PUSHD(b < a);
                         }
                         break;
                     case BEE_INSN_PUSHR:
                         {
                             bee_word_t value;
-                            POP(&value);
+                            POPD(&value);
                             PUSHS(value);
                         }
                         break;
@@ -371,7 +371,7 @@ bee_word_t bee_run(void)
                             bee_word_t value;
                             POPS(&value);
                             if (error == BEE_ERROR_OK)
-                                PUSH(value);
+                                PUSHD(value);
                         }
                         break;
                     case BEE_INSN_DUPR:
@@ -379,13 +379,13 @@ bee_word_t bee_run(void)
                             THROW(BEE_ERROR_STACK_UNDERFLOW);
                         else {
                             bee_word_t value = bee_s0[bee_sp - 1];
-                            PUSH(value);
+                            PUSHD(value);
                         }
                         break;
                     case BEE_INSN_CATCH:
                         {
                             bee_word_t *addr;
-                            POP((bee_word_t *)&addr);
+                            POPD((bee_word_t *)&addr);
                             CHECK_ALIGNED(addr);
                             PUSHS(bee_handler_sp);
                             PUSHS((bee_uword_t)bee_pc);
@@ -398,7 +398,7 @@ bee_word_t bee_run(void)
                             if (bee_dp < 1)
                                 error = BEE_ERROR_STACK_UNDERFLOW;
                             else
-                                POP(&error);
+                                POPD(&error);
                         error:
                             if (bee_handler_sp == 0)
                                 return error;
@@ -416,41 +416,41 @@ bee_word_t bee_run(void)
                         bee_pc--;
                         return BEE_ERROR_BREAK;
                     case BEE_INSN_WORD_BYTES:
-                        PUSH(BEE_WORD_BYTES);
+                        PUSHD(BEE_WORD_BYTES);
                         break;
                     case BEE_INSN_GET_M0:
-                        PUSH((bee_uword_t)bee_m0);
+                        PUSHD((bee_uword_t)bee_m0);
                         break;
                     case BEE_INSN_GET_MSIZE:
-                        PUSH(bee_msize);
+                        PUSHD(bee_msize);
                         break;
                     case BEE_INSN_GET_SSIZE:
-                        PUSH(bee_ssize);
+                        PUSHD(bee_ssize);
                         break;
                     case BEE_INSN_GET_SP:
-                        PUSH(bee_sp);
+                        PUSHD(bee_sp);
                         break;
                     case BEE_INSN_SET_SP:
-                        POP((bee_word_t *)&bee_sp);
+                        POPD((bee_word_t *)&bee_sp);
                         break;
                     case BEE_INSN_GET_DSIZE:
-                        PUSH(bee_dsize);
+                        PUSHD(bee_dsize);
                         break;
                     case BEE_INSN_GET_DP:
                         {
                             bee_word_t value = bee_dp;
-                            PUSH(value);
+                            PUSHD(value);
                         }
                         break;
                     case BEE_INSN_SET_DP:
                         {
                             bee_word_t value;
-                            POP(&value);
+                            POPD(&value);
                             bee_dp = value;
                         }
                         break;
                     case BEE_INSN_GET_HANDLER_SP:
-                        PUSH(bee_handler_sp);
+                        PUSHD(bee_handler_sp);
                         break;
                     default:
                         THROW(BEE_ERROR_INVALID_OPCODE);

@@ -36,17 +36,17 @@ verify(sizeof(int) <= sizeof(bee_word_t));
 #if SIZEOF_INTPTR_T == 4
 typedef uint64_t bee_duword_t;
 #define PUSH_DOUBLE(ud)                                             \
-    PUSH((bee_uword_t)(ud & (bee_uword_t)-1));                      \
-    PUSH((bee_uword_t)((ud >> BEE_WORD_BIT) & (bee_uword_t)-1));
+    PUSHD((bee_uword_t)(ud & (bee_uword_t)-1));                      \
+    PUSHD((bee_uword_t)((ud >> BEE_WORD_BIT) & (bee_uword_t)-1));
 #define POP_DOUBLE(ud)                                                  \
     bee_word_t pop1, pop2;                                              \
-    POP(&pop1);                                                         \
-    POP(&pop2);                                                         \
+    POPD(&pop1);                                                         \
+    POPD(&pop2);                                                         \
     *ud = (((bee_duword_t)(bee_uword_t)pop1) << BEE_WORD_BIT | (bee_uword_t)pop2)
 #else
 typedef size_t bee_duword_t;
-#define PUSH_DOUBLE(res) PUSH(res)
-#define POP_DOUBLE(res)  POP((bee_word_t *)res)
+#define PUSH_DOUBLE(res) PUSHD(res)
+#define POP_DOUBLE(res)  POPD((bee_word_t *)res)
 #endif
 
 // Register command-line args
@@ -68,8 +68,8 @@ bee_word_t trap_libc(bee_uword_t function)
     case TRAP_LIBC_STRLEN: // ( a-addr -- u )
         {
             const char *s;
-            POP((bee_word_t *)&s);
-            PUSH(strlen(s));
+            POPD((bee_word_t *)&s);
+            PUSHD(strlen(s));
         }
         break;
     case TRAP_LIBC_STRNCPY: // ( a-addr1 a-addr2 u -- a-addr3 )
@@ -77,93 +77,93 @@ bee_word_t trap_libc(bee_uword_t function)
             const char *src;
             char *dest;
             size_t n;
-            POP((bee_word_t *)&n);
-            POP((bee_word_t *)&src);
-            POP((bee_word_t *)&dest);
-            PUSH((bee_word_t)(size_t)(void *)strncpy(dest, src, n));
+            POPD((bee_word_t *)&n);
+            POPD((bee_word_t *)&src);
+            POPD((bee_word_t *)&dest);
+            PUSHD((bee_word_t)(size_t)(void *)strncpy(dest, src, n));
         }
         break;
     case TRAP_LIBC_STDIN:
-        PUSH((bee_word_t)(STDIN_FILENO));
+        PUSHD((bee_word_t)(STDIN_FILENO));
         break;
     case TRAP_LIBC_STDOUT:
-        PUSH((bee_word_t)(STDOUT_FILENO));
+        PUSHD((bee_word_t)(STDOUT_FILENO));
         break;
     case TRAP_LIBC_STDERR:
-        PUSH((bee_word_t)(STDERR_FILENO));
+        PUSHD((bee_word_t)(STDERR_FILENO));
         break;
     case TRAP_LIBC_O_RDONLY:
-        PUSH((bee_word_t)(O_RDONLY));
+        PUSHD((bee_word_t)(O_RDONLY));
         break;
     case TRAP_LIBC_O_WRONLY:
-        PUSH((bee_word_t)(O_WRONLY));
+        PUSHD((bee_word_t)(O_WRONLY));
         break;
     case TRAP_LIBC_O_RDWR:
-        PUSH((bee_word_t)(O_RDWR));
+        PUSHD((bee_word_t)(O_RDWR));
         break;
     case TRAP_LIBC_O_CREAT:
-        PUSH((bee_word_t)(O_CREAT));
+        PUSHD((bee_word_t)(O_CREAT));
         break;
     case TRAP_LIBC_O_TRUNC:
-        PUSH((bee_word_t)(O_TRUNC));
+        PUSHD((bee_word_t)(O_TRUNC));
         break;
     case TRAP_LIBC_OPEN: // ( c-addr flags -- fd )
         {
             bee_uword_t flags;
-            POP((bee_word_t *)&flags);
+            POPD((bee_word_t *)&flags);
             char *file;
-            POP((bee_word_t *)&file);
+            POPD((bee_word_t *)&file);
             int fd = open(file, flags, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
-            PUSH((bee_word_t)fd);
+            PUSHD((bee_word_t)fd);
             if (fd >= 0)
                 set_binary_mode(fd, O_BINARY); // Best effort
         }
         break;
     case TRAP_LIBC_CLOSE:
         {
-            POP(&temp);
+            POPD(&temp);
             int fd = temp;
-            PUSH((bee_word_t)close(fd));
+            PUSHD((bee_word_t)close(fd));
         }
         break;
     case TRAP_LIBC_READ:
         {
-            POP(&temp);
+            POPD(&temp);
             int fd = temp;
             bee_uword_t nbytes;
-            POP((bee_word_t *)&nbytes);
+            POPD((bee_word_t *)&nbytes);
             uint8_t *buf;
-            POP((bee_word_t *)&buf);
-            PUSH(read(fd, buf, nbytes));
+            POPD((bee_word_t *)&buf);
+            PUSHD(read(fd, buf, nbytes));
         }
         break;
     case TRAP_LIBC_WRITE:
         {
-            POP(&temp);
+            POPD(&temp);
             int fd = temp;
             bee_uword_t nbytes;
-            POP((bee_word_t *)&nbytes);
+            POPD((bee_word_t *)&nbytes);
             uint8_t *buf;
-            POP((bee_word_t *)&buf);
-            PUSH(write(fd, buf, nbytes));
+            POPD((bee_word_t *)&buf);
+            PUSHD(write(fd, buf, nbytes));
         }
         break;
     case TRAP_LIBC_SEEK_SET:
-        PUSH((bee_word_t)(SEEK_SET));
+        PUSHD((bee_word_t)(SEEK_SET));
         break;
     case TRAP_LIBC_SEEK_CUR:
-        PUSH((bee_word_t)(SEEK_CUR));
+        PUSHD((bee_word_t)(SEEK_CUR));
         break;
     case TRAP_LIBC_SEEK_END:
-        PUSH((bee_word_t)(SEEK_END));
+        PUSHD((bee_word_t)(SEEK_END));
         break;
     case TRAP_LIBC_LSEEK:
         {
-            POP(&temp);
+            POPD(&temp);
             int whence = temp;
             bee_duword_t ud;
             POP_DOUBLE(&ud);
-            POP(&temp);
+            POPD(&temp);
             int fd = temp;
             off_t res = lseek(fd, (off_t)ud, whence);
             PUSH_DOUBLE((bee_duword_t)res);
@@ -171,61 +171,61 @@ bee_word_t trap_libc(bee_uword_t function)
         break;
     case TRAP_LIBC_FDATASYNC:
         {
-            POP(&temp);
+            POPD(&temp);
             int fd = temp;
-            PUSH(fdatasync(fd));
+            PUSHD(fdatasync(fd));
         }
         break;
     case TRAP_LIBC_RENAME:
         {
             char *to, *from;
-            POP((bee_word_t *)&to);
-            POP((bee_word_t *)&from);
-            PUSH(rename(from, to));
+            POPD((bee_word_t *)&to);
+            POPD((bee_word_t *)&from);
+            PUSHD(rename(from, to));
         }
         break;
     case TRAP_LIBC_REMOVE:
         {
             char *file;
-            POP((bee_word_t *)&file);
-            PUSH(remove(file));
+            POPD((bee_word_t *)&file);
+            PUSHD(remove(file));
         }
         break;
     case TRAP_LIBC_FILE_SIZE:
         {
             struct stat st;
-            POP(&temp);
+            POPD(&temp);
             int fd = temp;
             int res = fstat(fd, &st);
             PUSH_DOUBLE((bee_duword_t)st.st_size);
-            PUSH(res);
+            PUSHD(res);
         }
         break;
     case TRAP_LIBC_RESIZE_FILE:
         {
-            POP(&temp);
+            POPD(&temp);
             int fd = temp;
             bee_duword_t ud;
             POP_DOUBLE(&ud);
             int res = ftruncate(fd, (off_t)ud);
-            PUSH(res);
+            PUSHD(res);
         }
         break;
     case TRAP_LIBC_FILE_STATUS:
         {
             struct stat st;
-            POP(&temp);
+            POPD(&temp);
             int fd = temp;
             int res = fstat(fd, &st);
-            PUSH(st.st_mode);
-            PUSH(res);
+            PUSHD(st.st_mode);
+            PUSHD(res);
         }
         break;
     case TRAP_LIBC_ARGC: // ( -- u )
-        PUSH(main_argc);
+        PUSHD(main_argc);
         break;
     case TRAP_LIBC_ARGV: // ( -- a-addr )
-        PUSH((bee_word_t)main_argv);
+        PUSHD((bee_word_t)main_argv);
         break;
     default:
         error = BEE_ERROR_INVALID_FUNCTION;
@@ -243,7 +243,7 @@ bee_word_t trap(bee_word_t code)
     case TRAP_LIBC:
         {
             bee_uword_t function = 0;
-            POP((bee_word_t *)&function);
+            POPD((bee_word_t *)&function);
             return trap_libc(function);
         }
         break;
