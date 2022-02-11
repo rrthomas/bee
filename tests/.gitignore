@@ -12,7 +12,6 @@
 /init
 /jump
 /link
-/load_object
 /logic
 /memory
 /registers
@@ -20,8 +19,3 @@
 /single_step
 /stack
 /traps
-/_Noreturn.h
-/arg-nonnull.h
-/c++defs.h
-/dummy.c
-/warn-on-use.h
