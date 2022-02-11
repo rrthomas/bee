@@ -2,9 +2,7 @@
 // instructions. Since unsigned arithmetic overflow behaviour is guaranteed
 // by the ISO C standard, we only test the stack handling and basic
 // correctness of the operators here, assuming that if the arithmetic works
-// in one case, it will work in all. Note that the correct stack values are
-// not quite independent of the word size (in BEE_WORD_BYTES); some stack
-// pictures implicitly refer to it.
+// in one case, it will work in all.
 //
 // (c) Reuben Thomas 1994-2020
 //
