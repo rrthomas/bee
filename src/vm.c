@@ -304,7 +304,7 @@ bee_word_t bee_run(void)
                         {
                             uint8_t *addr;
                             POPD((bee_word_t *)&addr);
-                            uint8_t value = *(uint8_t *)addr;
+                            uint8_t value = *addr;
                             PUSHD((bee_word_t)value);
                         }
                         break;
@@ -314,7 +314,7 @@ bee_word_t bee_run(void)
                             POPD((bee_word_t *)&addr);
                             bee_word_t value;
                             POPD(&value);
-                            *(uint8_t *)addr = (uint8_t)value;
+                            *addr = (uint8_t)value;
                         }
                         break;
                     case BEE_INSN_LOAD2:
