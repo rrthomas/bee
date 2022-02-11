@@ -109,32 +109,24 @@ impl<T: Target> Bee<T> {
         let load = |width: Width| build(&move |mut b| {
             pop(&mut b, R1);
             b.const_binary(And, TEST, R1, (1 << (width as usize)) - 1);
-            b.if_(TEST,
-                build(&move |mut b| {
-                    b.const_binary(Add, DP, DP, 1);
-                    b.jump(not_implemented)
-                }),
-                build(&move |mut b| {
-                    b.load(R1, (R1, 0), width, am::MEMORY);
-                    push(&mut b, R1);
-                    b.jump(root)
-                }),
-            )
+            b.guard(TEST, false, build(&move |mut b| {
+                b.const_binary(Add, DP, DP, 1);
+                b.jump(not_implemented)
+            }));
+            b.load(R1, (R1, 0), width, am::MEMORY);
+            push(&mut b, R1);
+            b.jump(root)
         });
         let store = |width: Width| build(&move |mut b| {
             pop(&mut b, R1);
             b.const_binary(And, TEST, R1, (1 << (width as usize)) - 1);
-            b.if_(TEST,
-                build(&move |mut b| {
-                    b.const_binary(Add, DP, DP, 1);
-                    b.jump(not_implemented)
-                }),
-                build(&move |mut b| {
-                    pop(&mut b, R2);
-                    b.store(R2, (R1, 0), width, am::MEMORY);
-                    b.jump(root)
-                }),
-            )
+            b.guard(TEST, false, build(&move |mut b| {
+                b.const_binary(Add, DP, DP, 1);
+                b.jump(not_implemented)
+            }));
+            pop(&mut b, R2);
+            b.store(R2, (R1, 0), width, am::MEMORY);
+            b.jump(root)
         });
         let unary = |op: UnaryOp| build(&move |mut b| {
             pop(&mut b, R1);
@@ -201,75 +193,51 @@ impl<T: Target> Bee<T> {
         op_insns[Insn::Jump as usize] = build(&move |mut b| {
             pop(&mut b, R1);
             b.const_binary(And, TEST, R1, 7);
-            b.if_(TEST,
-                build(&move |mut b| {
-                    b.const_binary(Add, DP, DP, 1);
-                    b.jump(not_implemented)
-                }),
-                build(&move |mut b| {
-                    b.move_(PC, R1);
-                    b.jump(root)
-                }),
-            )
+            b.guard(TEST, false, build(&move |mut b| {
+                b.const_binary(Add, DP, DP, 1);
+                b.jump(not_implemented)
+            }));
+            b.move_(PC, R1);
+            b.jump(root)
         });
         op_insns[Insn::JumpZ as usize] = build(&move |mut b| {
             pop(&mut b, R1);
             pop(&mut b, TEST);
-            b.if_(TEST,
-                build(&move |b| { b.jump(root) }),
-                build(&move |mut b| {
-                    b.const_binary(And, TEST, R1, 7);
-                    b.if_(TEST,
-                        build(&move |mut b| {
-                            b.const_binary(Add, DP, DP, 2);
-                            b.jump(not_implemented)
-                        }),
-                        build(&move |mut b| {
-                            b.move_(PC, R1);
-                            b.jump(root)                            
-                        }),
-                    )
-                }),
-            )
+            b.guard(TEST, false, build(&move |b| { b.jump(root) }));
+            b.const_binary(And, TEST, R1, 7);
+            b.guard(TEST, false, build(&move |mut b| {
+                b.const_binary(Add, DP, DP, 2);
+                b.jump(not_implemented)
+            }));
+            b.move_(PC, R1);
+            b.jump(root)
         });
         op_insns[Insn::Call as usize] = build(&move |mut b| {
             pop(&mut b, R1);
             b.const_binary(And, TEST, R1, 7);
-            b.if_(TEST,
-                build(&move |mut b| {
-                    b.const_binary(Add, DP, DP, 1);
-                    b.jump(not_implemented)
-                }),
-                build(&move |mut b| {
-                    push_s(&mut b, PC);
-                    b.move_(PC, R1);
-                    b.jump(root)                            
-                }),
-            )
+            b.guard(TEST, false, build(&move |mut b| {
+                b.const_binary(Add, DP, DP, 1);
+                b.jump(not_implemented)
+            }));
+            push_s(&mut b, PC);
+            b.move_(PC, R1);
+            b.jump(root)
         });
         op_insns[Insn::Ret as usize] = build(&move |mut b| {
             pop_s(&mut b, R1);
             b.const_binary(And, TEST, R1, 7);
-            b.if_(TEST,
-                build(&move |mut b| {
-                    b.const_binary(Add, SP, SP, 1);
-                    b.jump(not_implemented)
-                }),
-                build(&move |mut b| {
-                    b.load(R2, (Global(0), offset_of!(Registers, handler_sp) as i64), Eight, am::REGISTERS);
-                    b.binary(Ult, TEST, SP, R2);
-                    b.if_(TEST,
-                        build(&move |mut b| {
-                            b.const_binary(Add, SP, SP, 1);
-                            b.jump(not_implemented)
-                        }),
-                        build(&move |mut b| {
-                            b.move_(PC, R1);
-                            b.jump(root)                            
-                        }),
-                    )
-                }),
-            )            
+            b.guard(TEST, false, build(&move |mut b| {
+                b.const_binary(Add, SP, SP, 1);
+                b.jump(not_implemented)
+            }));
+            b.load(R2, (Global(0), offset_of!(Registers, handler_sp) as i64), Eight, am::REGISTERS);
+            b.binary(Ult, TEST, SP, R2);
+            b.guard(TEST, false, build(&move |mut b| {
+                b.const_binary(Add, SP, SP, 1);
+                b.jump(not_implemented)
+            }));
+            b.move_(PC, R1);
+            b.jump(root)
         });
         op_insns[Insn::Load as usize] = load(Eight);
         op_insns[Insn::Store as usize] = store(Eight);
@@ -288,50 +256,38 @@ impl<T: Target> Bee<T> {
             b.const_binary(Eq, TEST, R2, i64::MIN);
             b.const_binary(Eq, OPCODE, R1, -1);
             b.binary(And, TEST, TEST, OPCODE);
-            b.if_(TEST,
-                build(&move |mut b| {
-                    push(&mut b, R2); // Known to be i64::MIN.
-                    b.const_(R2, 0);
-                    push(&mut b, R2);
-                    b.jump(root)
-                }),
-                build(&move |b| {
-                    b.if_(R1,
-                        build(&move |mut b| {
-                            b.binary(SDiv, TEST, R2, R1);
-                            push(&mut b, TEST);
-                            b.binary(Mul, TEST, TEST, R1);
-                            b.binary(Sub, TEST, R2, TEST);
-                            push(&mut b, TEST);
-                            b.jump(root)
-                        }),
-                        build(&move |mut b| {
-                            push(&mut b, R1); // Known to be 0.
-                            push(&mut b, R2); // The numerator.
-                            b.jump(root)
-                        }),
-                    )
-                }),
-            )
+            b.guard(TEST, false, build(&move |mut b| {
+                push(&mut b, R2); // Known to be i64::MIN.
+                b.const_(R2, 0);
+                push(&mut b, R2);
+                b.jump(root)
+            }));
+            b.guard(R1, true, build(&move |mut b| {
+                push(&mut b, R1); // Known to be 0.
+                push(&mut b, R2); // The numerator.
+                b.jump(root)
+            }));
+            b.binary(SDiv, TEST, R2, R1);
+            push(&mut b, TEST);
+            b.binary(Mul, TEST, TEST, R1);
+            b.binary(Sub, TEST, R2, TEST);
+            push(&mut b, TEST);
+            b.jump(root)
         });
         op_insns[Insn::UDivMod as usize] = build(&move |mut b| {
             pop(&mut b, R1);
             pop(&mut b, R2);
-            b.if_(R1,
-                build(&move |mut b| {
-                    b.binary(UDiv, TEST, R2, R1);
-                    push(&mut b, TEST);
-                    b.binary(Mul, TEST, TEST, R1);
-                    b.binary(Sub, TEST, R2, TEST);
-                    push(&mut b, TEST);
-                    b.jump(root)
-                }),
-                build(&move |mut b| {
-                    push(&mut b, R1); // Known to be 0.
-                    push(&mut b, R2); // The numerator.
-                    b.jump(root)
-                }),
-            )
+            b.guard(R1, true, build(&move |mut b| {
+                push(&mut b, R1); // Known to be 0.
+                push(&mut b, R2); // The numerator.
+                b.jump(root)
+            }));
+            b.binary(UDiv, TEST, R2, R1);
+            push(&mut b, TEST);
+            b.binary(Mul, TEST, TEST, R1);
+            b.binary(Sub, TEST, R2, TEST);
+            push(&mut b, TEST);
+            b.jump(root)
         });
         op_insns[Insn::Eq as usize] = compare(Eq);
         op_insns[Insn::Lt as usize] = compare(Lt);

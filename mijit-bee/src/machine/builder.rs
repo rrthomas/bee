@@ -187,10 +187,10 @@ impl<T> Builder<T> {
      * If `condition` is not `expected`, abort by running `if_fail`.
      * See also [`if_()`] which is more symmetrical.
      */
-    pub fn guard(&mut self, condition: Variable, expected: bool, if_fail: EBB<T>) {
+    pub fn guard(&mut self, condition: impl Into<Variable>, expected: bool, if_fail: EBB<T>) {
         let mut actions = Vec::new();
         std::mem::swap(&mut actions, &mut self.actions);
-        self.guards.push(Guard {actions, condition, expected, if_fail});
+        self.guards.push(Guard {actions, condition: condition.into(), expected, if_fail});
     }
 
     /**
