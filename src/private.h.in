@@ -1,6 +1,6 @@
 // Private implementation-specific APIs that are shared between modules.
 //
-// (c) Reuben Thomas 1994-2020
+// (c) Reuben Thomas 1994-2022
 //
 // The package is distributed under the GNU Public License version 3, or,
 // at your option, any later version.
@@ -41,9 +41,9 @@
 #define PUSH(val)                                                       \
     THROW_IF_ERROR(bee_push_stack(bee_d0, bee_dsize, &bee_dp, val))
 
-#define POP_RETURN(ptr)                                                 \
+#define POPS(ptr)                                                       \
     THROW_IF_ERROR(bee_pop_stack(bee_s0, bee_ssize, &bee_sp, ptr))
-#define PUSH_RETURN(val)                                                \
+#define PUSHS(val)                                                      \
     THROW_IF_ERROR(bee_push_stack(bee_s0, bee_ssize, &bee_sp, val))
 
 

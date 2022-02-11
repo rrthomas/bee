@@ -406,12 +406,12 @@ bee_word_t single_step(void)
             bee_d0[bee_dp++] = error;
         bee_sp = bee_handler_sp;
         bee_uword_t addr;
-        POP_RETURN((bee_word_t *)&addr);
-        POP_RETURN((bee_word_t *)&bee_handler_sp);
+        POPS((bee_word_t *)&addr);
+        POPS((bee_word_t *)&bee_handler_sp);
         bee_pc = (bee_word_t *)(addr & ~1);
         } else if (inst == ((BEE_INSN_RET << BEE_OP2_SHIFT) | BEE_OP_INSN) && bee_sp < bee_handler_sp) {
             // Otherwise, if the last instruction was RET, pop an error handler if necessary.
-            POP_RETURN((bee_word_t *)&bee_handler_sp);
+            POPS((bee_word_t *)&bee_handler_sp);
             PUSH(0);
         }
     }

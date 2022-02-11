@@ -37,7 +37,7 @@ bee_word_t bee_run(void)
         switch (ir & BEE_OP1_MASK) {
         case BEE_OP_CALLI:
             {
-                PUSH_RETURN((bee_uword_t)bee_pc);
+                PUSHS((bee_uword_t)bee_pc);
                 bee_word_t *addr = (bee_pc - 1) + ARSHIFT(ir, BEE_OP1_SHIFT);
                 CHECK_ALIGNED(addr);
                 bee_pc = addr;
@@ -198,17 +198,17 @@ bee_word_t bee_run(void)
                             bee_word_t *addr;
                             POP((bee_word_t *)&addr);
                             CHECK_ALIGNED(addr);
-                            PUSH_RETURN((bee_uword_t)bee_pc);
+                            PUSHS((bee_uword_t)bee_pc);
                             bee_pc = addr;
                         }
                         break;
                     case BEE_INSN_RET:
                         {
                             bee_word_t *addr;
-                            POP_RETURN((bee_word_t *)&addr);
+                            POPS((bee_word_t *)&addr);
                             CHECK_ALIGNED(addr);
                             if (bee_sp < bee_handler_sp) {
-                                POP_RETURN((bee_word_t *)&bee_handler_sp);
+                                POPS((bee_word_t *)&bee_handler_sp);
                                 PUSH(0);
                             }
                             bee_pc = addr;
@@ -363,13 +363,13 @@ bee_word_t bee_run(void)
                         {
                             bee_word_t value;
                             POP(&value);
-                            PUSH_RETURN(value);
+                            PUSHS(value);
                         }
                         break;
                     case BEE_INSN_POPR:
                         {
                             bee_word_t value;
-                            POP_RETURN(&value);
+                            POPS(&value);
                             if (error == BEE_ERROR_OK)
                                 PUSH(value);
                         }
@@ -387,8 +387,8 @@ bee_word_t bee_run(void)
                             bee_word_t *addr;
                             POP((bee_word_t *)&addr);
                             CHECK_ALIGNED(addr);
-                            PUSH_RETURN(bee_handler_sp);
-                            PUSH_RETURN((bee_uword_t)bee_pc);
+                            PUSHS(bee_handler_sp);
+                            PUSHS((bee_uword_t)bee_pc);
                             bee_handler_sp = bee_sp;
                             bee_pc = addr;
                         }
@@ -407,8 +407,8 @@ bee_word_t bee_run(void)
                                 bee_d0[bee_dp++] = error;
                             bee_sp = bee_handler_sp;
                             bee_word_t *addr;
-                            POP_RETURN((bee_word_t *)&addr);
-                            POP_RETURN((bee_word_t *)&bee_handler_sp);
+                            POPS((bee_word_t *)&addr);
+                            POPS((bee_word_t *)&bee_handler_sp);
                             bee_pc = addr;
                         }
                         break;
