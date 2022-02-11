@@ -35,11 +35,11 @@ int main(void)
     // test 2: set dp to dsize + 1, then try to pop (PUSHR) the stack
     test[tests++] = label();
     pushi(bee_dsize + 1);
-    ass(BEE_INSN_SET_DP); ass(BEE_INSN_PUSHR);
+    ass(BEE_INSN_SET_DP); ass(BEE_INSN_PUSHS);
     // test 3: test dp can be dsize
     test[tests++] = label();
     pushi(bee_dsize);
-    ass(BEE_INSN_SET_DP); ass(BEE_INSN_PUSHR);
+    ass(BEE_INSN_SET_DP); ass(BEE_INSN_PUSHS);
     pushi(0); ass(BEE_INSN_THROW);
     // test 4: test CALL of unaligned address
     test[tests++] = label();

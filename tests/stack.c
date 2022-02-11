@@ -33,9 +33,9 @@ int main(void)
     ass(BEE_INSN_SWAP);
     pushi(1);
     ass(BEE_INSN_SWAP);
-    ass(BEE_INSN_PUSHR);
-    ass(BEE_INSN_DUPR);
-    ass(BEE_INSN_POPR);
+    ass(BEE_INSN_PUSHS);
+    ass(BEE_INSN_DUPS);
+    ass(BEE_INSN_POPS);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]) - 1; i++) {
         show_data_stack();

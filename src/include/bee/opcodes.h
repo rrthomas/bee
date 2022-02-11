@@ -1,6 +1,6 @@
 /* Bee instruction set description.
 
-   (c) Reuben Thomas 1994-2020
+   (c) Reuben Thomas 1994-2022
 
    The package is distributed under the GNU Public License version 3, or,
    at your option, any later version.
@@ -116,9 +116,9 @@ enum {
   BEE_INSN_EQ,
   BEE_INSN_LT,
   BEE_INSN_ULT,
-  BEE_INSN_PUSHR = 0x20,
-  BEE_INSN_POPR,
-  BEE_INSN_DUPR,
+  BEE_INSN_PUSHS = 0x20,
+  BEE_INSN_POPS,
+  BEE_INSN_DUPS,
   BEE_INSN_CATCH,
   BEE_INSN_THROW,
   BEE_INSN_BREAK,

@@ -1,6 +1,6 @@
 // The interpreter main loop.
 //
-// (c) Reuben Thomas 1994-2020
+// (c) Reuben Thomas 1994-2022
 //
 // The package is distributed under the GNU Public License version 3, or,
 // at your option, any later version.
@@ -359,14 +359,14 @@ bee_word_t bee_run(void)
                             PUSHD(b < a);
                         }
                         break;
-                    case BEE_INSN_PUSHR:
+                    case BEE_INSN_PUSHS:
                         {
                             bee_word_t value;
                             POPD(&value);
                             PUSHS(value);
                         }
                         break;
-                    case BEE_INSN_POPR:
+                    case BEE_INSN_POPS:
                         {
                             bee_word_t value;
                             POPS(&value);
@@ -374,7 +374,7 @@ bee_word_t bee_run(void)
                                 PUSHD(value);
                         }
                         break;
-                    case BEE_INSN_DUPR:
+                    case BEE_INSN_DUPS:
                         if (bee_sp == 0)
                             THROW(BEE_ERROR_STACK_UNDERFLOW);
                         else {
