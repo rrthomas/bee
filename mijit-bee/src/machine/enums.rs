@@ -1,3 +1,4 @@
+#[allow(unused)]
 #[derive(Debug, Copy, Clone, Hash, Eq, PartialEq)]
 #[repr(u8)]
 pub enum Op {
@@ -10,6 +11,7 @@ pub enum Op {
 }
 
 #[allow(non_camel_case_types)]
+#[allow(unused)]
 pub enum Insn {
     Nop            = 0x00,
     Not            = 0x01,

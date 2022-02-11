@@ -139,6 +139,7 @@ impl Builder {
     }
 
     /** [`TEMP`] is corrupted. */
+    #[allow(unused)]
     pub fn push(
         &mut self,
         src: impl Into<Variable>,
@@ -151,6 +152,7 @@ impl Builder {
         self.store(src, (sp, 0), Eight, am);
     }
 
+    #[allow(unused)]
     pub fn debug(&mut self, src: impl Into<Variable>) {
         self.actions.push(Action::Debug(src.into()));
     }
@@ -176,6 +178,7 @@ impl Builder {
         self.switch(Switch::new(discriminant.into(), cases, default_))
     }
 
+    #[allow(unused)]
     pub fn if_<T>(
         self,
         condition: impl Into<Variable>,
