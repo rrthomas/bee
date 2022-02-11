@@ -4,8 +4,7 @@ by Reuben Thomas <rrt@sc3d.org>
 https://github.com/rrthomas/bee  
 
 Bee is a simple virtual machine designed for the Forth language. It uses
-word-based threaded code. It has been implemented in C (for POSIX systems).
-All memory references are bounds checked. An I/O library is implemented.
+word-based threaded code. An I/O library is implemented.
 
 Bee’s small instruction set is easy to implement, yet also easy to use to
 write a naive Forth compiler with reasonable performance.
@@ -29,8 +28,7 @@ Reports on compatibility are welcomed.
 
 ### Building from a release tarball
 
-Perl and help2man are required to build from source. For building from git,
-see below.
+help2man is required to build from source. For building from git, see below.
 
 To build from a release tarball, run
 
@@ -46,7 +44,6 @@ third-party `bootstrap` module; these are installed automatically.
 To build from a Git repository, first run
 
 ```
-git submodule update --init --recursive
 ./bootstrap
 ```
 
