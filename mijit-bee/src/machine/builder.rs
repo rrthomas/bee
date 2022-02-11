@@ -7,7 +7,7 @@ use Precision::*;
 use BinaryOp::*;
 use Width::*;
 
-pub const TEMP: Register = REGISTERS[0];
+const TEMP: Register = REGISTERS[0];
 
 /** Build an EBB. Equivalent to `callback(Builder::new())`. */
 pub fn build<T>(callback: &dyn Fn(Builder<T>) -> EBB<T>) -> EBB<T> {

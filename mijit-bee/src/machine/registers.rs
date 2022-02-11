@@ -16,6 +16,11 @@ pub struct Registers {
     pub handler_sp: u64,
 }
 
+/**
+ * Native registers used by the VM.
+ *
+ * We avoid `REGISTER[0]`, which is used as scratch space.
+ */
 pub mod regs {
     use super::{Register, REGISTERS};
 
