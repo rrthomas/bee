@@ -60,11 +60,11 @@ int main(void)
     ass(BEE_INSN_ULT); ass(BEE_INSN_ULT); ass(BEE_INSN_ULT); ass(BEE_INSN_ULT);
 
     stack1();       // set up the stack with four standard pairs to compare
-    step(0, 4);     // do the < tests
+    step(0, 4);     // do the LT tests
     stack2();       // set up the stack with two standard pairs to compare
-    step(4, 6);     // do the = tests
+    step(4, 6);     // do the EQ tests
     stack1();       // set up the stack with four standard pairs to compare
-    step(6, 10);    // do the U< tests
+    step(6, 10);    // do the ULT tests
 
     printf("Comparison tests ran OK\n");
     return 0;
