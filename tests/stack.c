@@ -20,22 +20,22 @@ const char *correct[] = {
 int main(void)
 {
     size_t size = 256;
-    bee_init_defaults((bee_word_t *)calloc(size, BEE_WORD_BYTES), size);
+    bee_init_defaults((bee_word_t *)calloc(size, BUMBLE_WORD_BYTES), size);
 
     bee_d0[bee_dp++] = 3; bee_d0[bee_dp++] =2; bee_d0[bee_dp++] = 1;	// initialise the stack
 
     ass_goto(bee_m0);
-    ass(BEE_INSN_DUP);
+    ass(BUMBLE_INSN_DUP);
     pushi(1);
-    ass(BEE_INSN_DUP);
-    ass(BEE_INSN_POP);
+    ass(BUMBLE_INSN_DUP);
+    ass(BUMBLE_INSN_POP);
     pushi(0);
-    ass(BEE_INSN_SWAP);
+    ass(BUMBLE_INSN_SWAP);
     pushi(1);
-    ass(BEE_INSN_SWAP);
-    ass(BEE_INSN_PUSHS);
-    ass(BEE_INSN_DUPS);
-    ass(BEE_INSN_POPS);
+    ass(BUMBLE_INSN_SWAP);
+    ass(BUMBLE_INSN_PUSHS);
+    ass(BUMBLE_INSN_DUPS);
+    ass(BUMBLE_INSN_POPS);
 
     for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]) - 1; i++) {
         show_data_stack();
@@ -45,7 +45,7 @@ int main(void)
             exit(1);
         }
         printf("Instruction = %s\n", disass(*bee_pc, bee_pc));
-        assert(single_step() == BEE_ERROR_BREAK);
+        assert(single_step() == BUMBLE_ERROR_BREAK);
     }
 
     printf("Stack tests ran OK\n");

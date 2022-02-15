@@ -1,12 +1,12 @@
-# Bee
+# Bumble
 
 by Reuben Thomas <rrt@sc3d.org>  
 https://github.com/rrthomas/bee  
 
-Bee is a simple virtual machine designed for the Forth language. It uses
+Bumble is a simple virtual machine designed for the Forth language. It uses
 word-based threaded code. An I/O library is implemented.
 
-Bee’s small instruction set is easy to implement, yet also easy to use to
+Bumble’s small instruction set is easy to implement, yet also easy to use to
 write a naive Forth compiler with reasonable performance.
 
 This package comprises an implementation in ISO C99 using POSIX APIs.
@@ -20,7 +20,7 @@ RISK.
 
 ## Installation and compatibility
 
-Bee should work on any POSIX-1.2001-compatible system. Bee has been tested
+Bumble should work on any POSIX-1.2001-compatible system. Bumble has been tested
 on x86_64 GNU/Linux with GNU C.
 
 Reports on compatibility are welcomed.
@@ -63,12 +63,12 @@ Sorry, there’s only the source code at present.
 ## pForth
 
 [pForth](https://github.com/rrthomas/pforth) is an ANSI Forth compiler that
-runs on Bee.
+runs on Bumble.
 
 
-## Running Bee object files
+## Running Bumble object files
 
-The C implementation of Bee allows a hash-bang line to be prepended to an object file, so that they can be run directly. A suggested line is:
+The C implementation of Bumble allows a hash-bang line to be prepended to an object file, so that they can be run directly. A suggested line is:
 
 ```
 #!/usr/bin/env bee

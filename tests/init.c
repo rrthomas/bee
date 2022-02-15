@@ -25,7 +25,7 @@ int main(void)
     size_t size = 1024;
     bee_word_t *ptr = (bee_word_t *)malloc(size);
     assert(ptr);
-    i = bee_init_defaults(ptr, size / BEE_WORD_BYTES);
+    i = bee_init_defaults(ptr, size / BUMBLE_WORD_BYTES);
     if (i != 0) {
         printf("Error in bee_init_defaults() tests: init with valid parameters failed\n");
         exit(1);

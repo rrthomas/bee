@@ -45,7 +45,7 @@ install:
 
 build_script:
   - cmd: C:\msys64\usr\bin\bash.exe -lc "pacman --noconfirm -S libtool autoconf automake help2man"
-  - cmd: C:\msys64\usr\bin\bash.exe -lc "cd c:/projects/bee && ./bootstrap && ./configure --enable-silent-rules %CONFIGURE_FLAGS% && make && make check"
+  - cmd: C:\msys64\usr\bin\bash.exe -lc "cd c:/projects/bumble && ./bootstrap && ./configure --enable-silent-rules %CONFIGURE_FLAGS% && make && make check"
   - sh: if [[ "$APPVEYOR_BUILD_WORKER_IMAGE" == "macos" ]]; then export PATH="/usr/local/opt/m4/bin:$PATH"; fi
   - sh: ./bootstrap
   - sh: if [[ "$ASAN" == "yes" ]]; then ./configure --enable-silent-rules CFLAGS="-g3 -fsanitize=address -fsanitize=undefined" LDFLAGS="-fsanitize=address -fsanitize=undefined"; else ./configure --enable-silent-rules; fi

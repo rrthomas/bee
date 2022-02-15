@@ -1,4 +1,4 @@
-# configure.ac for Bee
+# configure.ac for Bumble
 # Process this file with autoconf to produce a configure script
 #
 # (c) Reuben Thomas 2011-2022
@@ -9,7 +9,7 @@
 # THIS PROGRAM IS PROVIDED AS IS, WITH NO WARRANTY. USE IS AT THE USER’S
 # RISK.
 
-AC_INIT(Bee, 1.0, rrt@sc3d.org)
+AC_INIT(Bumble, 1.0, rrt@sc3d.org)
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 

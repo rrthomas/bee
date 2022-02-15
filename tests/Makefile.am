@@ -16,12 +16,11 @@ LDADD = $(top_builddir)/src/libbee.la $(top_builddir)/lib/libgnu.la
 
 check_PROGRAMS = $(TESTS)
 
-TESTS = arithmetic catch comparison constants init jump logic memory \
-	registers stack single_step run errors traps
+TESTS = catch constants init jump registers stack single_step run errors
 TESTS_ENVIRONMENT = \
 	export LIBTOOL=$(top_builddir)/libtool;
 
-# Test binutils support. Assumes binutils for Bee configured with
+# Test binutils support. Assumes binutils for Bumble configured with
 # --program-prefix=bee- is installed on PATH.
 test-binutils:
 	bee-as -R -o hello.o $(srcdir)/hello.S && \

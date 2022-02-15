@@ -107,7 +107,7 @@ static void usage(void)
     char *shortopt, *buf;
     printf ("Usage: %s [OPTION...] OBJECT-FILE [ARGUMENT...]\n"
             "\n"
-            "Run Bee.\n"
+            "Run Bumble.\n"
             "\n",
             program_name);
 #define OPT(longname, shortname, arg, argstring, docstring)             \
@@ -142,8 +142,8 @@ int main(int argc, char *argv[])
 {
     set_program_name(argv[0]);
 
-    bee_word_t stack_size = BEE_DEFAULT_STACK_SIZE;
-    bee_word_t return_stack_size = BEE_DEFAULT_STACK_SIZE;
+    bee_word_t stack_size = BUMBLE_DEFAULT_STACK_SIZE;
+    bee_word_t return_stack_size = BUMBLE_DEFAULT_STACK_SIZE;
 
     // Options string starts with '+' to stop option processing at first non-option, then
     // leading ':' so as to return ':' for a missing arg, not '?'
@@ -194,10 +194,10 @@ int main(int argc, char *argv[])
                 usage();
                 exit(EXIT_SUCCESS);
             case 5:
-                printf("Bee " VERSION "\n"
+                printf("Bumble " VERSION "\n"
                        COPYRIGHT_STRING "\n"
-                       "Bee comes with ABSOLUTELY NO WARRANTY.\n"
-                       "You may redistribute copies of Bee\n"
+                       "Bumble comes with ABSOLUTELY NO WARRANTY.\n"
+                       "You may redistribute copies of Bumble\n"
                        "under the terms of the GNU General Public License.\n"
                        "For more information about these matters, see the file named COPYING.\n");
                 exit(EXIT_SUCCESS);
@@ -206,7 +206,7 @@ int main(int argc, char *argv[])
             }
     }
 
-    if ((memory = (bee_word_t *)calloc(memory_size, BEE_WORD_BYTES)) == NULL)
+    if ((memory = (bee_word_t *)calloc(memory_size, BUMBLE_WORD_BYTES)) == NULL)
         die("could not allocate %zu words of memory", memory_size);
     bee_init(memory, memory_size, stack_size, return_stack_size);
 
@@ -216,7 +216,6 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    bee_register_args(argc, (const char **)(argv + optind));
     FILE *handle = fopen(argv[optind], "rb");
     if (handle == NULL)
         die("cannot not open file %s", argv[optind]);

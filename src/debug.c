@@ -35,17 +35,12 @@ void word(bee_word_t value)
 #pragma GCC diagnostic ignored "-Wcast-align"
     *(bee_word_t *)current = value;
 #pragma GCC diagnostic pop
-    current += BEE_WORD_BYTES;
+    current += BUMBLE_WORD_BYTES;
 }
 
 void ass(bee_uword_t inst)
 {
-    word((inst << BEE_OP2_SHIFT) | BEE_OP_INSN);
-}
-
-void ass_trap(bee_uword_t code)
-{
-    word((code << BEE_OP2_SHIFT) | BEE_OP_TRAP);
+    word((inst << BUMBLE_OP2_SHIFT) | BUMBLE_OP_INSN);
 }
 
 void ass_byte(uint8_t b)
@@ -55,21 +50,9 @@ void ass_byte(uint8_t b)
 
 void pushi(bee_word_t literal)
 {
-    bee_word_t temp = LSHIFT(literal, BEE_OP1_SHIFT);
-    assert(ARSHIFT(temp, BEE_OP1_SHIFT) == literal);
-    word(temp | BEE_OP_PUSHI);
-}
-
-void push(bee_word_t literal)
-{
-    assert(IS_ALIGNED(current));
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
-    calli((bee_word_t *)current + 2);
-#pragma GCC diagnostic pop
-    word(literal);
-    ass(BEE_INSN_POPS);
-    ass(BEE_INSN_LOAD);
+    bee_word_t temp = LSHIFT(literal, BUMBLE_OP1_SHIFT);
+    assert(ARSHIFT(temp, BUMBLE_OP1_SHIFT) == literal);
+    word(temp | BUMBLE_OP_PUSHI);
 }
 
 static void addr_op(int op, bee_word_t *addr)
@@ -77,18 +60,18 @@ static void addr_op(int op, bee_word_t *addr)
     assert(IS_ALIGNED(current));
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
-    word(LSHIFT(addr - (bee_word_t *)current, BEE_OP1_SHIFT) | op);
+    word(LSHIFT(addr - (bee_word_t *)current, BUMBLE_OP1_SHIFT) | op);
 #pragma GCC diagnostic pop
 }
 
 void calli(bee_word_t *addr)
 {
-    addr_op(BEE_OP_CALLI, addr);
+    addr_op(BUMBLE_OP_CALLI, addr);
 }
 
 void pushreli(bee_word_t *addr)
 {
-    addr_op(BEE_OP_PUSHRELI, addr);
+    addr_op(BUMBLE_OP_PUSHRELI, addr);
 }
 
 static void addr_op2(int op, bee_word_t *addr)
@@ -98,19 +81,19 @@ static void addr_op2(int op, bee_word_t *addr)
 #pragma GCC diagnostic ignored "-Wcast-align"
     bee_word_t offset = addr - (bee_word_t *)current;
 #pragma GCC diagnostic pop
-    bee_word_t temp = LSHIFT(offset, BEE_OP2_SHIFT);
-    assert(ARSHIFT(temp, BEE_OP2_SHIFT) == offset);
+    bee_word_t temp = LSHIFT(offset, BUMBLE_OP2_SHIFT);
+    assert(ARSHIFT(temp, BUMBLE_OP2_SHIFT) == offset);
     word(temp | op);
 }
 
 void jumpi(bee_word_t *addr)
 {
-    addr_op2(BEE_OP_JUMPI, addr);
+    addr_op2(BUMBLE_OP_JUMPI, addr);
 }
 
 void jumpzi(bee_word_t *addr)
 {
-    addr_op2(BEE_OP_JUMPZI, addr);
+    addr_op2(BUMBLE_OP_JUMPZI, addr);
 }
 
 void ass_goto(bee_word_t *addr)
@@ -127,15 +110,15 @@ _GL_ATTRIBUTE_PURE bee_word_t *label(void)
 #pragma GCC diagnostic pop
 }
 
-static const char *mnemonic[BEE_INSN_UNDEFINED + 1] = {
+static const char *mnemonic[BUMBLE_INSN_UNDEFINED + 1] = {
 // 0x00
-    "NOP", "NOT", "AND", "OR", "XOR", "LSHIFT", "RSHIFT", "ARSHIFT",
+    "NOP", NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     "POPD", "DUP", "SET", "SWAP", "JUMP", "JUMPZ", "CALL", "RET",
 // 0x10
-    "LOAD", "STORE", "LOAD1", "STORE1", "LOAD2", "STORE2", "LOAD4", "STORE4",
-    "NEG", "ADD", "MUL", "DIVMOD", "UDIVMOD", "EQ", "LT", "ULT",
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
 // 0x20
-    "PUSHS", "POPS", "DUPS", "CATCH", "THROW", "BREAK", "BEE_WORD_BYTES", "GET_M0",
+    "PUSHS", "POPS", "DUPS", "CATCH", "THROW", "BREAK", NULL, "GET_M0",
     "GET_MSIZE", "GET_SSIZE", "GET_SP", "SET_SP", "GET_DSIZE", "GET_SP", "SET_SP", "GET_HANDLER_SP",
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -146,41 +129,38 @@ _GL_ATTRIBUTE_CONST const char *disass(bee_word_t opcode, bee_word_t *pc)
     static char *text = NULL;
 
     free(text);
-    switch (opcode & BEE_OP1_MASK) {
-    case BEE_OP_CALLI:
+    switch (opcode & BUMBLE_OP1_MASK) {
+    case BUMBLE_OP_CALLI:
         {
-            bee_word_t *addr = pc + ARSHIFT(opcode, BEE_OP1_SHIFT);
+            bee_word_t *addr = pc + ARSHIFT(opcode, BUMBLE_OP1_SHIFT);
             text = xasprintf("CALLI $%zx", (bee_uword_t)addr);
         }
         break;
-    case BEE_OP_PUSHI:
+    case BUMBLE_OP_PUSHI:
         {
-            opcode = ARSHIFT(opcode, BEE_OP1_SHIFT);
+            opcode = ARSHIFT(opcode, BUMBLE_OP1_SHIFT);
             text = xasprintf("PUSHI %zd=$%zx", opcode, (bee_uword_t)opcode);
         }
         break;
-    case BEE_OP_PUSHRELI:
-        text = xasprintf("PUSHRELI $%zx", (bee_uword_t)(pc + (opcode & ~BEE_OP1_MASK)));
+    case BUMBLE_OP_PUSHRELI:
+        text = xasprintf("PUSHRELI $%zx", (bee_uword_t)(pc + (opcode & ~BUMBLE_OP1_MASK)));
         break;
     default:
-        switch (opcode & BEE_OP2_MASK) {
-        case BEE_OP_JUMPI:
+        switch (opcode & BUMBLE_OP2_MASK) {
+        case BUMBLE_OP_JUMPI:
             {
-                bee_word_t *addr = pc + ARSHIFT(opcode, BEE_OP2_SHIFT);
+                bee_word_t *addr = pc + ARSHIFT(opcode, BUMBLE_OP2_SHIFT);
                 text = xasprintf("JUMPI $%zx", (bee_uword_t)addr);
             }
             break;
-        case BEE_OP_JUMPZI:
+        case BUMBLE_OP_JUMPZI:
             {
-                bee_word_t *addr = pc + ARSHIFT(opcode, BEE_OP2_SHIFT);
+                bee_word_t *addr = pc + ARSHIFT(opcode, BUMBLE_OP2_SHIFT);
                 text = xasprintf("JUMPZI $%zx", (bee_uword_t)addr);
             }
             break;
-        case BEE_OP_TRAP:
-            text = xasprintf("TRAP $%zx", (bee_uword_t)opcode >> BEE_OP2_SHIFT);
-            break;
-        case BEE_OP_INSN:
-            opcode = (bee_uword_t)opcode >> BEE_OP2_SHIFT;
+        case BUMBLE_OP_INSN:
+            opcode = (bee_uword_t)opcode >> BUMBLE_OP2_SHIFT;
             if ((bee_uword_t)opcode <= sizeof(mnemonic) / sizeof(mnemonic[0]) &&
                 mnemonic[(bee_uword_t)opcode] != NULL)
                 text = xasprintf("%s", mnemonic[(bee_uword_t)opcode]);
@@ -197,7 +177,7 @@ _GL_ATTRIBUTE_PURE uint8_t toass(const char *token)
     for (size_t i = 0; i < sizeof(mnemonic) / sizeof(mnemonic[0]); i++)
         if (mnemonic[i] && strcmp(token, mnemonic[i]) == 0) return i;
 
-    return BEE_INSN_UNDEFINED;
+    return BUMBLE_INSN_UNDEFINED;
 }
 
 static char *_val_data_stack(bool with_hex)
@@ -262,15 +242,15 @@ struct {
     int code;
     const char *msg;
 } error_msg[] = {
-    { 0, "BEE_ERROR_OK" },
-    { -1, "BEE_ERROR_INVALID_OPCODE" },
-    { -2, "BEE_ERROR_STACK_UNDERFLOW" },
-    { -3, "BEE_ERROR_STACK_OVERFLOW" },
-    { -4, "BEE_ERROR_INVALID_LOAD" },
-    { -5, "BEE_ERROR_INVALID_STORE" },
-    { -6, "BEE_ERROR_UNALIGNED_ADDRESS" },
-    { -7, "BEE_ERROR_DIVISION_BY_ZERO" },
-    { -256, "BEE_ERROR_BREAK" },
+    { 0, "BUMBLE_ERROR_OK" },
+    { -1, "BUMBLE_ERROR_INVALID_OPCODE" },
+    { -2, "BUMBLE_ERROR_STACK_UNDERFLOW" },
+    { -3, "BUMBLE_ERROR_STACK_OVERFLOW" },
+    { -4, "BUMBLE_ERROR_INVALID_LOAD" },
+    { -5, "BUMBLE_ERROR_INVALID_STORE" },
+    { -6, "BUMBLE_ERROR_UNALIGNED_ADDRESS" },
+    { -7, "BUMBLE_ERROR_DIVISION_BY_ZERO" },
+    { -256, "BUMBLE_ERROR_BREAK" },
 };
 
 _GL_ATTRIBUTE_PURE const char *error_to_msg(int code)
@@ -287,84 +267,57 @@ _GL_ATTRIBUTE_PURE const char *error_to_msg(int code)
 // computed.
 static bee_word_t *compute_next_PC(bee_word_t inst)
 {
-    switch (inst & BEE_OP1_MASK) {
-    case BEE_OP_CALLI:
-        return bee_pc + ARSHIFT(inst, BEE_OP1_SHIFT);
-    case BEE_OP_PUSHI:
-    case BEE_OP_PUSHRELI:
+    switch (inst & BUMBLE_OP1_MASK) {
+    case BUMBLE_OP_CALLI:
+        return bee_pc + ARSHIFT(inst, BUMBLE_OP1_SHIFT);
+    case BUMBLE_OP_PUSHI:
+    case BUMBLE_OP_PUSHRELI:
         return bee_pc + 1;
     default:
-        switch (inst & BEE_OP2_MASK) {
-        case BEE_OP_JUMPI:
-        case BEE_OP_JUMPZI:
-            return bee_pc + ARSHIFT(inst, BEE_OP2_SHIFT);
+        switch (inst & BUMBLE_OP2_MASK) {
+        case BUMBLE_OP_JUMPI:
+        case BUMBLE_OP_JUMPZI:
+            return bee_pc + ARSHIFT(inst, BUMBLE_OP2_SHIFT);
             break;
-        case BEE_OP_TRAP:
-            return bee_pc + 1;
-            break;
-        case BEE_OP_INSN:
-            switch (inst >> BEE_OP2_SHIFT) {
-            case BEE_INSN_NOP:
-            case BEE_INSN_NOT:
-            case BEE_INSN_AND:
-            case BEE_INSN_OR:
-            case BEE_INSN_XOR:
-            case BEE_INSN_LSHIFT:
-            case BEE_INSN_RSHIFT:
-            case BEE_INSN_ARSHIFT:
-            case BEE_INSN_POP:
-            case BEE_INSN_DUP:
-            case BEE_INSN_SET:
-            case BEE_INSN_SWAP:
-            case BEE_INSN_LOAD:
-            case BEE_INSN_STORE:
-            case BEE_INSN_LOAD1:
-            case BEE_INSN_STORE1:
-            case BEE_INSN_LOAD2:
-            case BEE_INSN_STORE2:
-            case BEE_INSN_LOAD4:
-            case BEE_INSN_STORE4:
-            case BEE_INSN_NEG:
-            case BEE_INSN_ADD:
-            case BEE_INSN_MUL:
-            case BEE_INSN_DIVMOD:
-            case BEE_INSN_UDIVMOD:
-            case BEE_INSN_EQ:
-            case BEE_INSN_LT:
-            case BEE_INSN_ULT:
-            case BEE_INSN_PUSHS:
-            case BEE_INSN_POPS:
-            case BEE_INSN_DUPS:
-            case BEE_INSN_WORD_BYTES:
-            case BEE_INSN_GET_M0:
-            case BEE_INSN_GET_MSIZE:
-            case BEE_INSN_GET_SSIZE:
-            case BEE_INSN_GET_SP:
-            case BEE_INSN_SET_SP:
-            case BEE_INSN_GET_DSIZE:
-            case BEE_INSN_GET_DP:
-            case BEE_INSN_SET_DP:
-            case BEE_INSN_GET_HANDLER_SP:
+        case BUMBLE_OP_INSN:
+            switch (inst >> BUMBLE_OP2_SHIFT) {
+            case BUMBLE_INSN_NOP:
+            case BUMBLE_INSN_POP:
+            case BUMBLE_INSN_DUP:
+            case BUMBLE_INSN_SET:
+            case BUMBLE_INSN_SWAP:
+            case BUMBLE_INSN_PUSHS:
+            case BUMBLE_INSN_POPS:
+            case BUMBLE_INSN_DUPS:
+            case BUMBLE_INSN_GET_M0:
+            case BUMBLE_INSN_GET_MSIZE:
+            case BUMBLE_INSN_GET_SSIZE:
+            case BUMBLE_INSN_GET_SP:
+            case BUMBLE_INSN_SET_SP:
+            case BUMBLE_INSN_GET_DSIZE:
+            case BUMBLE_INSN_GET_DP:
+            case BUMBLE_INSN_SET_DP:
+            case BUMBLE_INSN_GET_HANDLER_SP:
                 return bee_pc + 1;
-            case BEE_INSN_JUMP:
-            case BEE_INSN_CALL:
-            case BEE_INSN_CATCH:
+            case BUMBLE_INSN_JUMP:
+            case BUMBLE_INSN_CALL:
+            case BUMBLE_INSN_CATCH:
                 if (bee_dp < 1)
                     return NULL;
                 return (bee_word_t *)(bee_d0[bee_dp - 1]);
-            case BEE_INSN_JUMPZ:
+            case BUMBLE_INSN_JUMPZ:
                 if (bee_dp < 2)
                     return NULL;
                 return bee_d0[bee_dp - 2] == 0 ? (bee_word_t *)bee_d0[bee_dp - 1] : bee_pc + 1;
-            case BEE_INSN_RET:
+            case BUMBLE_INSN_RET:
                 if (bee_sp < 1)
                     return NULL;
                 return (bee_word_t *)(bee_s0[bee_sp - 1] & ~1);
-            case BEE_INSN_THROW:
+            case BUMBLE_INSN_THROW:
                 if (bee_handler_sp < 2)
                     return NULL;
                 return (bee_word_t *)(bee_s0[bee_handler_sp - 1]);
-            case BEE_INSN_BREAK:
+            case BUMBLE_INSN_BREAK:
             default:
                 return NULL;
             }
@@ -383,14 +336,14 @@ bee_word_t single_step(void)
     int next_PC_valid = next_PC != NULL && IS_ALIGNED(next_PC);
     if (next_PC_valid) {
         next_inst = *next_PC;
-        *next_PC = (BEE_INSN_BREAK << BEE_OP2_SHIFT) | BEE_OP_INSN;
+        *next_PC = (BUMBLE_INSN_BREAK << BUMBLE_OP2_SHIFT) | BUMBLE_OP_INSN;
     }
     bee_uword_t save_handler_sp = bee_handler_sp;
     bee_handler_sp = 0;
     error = bee_run();
     if (next_PC_valid) {
         *next_PC = next_inst;
-        if (error == BEE_ERROR_BREAK)
+        if (error == BUMBLE_ERROR_BREAK)
             bee_pc = next_PC;
     }
     // Restore bee_handler_sp if it wasn't set by CATCH
@@ -399,7 +352,7 @@ bee_word_t single_step(void)
     // If there's a saved error handler, execute any actions that would have
     // been executed by `run()` had there been an error handler.
     if (bee_handler_sp != 0) {
-        if (error != BEE_ERROR_BREAK || inst == ((BEE_INSN_THROW << BEE_OP2_SHIFT) | BEE_OP_INSN)) {
+        if (error != BUMBLE_ERROR_BREAK || inst == ((BUMBLE_INSN_THROW << BUMBLE_OP2_SHIFT) | BUMBLE_OP_INSN)) {
         // If an error occurred or THROW was performed, go to the error
         // handler.
         if (bee_dp < bee_dsize)
@@ -409,7 +362,7 @@ bee_word_t single_step(void)
         POPS((bee_word_t *)&addr);
         POPS((bee_word_t *)&bee_handler_sp);
         bee_pc = (bee_word_t *)(addr & ~1);
-        } else if (inst == ((BEE_INSN_RET << BEE_OP2_SHIFT) | BEE_OP_INSN) && bee_sp < bee_handler_sp) {
+        } else if (inst == ((BUMBLE_INSN_RET << BUMBLE_OP2_SHIFT) | BUMBLE_OP_INSN) && bee_sp < bee_handler_sp) {
             // Otherwise, if the last instruction was RET, pop an error handler if necessary.
             POPS((bee_word_t *)&bee_handler_sp);
             PUSHD(0);

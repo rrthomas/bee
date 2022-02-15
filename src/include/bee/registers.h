@@ -1,4 +1,4 @@
-// Bee registers and their C types.
+// Bumble registers and their C types.
 //
 // (c) Reuben Thomas 2018-2020
 //

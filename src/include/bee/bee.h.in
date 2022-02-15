@@ -9,8 +9,8 @@
 // THIS PROGRAM IS PROVIDED AS IS, WITH NO WARRANTY. USE IS AT THE USER’S
 // RISK.
 
-#ifndef BEE_BEE
-#define BEE_BEE
+#ifndef BUMBLE_BEE
+#define BUMBLE_BEE
 
 
 #include <stdint.h>
@@ -20,10 +20,10 @@
 // Basic types
 typedef intptr_t bee_word_t;
 typedef uintptr_t bee_uword_t;
-#define BEE_WORD_BYTES @SIZEOF_INTPTR_T@
-#define BEE_WORD_BIT (BEE_WORD_BYTES * 8)
-#define BEE_WORD_MIN INTPTR_MIN
-#define BEE_UWORD_MAX UINTPTR_MAX
+#define BUMBLE_WORD_BYTES @SIZEOF_INTPTR_T@
+#define BUMBLE_WORD_BIT (BUMBLE_WORD_BYTES * 8)
+#define BUMBLE_WORD_MIN INTPTR_MIN
+#define BUMBLE_UWORD_MAX UINTPTR_MAX
 
 // VM registers
 #define R(reg, type)                            \
@@ -33,16 +33,16 @@ typedef uintptr_t bee_uword_t;
 
 // Error codes
 enum {
-    BEE_ERROR_OK = 0,
-    BEE_ERROR_INVALID_OPCODE = -1,
-    BEE_ERROR_STACK_UNDERFLOW = -2,
-    BEE_ERROR_STACK_OVERFLOW = -3,
-    BEE_ERROR_INVALID_LOAD = -4,
-    BEE_ERROR_INVALID_STORE = -5,
-    BEE_ERROR_UNALIGNED_ADDRESS = -6,
-    BEE_ERROR_INVALID_LIBRARY = -16,
-    BEE_ERROR_INVALID_FUNCTION = -17,
-    BEE_ERROR_BREAK = -256,
+    BUMBLE_ERROR_OK = 0,
+    BUMBLE_ERROR_INVALID_OPCODE = -1,
+    BUMBLE_ERROR_STACK_UNDERFLOW = -2,
+    BUMBLE_ERROR_STACK_OVERFLOW = -3,
+    BUMBLE_ERROR_INVALID_LOAD = -4,
+    BUMBLE_ERROR_INVALID_STORE = -5,
+    BUMBLE_ERROR_UNALIGNED_ADDRESS = -6,
+    BUMBLE_ERROR_INVALID_LIBRARY = -16,
+    BUMBLE_ERROR_INVALID_FUNCTION = -17,
+    BUMBLE_ERROR_BREAK = -256,
 };
 
 // Stack access
@@ -50,7 +50,7 @@ int bee_pop_stack(bee_word_t *s0, bee_uword_t ssize, bee_uword_t *sp, bee_word_t
 int bee_push_stack(bee_word_t *s0, bee_uword_t ssize, bee_uword_t *sp, bee_word_t val);
 
 // Default stacks size in words
-#define BEE_DEFAULT_STACK_SIZE   4096
+#define BUMBLE_DEFAULT_STACK_SIZE   4096
 
 // Miscellaneous routines
 bee_word_t bee_run(void);

@@ -15,7 +15,7 @@
 int main(void)
 {
     size_t size = 256;
-    int i = bee_init_defaults((bee_word_t *)calloc(size, BEE_WORD_BYTES), size);
+    int i = bee_init_defaults((bee_word_t *)calloc(size, BUMBLE_WORD_BYTES), size);
     if (i != 0) {
         printf("Error in run() tests: init with valid parameters failed\n");
         exit(1);
@@ -25,8 +25,8 @@ int main(void)
 
     int ret_code = 37;
     pushi(ret_code);
-    ass(BEE_INSN_NOP);
-    ass(BEE_INSN_THROW);
+    ass(BUMBLE_INSN_NOP);
+    ass(BUMBLE_INSN_THROW);
     bee_word_t *final_PC = label();
 
     bee_word_t ret = bee_run();

@@ -137,24 +137,24 @@ static int hex_to_int(const char **ptr, bee_uword_t *intValue)
 }
 
 
-// Mapping from Bee error codes to signals
+// Mapping from Bumble error codes to signals
 static struct error_info
 {
     int error;
     unsigned char signo;
 } error_info[] =
     {
-     {BEE_ERROR_INVALID_OPCODE, SIGILL},
-     {BEE_ERROR_STACK_UNDERFLOW, SIGSEGV},
-     {BEE_ERROR_STACK_OVERFLOW, SIGSEGV},
-     {BEE_ERROR_INVALID_LOAD, SIGSEGV},
-     {BEE_ERROR_INVALID_STORE, SIGSEGV},
-     {BEE_ERROR_UNALIGNED_ADDRESS, SIGBUS},
-     {BEE_ERROR_BREAK, SIGTRAP},
+     {BUMBLE_ERROR_INVALID_OPCODE, SIGILL},
+     {BUMBLE_ERROR_STACK_UNDERFLOW, SIGSEGV},
+     {BUMBLE_ERROR_STACK_OVERFLOW, SIGSEGV},
+     {BUMBLE_ERROR_INVALID_LOAD, SIGSEGV},
+     {BUMBLE_ERROR_INVALID_STORE, SIGSEGV},
+     {BUMBLE_ERROR_UNALIGNED_ADDRESS, SIGBUS},
+     {BUMBLE_ERROR_BREAK, SIGTRAP},
      {0, 0}, // GDB_SIGNAL_0, sent on initial connection
     };
 
-// Convert the Bee error code to a UNIX signal number
+// Convert the Bumble error code to a UNIX signal number
 static unsigned _GL_ATTRIBUTE_CONST error_to_signal(int error)
 {
     for (size_t i = 0; i < sizeof(error_info) / sizeof(error_info[0]); i++)
@@ -204,14 +204,14 @@ int handle_exception(int error)
 
         case 'g': // return the value of the CPU registers
 #define R(reg, type)                                                    \
-            out_ptr = mem_to_hex((uint8_t *)&bee_##reg, out_ptr, BEE_WORD_BYTES);
+            out_ptr = mem_to_hex((uint8_t *)&bee_##reg, out_ptr, BUMBLE_WORD_BYTES);
 #include "bee/registers.h"
 #undef R
             break;
 
         case 'G': // set the value of the CPU registers, return OK
 #define R(reg, type)                                                    \
-            in_ptr = hex_to_mem(in_ptr, (uint8_t *)&bee_##reg, BEE_WORD_BYTES);
+            in_ptr = hex_to_mem(in_ptr, (uint8_t *)&bee_##reg, BUMBLE_WORD_BYTES);
 #include "bee/registers.h"
 #undef R
             strcpy(out_ptr, "OK");
