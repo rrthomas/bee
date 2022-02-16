@@ -1,7 +1,7 @@
 #[allow(unused)]
 #[derive(Debug, Copy, Clone, Hash, Eq, PartialEq)]
 #[repr(u8)]
-pub enum Op {
+pub enum Insn1 {
     CallI    = 0x0,
     PushI    = 0x1,
     PushrelI = 0x2,
@@ -12,7 +12,7 @@ pub enum Op {
 
 #[allow(non_camel_case_types)]
 #[allow(unused)]
-pub enum Insn {
+pub enum Insn2 {
     Nop            = 0x00,
     Not            = 0x01,
     And            = 0x02,

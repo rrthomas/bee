@@ -15,7 +15,7 @@ pub use registers::{Registers, offsets, regs};
 use regs::*;
 
 mod enums;
-pub use enums::{Insn, Op};
+pub use enums::{Insn1, Insn2};
 
 //-----------------------------------------------------------------------------
 
@@ -35,9 +35,9 @@ mod am {
 }
 
 /** Number of VM instruction types. */
-const NUM_OP_TYPES: usize = 8;
+const NUM_OP1_INSNS: usize = 8;
 /** Number of VM instruction opcodes. */
-const NUM_OP_INSNS: usize = 0x40;
+const NUM_OP2_INSNS: usize = 0x40;
 
 mod builder;
 use builder::{build, build_block, Builder};
@@ -81,11 +81,11 @@ impl<T: Target> Bee<T> {
             b.jump(not_implemented2)
         }));
 
-        let op_types: Vec<_> = (0..NUM_OP_TYPES - 1).map(
+        let mut op1_insns: Vec<_> = (0..NUM_OP1_INSNS - 1).map(
             |_| build(&move |b| { b.jump(not_implemented) })
         ).collect();
 
-        let mut op_insns: Vec<_> = (0..NUM_OP_INSNS - 1).map(
+        let mut op2_insns: Vec<_> = (0..NUM_OP2_INSNS - 1).map(
             |_| build(&move |b| { b.jump(not_implemented) })
         ).collect();
 
@@ -149,23 +149,58 @@ impl<T: Target> Bee<T> {
             b.unary(Negate, R1, R1);
         });
 
-        // Define the instructions.
-        op_insns[Insn::Nop as usize] = build(&move |b| {
+        // Define the first level instructions.
+        op1_insns[Insn1::CallI as usize] = build(&move |mut b| {
+            push_s(&mut b, PC);
+            b.const_binary(And, R1, OPCODE, !0x7);
+            b.binary(Add, PC, PC, R1);
+            b.const_binary(Sub, PC, PC, 8);
             b.jump(root)
         });
-        op_insns[Insn::Not as usize] = unary(Not);
-        op_insns[Insn::And as usize] = binary(And);
-        op_insns[Insn::Or as usize] = binary(Or);
-        op_insns[Insn::Xor as usize] = binary(Xor);
-        op_insns[Insn::LShift as usize] = binary(Lsl);
-        op_insns[Insn::RShift as usize] = binary(Lsr);
-        op_insns[Insn::ARShift as usize] = binary(Asr);
-        op_insns[Insn::Pop as usize] = build(&move |mut b| {
+        op1_insns[Insn1::PushI as usize] = build(&move |mut b| {
+            b.const_binary(Asr, R1, OPCODE, 3);
+            push(&mut b, R1);
+            b.jump(root)
+        });
+        op1_insns[Insn1::PushrelI as usize] = build(&move |mut b| {
+            b.const_binary(And, R1, OPCODE, !0x7);
+            b.binary(Add, R1, PC, R1);
+            b.const_binary(Sub, R1, R1, 8);
+            push(&mut b, R1);
+            b.jump(root)
+        });
+        op1_insns[Insn1::JumpI as usize] = build(&move |mut b| {
+            b.const_binary(And, R1, OPCODE, !0x7);
+            b.binary(Add, PC, PC, R1);
+            b.const_binary(Sub, PC, PC, 8);
+            b.jump(root)
+        });
+        op1_insns[Insn1::JumpzI as usize] = build(&move |mut b| {
+            pop(&mut b, TEST);
+            b.guard(TEST, false, build(&move |b| { b.jump(root) }));
+            b.const_binary(And, R1, OPCODE, !0x7);
+            b.binary(Add, PC, PC, R1);
+            b.const_binary(Sub, PC, PC, 8);
+            b.jump(root)
+        });
+
+        // Define the second level instructions.
+        op2_insns[Insn2::Nop as usize] = build(&move |b| {
+            b.jump(root)
+        });
+        op2_insns[Insn2::Not as usize] = unary(Not);
+        op2_insns[Insn2::And as usize] = binary(And);
+        op2_insns[Insn2::Or as usize] = binary(Or);
+        op2_insns[Insn2::Xor as usize] = binary(Xor);
+        op2_insns[Insn2::LShift as usize] = binary(Lsl);
+        op2_insns[Insn2::RShift as usize] = binary(Lsr);
+        op2_insns[Insn2::ARShift as usize] = binary(Asr);
+        op2_insns[Insn2::Pop as usize] = build(&move |mut b| {
             b.const_binary(Sub, DP, DP, 1);
             b.jump(root)
         });
         // TODO: Specialize for small arguments.
-        op_insns[Insn::Dup as usize] = build(&move |mut b| {
+        op2_insns[Insn2::Dup as usize] = build(&move |mut b| {
             pop(&mut b, TEST);
             b.binary(Sub, TEST, DP, TEST);
             b.array_load(R2, (D0, TEST), Eight, am::DATA_STACK);
@@ -173,7 +208,7 @@ impl<T: Target> Bee<T> {
             b.jump(root)
         });
         // TODO: Specialize for small arguments.
-        op_insns[Insn::Set as usize] = build(&move |mut b| {
+        op2_insns[Insn2::Set as usize] = build(&move |mut b| {
             pop(&mut b, TEST);
             pop(&mut b, R1);
             b.binary(Sub, TEST, DP, TEST);
@@ -181,7 +216,7 @@ impl<T: Target> Bee<T> {
             b.jump(root)
         });
         // TODO: Specialize for small arguments.
-        op_insns[Insn::Swap as usize] = build(&move |mut b| {
+        op2_insns[Insn2::Swap as usize] = build(&move |mut b| {
             pop(&mut b, TEST);
             pop(&mut b, R1);
             b.binary(Sub, TEST, DP, TEST);
@@ -190,7 +225,7 @@ impl<T: Target> Bee<T> {
             push(&mut b, R2);
             b.jump(root)
         });
-        op_insns[Insn::Jump as usize] = build(&move |mut b| {
+        op2_insns[Insn2::Jump as usize] = build(&move |mut b| {
             pop(&mut b, R1);
             b.const_binary(And, TEST, R1, 7);
             b.guard(TEST, false, build(&move |mut b| {
@@ -200,7 +235,7 @@ impl<T: Target> Bee<T> {
             b.move_(PC, R1);
             b.jump(root)
         });
-        op_insns[Insn::JumpZ as usize] = build(&move |mut b| {
+        op2_insns[Insn2::JumpZ as usize] = build(&move |mut b| {
             pop(&mut b, R1);
             pop(&mut b, TEST);
             b.guard(TEST, false, build(&move |b| { b.jump(root) }));
@@ -212,7 +247,7 @@ impl<T: Target> Bee<T> {
             b.move_(PC, R1);
             b.jump(root)
         });
-        op_insns[Insn::Call as usize] = build(&move |mut b| {
+        op2_insns[Insn2::Call as usize] = build(&move |mut b| {
             pop(&mut b, R1);
             b.const_binary(And, TEST, R1, 7);
             b.guard(TEST, false, build(&move |mut b| {
@@ -223,7 +258,7 @@ impl<T: Target> Bee<T> {
             b.move_(PC, R1);
             b.jump(root)
         });
-        op_insns[Insn::Ret as usize] = build(&move |mut b| {
+        op2_insns[Insn2::Ret as usize] = build(&move |mut b| {
             pop_s(&mut b, R1);
             b.const_binary(And, TEST, R1, 7);
             b.guard(TEST, false, build(&move |mut b| {
@@ -239,18 +274,18 @@ impl<T: Target> Bee<T> {
             b.move_(PC, R1);
             b.jump(root)
         });
-        op_insns[Insn::Load as usize] = load(Eight);
-        op_insns[Insn::Store as usize] = store(Eight);
-        op_insns[Insn::Load1 as usize] = load(One);
-        op_insns[Insn::Store1 as usize] = store(One);
-        op_insns[Insn::Load2 as usize] = load(Two);
-        op_insns[Insn::Store2 as usize] = store(Two);
-        op_insns[Insn::Load4 as usize] = load(Four);
-        op_insns[Insn::Store4 as usize] = store(Four);
-        op_insns[Insn::Neg as usize] = unary(Negate);
-        op_insns[Insn::Add as usize] = binary(Add);
-        op_insns[Insn::Mul as usize] = binary(Mul);
-        op_insns[Insn::DivMod as usize] = build(&move |mut b| {
+        op2_insns[Insn2::Load as usize] = load(Eight);
+        op2_insns[Insn2::Store as usize] = store(Eight);
+        op2_insns[Insn2::Load1 as usize] = load(One);
+        op2_insns[Insn2::Store1 as usize] = store(One);
+        op2_insns[Insn2::Load2 as usize] = load(Two);
+        op2_insns[Insn2::Store2 as usize] = store(Two);
+        op2_insns[Insn2::Load4 as usize] = load(Four);
+        op2_insns[Insn2::Store4 as usize] = store(Four);
+        op2_insns[Insn2::Neg as usize] = unary(Negate);
+        op2_insns[Insn2::Add as usize] = binary(Add);
+        op2_insns[Insn2::Mul as usize] = binary(Mul);
+        op2_insns[Insn2::DivMod as usize] = build(&move |mut b| {
             pop(&mut b, R1);
             pop(&mut b, R2);
             b.const_binary(Eq, TEST, R2, i64::MIN);
@@ -274,7 +309,7 @@ impl<T: Target> Bee<T> {
             push(&mut b, TEST);
             b.jump(root)
         });
-        op_insns[Insn::UDivMod as usize] = build(&move |mut b| {
+        op2_insns[Insn2::UDivMod as usize] = build(&move |mut b| {
             pop(&mut b, R1);
             pop(&mut b, R2);
             b.guard(R1, true, build(&move |mut b| {
@@ -289,40 +324,40 @@ impl<T: Target> Bee<T> {
             push(&mut b, TEST);
             b.jump(root)
         });
-        op_insns[Insn::Eq as usize] = compare(Eq);
-        op_insns[Insn::Lt as usize] = compare(Lt);
-        op_insns[Insn::ULt as usize] = compare(Ult);
-        op_insns[Insn::PushR as usize] = build(&move |mut b| {
+        op2_insns[Insn2::Eq as usize] = compare(Eq);
+        op2_insns[Insn2::Lt as usize] = compare(Lt);
+        op2_insns[Insn2::ULt as usize] = compare(Ult);
+        op2_insns[Insn2::PushR as usize] = build(&move |mut b| {
             pop(&mut b, R1);
             push_s(&mut b, R1);
             b.jump(root)
         });
-        op_insns[Insn::PopR as usize] = build(&move |mut b| {
+        op2_insns[Insn2::PopR as usize] = build(&move |mut b| {
             pop_s(&mut b, R1);
             push(&mut b, R1);
             b.jump(root)
         });
-        op_insns[Insn::DupR as usize] = build(&move |mut b| {
+        op2_insns[Insn2::DupR as usize] = build(&move |mut b| {
             b.array_load(R1, (S0, SP), Eight, am::RETURN_STACK);
             push(&mut b, R1);
             b.jump(root)
         });
 
         // Main dispatch loop.
-        let op_types = &op_types;
-        let op_insns = &op_insns;
+        let op1_insns = &op1_insns;
+        let op2_insns = &op2_insns;
         jit.define(root, &build(&move |mut b| {
             b.pop(OPCODE, PC, am::MEMORY);
-            b.const_binary(And, TEST, OPCODE, (NUM_OP_TYPES - 1) as i64);
+            b.const_binary(And, TEST, OPCODE, (NUM_OP1_INSNS - 1) as i64);
             b.index(
                 TEST,
-                op_types.clone().into(),
+                op1_insns.clone().into(),
                 build(&move |mut b| {
                     b.const_binary(Lsr, OPCODE, OPCODE, 3);
-                    b.const_binary(And, TEST, OPCODE, (NUM_OP_INSNS - 1) as i64);
+                    b.const_binary(And, TEST, OPCODE, (NUM_OP2_INSNS - 1) as i64);
                     b.index(
                         TEST,
-                        op_insns.clone().into(),
+                        op2_insns.clone().into(),
                         build(&move |b| { b.jump(not_implemented) }),
                     )
                 })
