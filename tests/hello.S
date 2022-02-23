@@ -1,14 +1,17 @@
         ## Define trap codes
-        .set STDOUT_FILENO, 0x84
-        .set WRITE_FILE, 0x89
+        .set LIBC, 0x0
+        .set STDOUT_FILENO, 0x3
+        .set WRITE_FILE, 0xd
 
         .text
 main:
-        pushrel string           # address of string
-        push string_end - string # length of string
-        extra STDOUT_FILENO
-        extra WRITE_FILE
-        push 0                   # normal termination
+        pushreli string           # address of string
+        pushi string_end - string # length of string
+        pushi STDOUT_FILENO
+        trap LIBC
+        pushi WRITE_FILE
+        trap LIBC
+        pushi 0                   # normal termination
         throw
 
         .data
