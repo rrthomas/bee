@@ -78,4 +78,4 @@ bee_word_t trap_libc(bee_uword_t function);
 
 // GDB remote protocol stub
 int gdb_init(int gdb_fdin, int gdb_fdout);
-int handle_exception (int error);
+void gdb_run(void);

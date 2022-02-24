@@ -2,7 +2,7 @@
 // The following commands are supported: d, g, G, m, M, c, k and ?.
 // See the GDB manual section "Remote Protocol" for more details.
 //
-// (c) Reuben Thomas 2020
+// (c) Reuben Thomas 2020-2022
 //
 // The package is distributed under the GNU General Public License version 3,
 // or, at your option, any later version.
@@ -29,6 +29,9 @@ FILE *gdb_in, *gdb_out;
 
 // The size of the inbound/outbound buffers
 #define BUFFER_SIZE 2048
+
+// The outbound buffer.
+static char send_buffer[BUFFER_SIZE];
 
 // If non-zero, print debugging information about remote communication
 static int remote_debug = 0;
@@ -165,29 +168,16 @@ static unsigned _GL_ATTRIBUTE_CONST error_to_signal(int error)
 }
 
 
+// The most recent Bee error, expressed as a signal number.
+static unsigned sigval;
+
 // Process GDB commands until told to continue or exit
 // Returns 1 for 'continue' and 0 for 'exit'
-static int new_connection = 0;
-int handle_exception(int error)
+static int handle_exception(void)
 {
-    debug("handle_exception: %d\n", error);
-
-    char buf[BUFFER_SIZE];
-
-    // If this is not the first time we are called, tell host an exception
-    // has occurred: send 'S' stop reply packet
-    unsigned sigval = error_to_signal(error);
-    if (new_connection)
-        new_connection = 0;
-    else {
-        snprintf(buf, BUFFER_SIZE, "S%.2x", sigval);
-        send_packet(buf);
-    }
-
-    // Main loop
     for (;;) {
         bee_uword_t addr, length = 0;
-        char *out_ptr = buf;
+        char *out_ptr = send_buffer;
         *out_ptr = '\0';
 
         const char *in_ptr = recv_packet();
@@ -255,7 +245,23 @@ int handle_exception(int error)
         }
 
         // Send the (possibly empty) reply
-        send_packet(buf);
+        send_packet(send_buffer);
+    }
+}
+
+// GDB event loop.
+void gdb_run(void)
+{
+    while (1) {
+        if (!handle_exception())
+            break;
+        int error = bee_run();
+        if (error == 0)
+            return;
+        sigval = error_to_signal(error);
+        debug("gdb_run: error %d = signal %u\n", error, sigval);
+        snprintf(send_buffer, BUFFER_SIZE, "S%.2x", sigval);
+        send_packet(send_buffer);
     }
 }
 
@@ -273,6 +279,5 @@ int gdb_init(int in, int out)
 
     setbuf(gdb_in, NULL);
     setbuf(gdb_out, NULL);
-    new_connection = 1;
     return 0;
 }
