@@ -80,7 +80,7 @@ enum {
 #endif
 
 /* Largest trap code.  */
-#define BEE_MAX_TRAP ((1 << (BEE_WORD_BIT - BEE_OP2_SHIFT)) - 1)
+#define BEE_MAX_TRAP ((1L << (BEE_WORD_BIT - BEE_OP2_SHIFT)) - 1)
 
 /* OP_INSN opcodes.  */
 enum {
