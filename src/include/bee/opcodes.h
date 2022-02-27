@@ -51,7 +51,6 @@ enum {
   BEE_OP_CALLI    = 0x0,
   BEE_OP_PUSHI    = 0x1,
   BEE_OP_PUSHRELI = 0x2,
-  BEE_OP_LEVEL2   = 0x3,
 
   /* Bits 0-3 when bits 0-1 are 11.  */
   BEE_OP2_MASK    = 0xf,
