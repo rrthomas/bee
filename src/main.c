@@ -107,7 +107,7 @@ static void usage(void)
     char *shortopt, *buf;
     printf ("Usage: %s [OPTION...] OBJECT-FILE [ARGUMENT...]\n"
             "\n"
-            "Run Bee.\n"
+            "Run " PACKAGE_NAME ".\n"
             "\n",
             program_name);
 #define OPT(longname, shortname, arg, argstring, docstring)             \
@@ -194,10 +194,10 @@ int main(int argc, char *argv[])
                 usage();
                 exit(EXIT_SUCCESS);
             case 5:
-                printf("Bee " VERSION "\n"
+                printf(PACKAGE_NAME " " VERSION "\n"
                        COPYRIGHT_STRING "\n"
-                       "Bee comes with ABSOLUTELY NO WARRANTY.\n"
-                       "You may redistribute copies of Bee\n"
+                       PACKAGE_NAME " comes with ABSOLUTELY NO WARRANTY.\n"
+                       "You may redistribute copies of " PACKAGE_NAME "\n"
                        "under the terms of the GNU General Public License.\n"
                        "For more information about these matters, see the file named COPYING.\n");
                 exit(EXIT_SUCCESS);
