@@ -100,7 +100,7 @@ struct option longopts[] = {
   {0, 0, 0, 0}
 };
 
-#define COPYRIGHT_STRING "(c) Reuben Thomas 1994-2020"
+#define COPYRIGHT_STRING "(c) Reuben Thomas 1994-2022"
 
 static void usage(void)
 {
