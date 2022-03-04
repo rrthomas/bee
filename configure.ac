@@ -78,6 +78,22 @@ AS_IF([test "$SIZEOF_INTPTR_T" != 4 -a "$SIZEOF_INTPTR_T" != 8],
 AC_SUBST([SIZEOF_INTPTR_T])
 AX_C_ARITHMETIC_RSHIFT
 
+# Package suffix for side-by-side installation of multiple builds
+AC_ARG_ENABLE([package-suffix],
+  [AS_HELP_STRING([--enable-package-suffix],
+                  [add suffix denoting the word size, e.g. "-32", to binaries and man pages, enabling side-by-side installation of multiple builds.])],
+  [case $enableval in
+     yes|no) ;;
+     *)      AC_MSG_ERROR([bad value $enableval for package-suffix option]) ;;
+   esac
+   gl_package_suffix=$enableval],
+  [gl_package_suffix=no]
+)
+if test "$gl_package_suffix" = yes; then
+  PACKAGE_SUFFIX=-$(( $ac_cv_sizeof_intptr_t * 8 ))
+fi
+AC_SUBST([PACKAGE_SUFFIX])
+
 # Generate output files
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([

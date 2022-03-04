@@ -12,7 +12,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src -I$(top_builddir)/lib -I
 
 LOG_COMPILER = $(srcdir)/run-test
 
-LDADD = $(top_builddir)/src/libbee.la $(top_builddir)/lib/libgnu.la
+LDADD = $(top_builddir)/src/libbee$(PACKAGE_SUFFIX).la $(top_builddir)/lib/libgnu.la
 
 check_PROGRAMS = $(TESTS)
 
