@@ -35,18 +35,22 @@ verify(sizeof(int) <= sizeof(bee_word_t));
 
 #if SIZEOF_INTPTR_T == 4
 typedef uint64_t bee_duword_t;
-#define PUSH_DOUBLE(ud)                                             \
+#define PUSH_DOUBLE(ud)                                              \
     PUSHD((bee_uword_t)(ud & (bee_uword_t)-1));                      \
-    PUSHD((bee_uword_t)((ud >> BEE_WORD_BIT) & (bee_uword_t)-1));
+    PUSHD((bee_uword_t)((ud >> BEE_WORD_BIT) & (bee_uword_t)-1))
 #define POP_DOUBLE(ud)                                                  \
     bee_word_t pop1, pop2;                                              \
-    POPD(&pop1);                                                         \
-    POPD(&pop2);                                                         \
+    POPD(&pop1);                                                        \
+    POPD(&pop2);                                                        \
     *ud = (((bee_duword_t)(bee_uword_t)pop1) << BEE_WORD_BIT | (bee_uword_t)pop2)
 #else
 typedef size_t bee_duword_t;
-#define PUSH_DOUBLE(res) PUSHD(res)
-#define POP_DOUBLE(res)  POPD((bee_word_t *)res)
+#define PUSH_DOUBLE(res)                        \
+    PUSHD(res);                                 \
+    PUSHD(0)
+#define POP_DOUBLE(res)                         \
+    POPD((bee_word_t *)res);                    \
+    POPD((bee_word_t *)res)
 #endif
 
 // Register command-line args
