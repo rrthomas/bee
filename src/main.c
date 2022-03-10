@@ -194,13 +194,19 @@ int main(int argc, char *argv[])
                 usage();
                 exit(EXIT_SUCCESS);
             case 5:
-                printf(PACKAGE_NAME " " VERSION " (%d-bit)\n"
+                printf(PACKAGE_NAME " " VERSION " (%d-bit, %s)\n"
                        COPYRIGHT_STRING "\n"
                        PACKAGE_NAME " comes with ABSOLUTELY NO WARRANTY.\n"
                        "You may redistribute copies of " PACKAGE_NAME "\n"
                        "under the terms of the GNU General Public License.\n"
                        "For more information about these matters, see the file named COPYING.\n",
-                       BEE_WORD_BIT);
+                       BEE_WORD_BIT,
+#ifdef HAVE_MIJIT
+                       "Mijit JIT"
+#else
+                       "C Interpreter"
+#endif
+                       );
                 exit(EXIT_SUCCESS);
             default:
                 break;
