@@ -366,11 +366,9 @@ impl<T: Target> Bee<T> {
         Bee {jit, root}
     }
 
-    pub unsafe fn run(mut self, registers: &mut Registers) -> std::io::Result<Self> {
+    pub unsafe fn run(&mut self, registers: &mut Registers) {
         *self.jit.global_mut(Global(0)) = Word {mp: (registers as *mut Registers).cast()};
-        let (jit, result) = self.jit.run(self.root)?;
+        let result = self.jit.run(self.root);
         assert_eq!(result, Word {s: NOT_IMPLEMENTED});
-        self.jit = jit;
-        Ok(self)
     }
 }
