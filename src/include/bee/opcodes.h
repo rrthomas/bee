@@ -36,11 +36,6 @@ typedef struct bee_opc_info_t
   const char * name;	/* instruction name, where applicable.  */
 } bee_opc_info_t;
 
-/* Table to identify an instruction from its 4 LSbits.  */
-extern const bee_opc_info_t bee_opc_info[16];
-/* Table of information about short instructions (BEE_INSN_*).  */
-extern const bee_opc_info_t bee_inst_info[0x40];
-
 #if BEE_WORD_BYTES == 4
 #define BEE_OP1_SHIFT 2
 #define BEE_OP2_SHIFT 4
