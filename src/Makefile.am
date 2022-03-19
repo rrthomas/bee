@@ -29,6 +29,7 @@ include/bee/bee.h: include/bee/bee.h.in $(top_builddir)/config.status
 	cd $(top_builddir) && $(SHELL) ./config.status src/include/bee/bee.h
 
 if HAVE_MIJIT
+# Have a phony target to force cargo to be run always
 .PHONY: mijit-bee
 $(top_srcdir)/mijit-bee/target/release/libmijit_bee.la: mijit-bee
 	cargo build --release --manifest-path $(top_srcdir)/mijit-bee/Cargo.toml
