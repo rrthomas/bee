@@ -36,9 +36,9 @@
 
 
 // Stack access
-#define POPD(ptr)                                                        \
+#define POPD(ptr)                                                       \
     THROW_IF_ERROR(bee_pop_stack(bee_R(d0), bee_R(dsize), &bee_R(dp), ptr))
-#define PUSHD(val)                                                       \
+#define PUSHD(val)                                                      \
     THROW_IF_ERROR(bee_push_stack(bee_R(d0), bee_R(dsize), &bee_R(dp), val))
 
 #define POPS(ptr)                                                       \
