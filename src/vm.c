@@ -472,10 +472,8 @@ bee_word_t bee_run(void)
                     case BEE_INSN_DUPS:
                         if (bee_R(sp) == 0)
                             THROW(BEE_ERROR_STACK_UNDERFLOW);
-                        else {
-                            bee_word_t value = bee_R(s0)[bee_R(sp) - 1];
-                            PUSHD(value);
-                        }
+                        else
+                            PUSHD(bee_R(s0)[bee_R(sp) - 1]);
                         break;
                     case BEE_INSN_CATCH:
                         {
