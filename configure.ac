@@ -9,7 +9,15 @@
 # THIS PROGRAM IS PROVIDED AS IS, WITH NO WARRANTY. USE IS AT THE USER’S
 # RISK.
 
-AC_INIT(Bee, 1.0, rrt@sc3d.org)
+# Make inter-release version strings look like, e.g., v6.9-219-g58ddd, which
+# indicates that it is built from the 219th delta (in _some_ repository)
+# following the v6.9 tag, and that 58ddd is a prefix of the commit SHA1.
+# The explicit URL can be removed when autoconf > 2.69 is released.
+AC_INIT([Bee],
+        m4_esyscmd([build-aux/git-version-gen .tarball-version]),
+        [rrt@sc3d.org],
+        [bee],
+        [https://github.com/rrthomas/bee/])
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 

@@ -22,6 +22,7 @@ TAGS
 /stamp-h1
 /test-driver
 .gdb_history
+.version
 /mijit-bee/Cargo.lock
 /mijit-bee/target
 **/*.rs.bk
