@@ -91,6 +91,7 @@ gl_INIT
 # Check features
 AC_C_BIGENDIAN
 AC_CHECK_SIZEOF([intptr_t]) # word_bytes
+AC_CHECK_SIZEOF([off_t])
 SIZEOF_INTPTR_T=$ac_cv_sizeof_intptr_t
 AS_IF([test "$SIZEOF_INTPTR_T" != 4 -a "$SIZEOF_INTPTR_T" != 8],
    AC_MSG_ERROR([sizeof(intptr_t) must be 4 or 8!]))
