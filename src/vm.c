@@ -12,6 +12,9 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
+
+#include "verify.h"
 
 #include "bee/bee.h"
 #include "bee/opcodes.h"
@@ -22,6 +25,9 @@
 
 #include "private.h"
 
+
+// Basic assumption: a byte is 8 bits
+verify(CHAR_BIT == 8);
 
 // JIT compiler
 

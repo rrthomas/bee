@@ -23,28 +23,27 @@ int main(void)
     bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
     bee_init_defaults(m0);
 
-    int BYTE_BIT = 8;
     bee_word_t BOTTOM_BYTE_SET = 0xffUL;
-    bee_word_t SECOND_BYTE_SET = LSHIFT(0xffUL, BYTE_BIT);
-    bee_word_t PENULTIMATE_BYTE_SET = LSHIFT(0xffUL, BEE_WORD_BIT - 2 * BYTE_BIT);
-    bee_word_t TOP_BYTE_SET = LSHIFT(-1, BEE_WORD_BIT - BYTE_BIT);
+    bee_word_t SECOND_BYTE_SET = LSHIFT(0xffUL, CHAR_BIT);
+    bee_word_t PENULTIMATE_BYTE_SET = LSHIFT(0xffUL, BEE_WORD_BIT - 2 * CHAR_BIT);
+    bee_word_t TOP_BYTE_SET = LSHIFT(-1, BEE_WORD_BIT - CHAR_BIT);
 
     ass_goto(m0);
 
-    pushi(BYTE_BIT);
-    correct[steps++] = xasprintf("%d", BYTE_BIT);
+    pushi(CHAR_BIT);
+    correct[steps++] = xasprintf("%d", CHAR_BIT);
     pushi(TOP_BYTE_SET);
-    correct[steps++] = xasprintf("%d %zd", BYTE_BIT, TOP_BYTE_SET);
+    correct[steps++] = xasprintf("%d %zd", CHAR_BIT, TOP_BYTE_SET);
     pushi(BOTTOM_BYTE_SET);
-    correct[steps++] = xasprintf("%d %zd %zd", BYTE_BIT, TOP_BYTE_SET, BOTTOM_BYTE_SET);
-    pushi(BYTE_BIT);
-    correct[steps++] = xasprintf("%d %zd %zd %d", BYTE_BIT, TOP_BYTE_SET, BOTTOM_BYTE_SET, BYTE_BIT);
+    correct[steps++] = xasprintf("%d %zd %zd", CHAR_BIT, TOP_BYTE_SET, BOTTOM_BYTE_SET);
+    pushi(CHAR_BIT);
+    correct[steps++] = xasprintf("%d %zd %zd %d", CHAR_BIT, TOP_BYTE_SET, BOTTOM_BYTE_SET, CHAR_BIT);
     ass(BEE_INSN_LSHIFT);
-    correct[steps++] = xasprintf("%d %zd %zd", BYTE_BIT, TOP_BYTE_SET, SECOND_BYTE_SET);
+    correct[steps++] = xasprintf("%d %zd %zd", CHAR_BIT, TOP_BYTE_SET, SECOND_BYTE_SET);
     pushi(1);
-    correct[steps++] = xasprintf("%d %zd %zd %d", BYTE_BIT, TOP_BYTE_SET, SECOND_BYTE_SET, 1);
+    correct[steps++] = xasprintf("%d %zd %zd %d", CHAR_BIT, TOP_BYTE_SET, SECOND_BYTE_SET, 1);
     ass(BEE_INSN_SWAP);
-    correct[steps++] = xasprintf("%zd %zd %d", SECOND_BYTE_SET, TOP_BYTE_SET, BYTE_BIT);
+    correct[steps++] = xasprintf("%zd %zd %d", SECOND_BYTE_SET, TOP_BYTE_SET, CHAR_BIT);
     ass(BEE_INSN_RSHIFT);
     correct[steps++] = xasprintf("%zd %zd", SECOND_BYTE_SET, PENULTIMATE_BYTE_SET);
     ass(BEE_INSN_OR);
