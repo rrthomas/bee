@@ -25,13 +25,13 @@ typedef uintptr_t bee_uword_t;
 #define BEE_WORD_MIN INTPTR_MIN
 #define BEE_UWORD_MAX UINTPTR_MAX
 
-// VM registers
+// VM state
+typedef struct bee_state {
 #define R(reg, type)                            \
     type reg;
-extern struct bee_registers {
 #include <bee/registers.h>
-} bee_R;
 #undef R
+} bee_state;
 
 // Error codes
 enum {
@@ -53,10 +53,10 @@ int bee_push_stack(bee_word_t *s0, bee_uword_t ssize, bee_uword_t *sp, bee_word_
 #define BEE_DEFAULT_STACK_SIZE   4096
 
 // Miscellaneous routines
-bee_word_t bee_run(void);
-int bee_init(bee_word_t *pc, bee_uword_t stack_size, bee_uword_t return_stack_size);
-int bee_init_defaults(bee_word_t *pc);
-void bee_destroy(void);
+bee_word_t bee_run(bee_state * restrict S);
+bee_state *bee_init(bee_word_t *pc, bee_uword_t stack_size, bee_uword_t return_stack_size);
+bee_state *bee_init_defaults(bee_word_t *pc);
+void bee_destroy(bee_state * restrict S);
 void bee_register_args(int argc, const char *argv[]);
 
 

@@ -15,7 +15,7 @@ int main(void)
 {
     size_t size = 256;
     bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
-    bee_init_defaults(m0);
+    bee_state *S = bee_init_defaults(m0);
 
     ass_goto(m0);
 
@@ -23,17 +23,17 @@ int main(void)
     for (bee_uword_t i = 0; i < steps; i++) {
         // Assemble the test as we go!
         ass(BEE_INSN_WORD_BYTES);
-        printf("pc = %p\n", bee_R.pc);
-        assert(single_step() == BEE_ERROR_BREAK);
+        printf("pc = %p\n", S->pc);
+        assert(single_step(S) == BEE_ERROR_BREAK);
     }
 
     bee_word_t *final_PC = m0 + steps;
-    printf("bee_R.pc should now be %p\n", final_PC);
-    if (bee_R.pc != final_PC) {
-        printf("Error in single_step() tests: pc = %p\n", bee_R.pc);
+    printf("S->pc should now be %p\n", final_PC);
+    if (S->pc != final_PC) {
+        printf("Error in single_step(S) tests: pc = %p\n", S->pc);
         exit(1);
     }
 
-    printf("single_step() tests ran OK\n");
+    printf("single_step(S) tests ran OK\n");
     return 0;
 }

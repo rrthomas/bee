@@ -215,7 +215,9 @@ int main(int argc, char *argv[])
 
     if ((memory = (bee_word_t *)calloc(memory_size, BEE_WORD_BYTES)) == NULL)
         die("could not allocate %zu words of memory", memory_size);
-    bee_init(memory, stack_size, return_stack_size);
+    bee_state * restrict S = bee_init(memory, stack_size, return_stack_size);
+    if (S == NULL)
+        die("could not allocate Bee state");
 
     argc -= optind;
     if (argc < 1) {
@@ -231,8 +233,8 @@ int main(int argc, char *argv[])
         die("could not read file %s, or file is invalid", argv[optind]);
 
     if (gdb_target == true) {
-        gdb_run();
+        gdb_run(S);
         exit(EXIT_SUCCESS);
     } else
-        return bee_run();
+        return bee_run(S);
 }

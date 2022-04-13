@@ -37,14 +37,14 @@
 
 // Stack access
 #define POPD(ptr)                                                       \
-    THROW_IF_ERROR(bee_pop_stack(bee_R.d0, bee_R.dsize, &bee_R.dp, ptr))
+    THROW_IF_ERROR(bee_pop_stack(S->d0, S->dsize, &S->dp, ptr))
 #define PUSHD(val)                                                      \
-    THROW_IF_ERROR(bee_push_stack(bee_R.d0, bee_R.dsize, &bee_R.dp, val))
+    THROW_IF_ERROR(bee_push_stack(S->d0, S->dsize, &S->dp, val))
 
 #define POPS(ptr)                                                       \
-    THROW_IF_ERROR(bee_pop_stack(bee_R.s0, bee_R.ssize, &bee_R.sp, ptr))
+    THROW_IF_ERROR(bee_pop_stack(S->s0, S->ssize, &S->sp, ptr))
 #define PUSHS(val)                                                      \
-    THROW_IF_ERROR(bee_push_stack(bee_R.s0, bee_R.ssize, &bee_R.sp, val))
+    THROW_IF_ERROR(bee_push_stack(S->s0, S->ssize, &S->sp, val))
 
 
 // Memory access
@@ -76,13 +76,13 @@
 
 
 // Traps
-bee_word_t trap(bee_word_t code);
-bee_word_t trap_libc(void);
+bee_word_t trap(bee_state * restrict S, bee_word_t code);
+bee_word_t trap_libc(bee_state * restrict S);
 
 
 // GDB remote protocol stub
 int gdb_init(int gdb_fdin, int gdb_fdout);
-void gdb_run(void);
+void gdb_run(bee_state * restrict S);
 
 
 // Jit compiler

@@ -21,7 +21,7 @@ int main(void)
 
     size_t size = 256;
     bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
-    bee_init_defaults(m0);
+    bee_state *S = bee_init_defaults(m0);
 
     bee_word_t BOTTOM_BYTE_SET = 0xffUL;
     bee_word_t SECOND_BYTE_SET = LSHIFT(0xffUL, CHAR_BIT);
@@ -60,12 +60,12 @@ int main(void)
     correct[steps++] = xasprintf("%zd", ~(SECOND_BYTE_SET | PENULTIMATE_BYTE_SET) & -1025);
 
     for (size_t i = 0; i < steps; i++) {
-        printf("Instruction = %s\n", disass(*bee_R.pc, bee_R.pc));
-        assert(single_step() == BEE_ERROR_BREAK);
-        show_data_stack();
+        printf("Instruction = %s\n", disass(*S->pc, S->pc));
+        assert(single_step(S) == BEE_ERROR_BREAK);
+        show_data_stack(S);
         printf("Correct stack: %s\n\n", correct[i]);
-        if (strcmp(correct[i], val_data_stack())) {
-            printf("Error in logic tests: pc = %p\n", bee_R.pc);
+        if (strcmp(correct[i], val_data_stack(S))) {
+            printf("Error in logic tests: pc = %p\n", S->pc);
             exit(1);
         }
         free(correct[i]);

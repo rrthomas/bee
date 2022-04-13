@@ -17,8 +17,8 @@ int main(void)
     size_t size = 1024;
     bee_word_t *ptr = (bee_word_t *)malloc(size);
     assert(ptr);
-    int i = bee_init_defaults(ptr);
-    if (i != 0) {
+    bee_state *S = bee_init_defaults(ptr);
+    if (S == NULL) {
         printf("Error in bee_init_defaults() tests: init with valid parameters failed\n");
         exit(1);
     }

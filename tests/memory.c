@@ -19,10 +19,10 @@ int main(void)
 
     size_t size = 4096;
     bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
-    bee_init_defaults(m0);
+    bee_state *S = bee_init_defaults(m0);
 
     // Naturally bee_uword_t, but must be printed as bee_word_t for comparison with
-    // output of val_data_stack().
+    // output of val_data_stack(S).
     bee_word_t *MEND = m0 + size;
     bee_word_t *LAST_WORD = MEND - 1;
     bee_word_t MAGIC_NUMBER = 0xf201;
@@ -90,12 +90,12 @@ int main(void)
     correct[steps++] = xasprintf("%d", 0);
 
     for (size_t i = 0; i < steps; i++) {
-        printf("Instruction = %s\n", disass(*bee_R.pc, bee_R.pc));
-        assert(single_step() == BEE_ERROR_BREAK);
-        show_data_stack();
+        printf("Instruction = %s\n", disass(*S->pc, S->pc));
+        assert(single_step(S) == BEE_ERROR_BREAK);
+        show_data_stack(S);
         printf("Correct stack: %s\n\n", correct[i]);
-        if (strcmp(correct[i], val_data_stack())) {
-            printf("Error in memory tests: pc = %p\n", bee_R.pc);
+        if (strcmp(correct[i], val_data_stack(S))) {
+            printf("Error in memory tests: pc = %p\n", S->pc);
             exit(1);
         }
         free(correct[i]);

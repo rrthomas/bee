@@ -36,11 +36,6 @@ mijit_bee_jit *bee_jit;
 #endif
 
 
-// VM registers
-
-struct bee_registers bee_R;
-
-
 // Stacks
 
 inline int bee_pop_stack(bee_word_t *s0, bee_uword_t ssize, bee_uword_t *sp, bee_word_t *val_ptr)
@@ -65,45 +60,47 @@ inline int bee_push_stack(bee_word_t *s0, bee_uword_t ssize, bee_uword_t *sp, be
 
 
 // Initialise VM state.
-int bee_init(bee_word_t *pc, bee_uword_t ssize, bee_uword_t dsize)
+bee_state *bee_init(bee_word_t *pc, bee_uword_t ssize, bee_uword_t dsize)
 {
-    bee_R.pc = pc;
-    bee_R.dp = 0;
+    bee_state * restrict S = (bee_state *)calloc(1, sizeof(bee_state));
+    if (S == NULL)
+        return NULL;
 
-    bee_R.dsize = dsize;
-    bee_R.d0 = (bee_word_t *)calloc(bee_R.dsize, BEE_WORD_BYTES);
-    if (bee_R.d0 != NULL) {
-        bee_R.handler_sp = bee_R.sp = 0;
-        bee_R.ssize = ssize;
-        bee_R.s0 = (bee_word_t *)calloc(bee_R.ssize, BEE_WORD_BYTES);
-        if (bee_R.s0 != NULL) {
+    S->pc = pc;
+    S->dsize = dsize;
+    S->d0 = (bee_word_t *)calloc(S->dsize, BEE_WORD_BYTES);
+    if (S->d0 != NULL) {
+        S->ssize = ssize;
+        S->s0 = (bee_word_t *)calloc(S->ssize, BEE_WORD_BYTES);
+        if (S->s0 != NULL) {
 #ifdef HAVE_MIJIT
             bee_jit = mijit_bee_new();
             if (bee_jit != NULL)
-                return 0;
+                return S;
 #else
-            return 0;
+            return S;
 #endif
         }
-        free(bee_R.s0);
+        free(S->s0);
     }
 
-    free(bee_R.d0);
-    return -1;
+    free(S->d0);
+    return NULL;
 }
 
-int bee_init_defaults(bee_word_t *pc)
+bee_state *bee_init_defaults(bee_word_t *pc)
 {
     return bee_init(pc, BEE_DEFAULT_STACK_SIZE, BEE_DEFAULT_STACK_SIZE);
 }
 
-void bee_destroy(void)
+void bee_destroy(bee_state * restrict S)
 {
 #ifdef HAVE_MIJIT
     mijit_bee_drop(bee_jit);
 #endif
-    free(bee_R.s0);
-    free(bee_R.d0);
+    free(S->s0);
+    free(S->d0);
+    free(S);
 }
 
 
@@ -118,54 +115,54 @@ void bee_destroy(void)
 
 
 // Execution function
-bee_word_t bee_run(void)
+bee_word_t bee_run(bee_state * restrict S)
 {
     bee_word_t error = BEE_ERROR_OK;
 
     for (;;) {
 #ifdef HAVE_MIJIT
-        mijit_bee_run(bee_jit, (mijit_bee_registers *)(void *)&bee_R);
+        mijit_bee_run(bee_jit, (mijit_bee_registers *)S);
 #endif
 
-        bee_word_t ir = *bee_R.pc++;
+        bee_word_t ir = *S->pc++;
 
         switch (ir & BEE_OP1_MASK) {
         case BEE_OP_CALLI:
             {
-                PUSHS((bee_uword_t)bee_R.pc);
-                bee_word_t *addr = (bee_R.pc - 1) + ARSHIFT(ir, BEE_OP1_SHIFT);
+                PUSHS((bee_uword_t)S->pc);
+                bee_word_t *addr = (S->pc - 1) + ARSHIFT(ir, BEE_OP1_SHIFT);
                 CHECK_ALIGNED(addr);
-                bee_R.pc = addr;
+                S->pc = addr;
             }
             break;
         case BEE_OP_PUSHI:
             PUSHD(ARSHIFT(ir, BEE_OP1_SHIFT));
             break;
         case BEE_OP_PUSHRELI:
-            PUSHD((bee_uword_t)((bee_R.pc - 1) + ARSHIFT(ir, BEE_OP1_SHIFT)));
+            PUSHD((bee_uword_t)((S->pc - 1) + ARSHIFT(ir, BEE_OP1_SHIFT)));
             break;
         default:
             switch (ir & BEE_OP2_MASK) {
             case BEE_OP_JUMPI:
                 {
-                    bee_word_t *addr = (bee_R.pc - 1) + ARSHIFT(ir, BEE_OP2_SHIFT);
+                    bee_word_t *addr = (S->pc - 1) + ARSHIFT(ir, BEE_OP2_SHIFT);
                     CHECK_ALIGNED(addr);
-                    bee_R.pc = addr;
+                    S->pc = addr;
                 }
                 break;
             case BEE_OP_JUMPZI:
                 {
-                    bee_word_t *addr = (bee_R.pc - 1) + ARSHIFT(ir, BEE_OP2_SHIFT);
+                    bee_word_t *addr = (S->pc - 1) + ARSHIFT(ir, BEE_OP2_SHIFT);
                     bee_word_t flag;
                     POPD(&flag);
                     if (flag == 0) {
                         CHECK_ALIGNED(addr);
-                        bee_R.pc = addr;
+                        S->pc = addr;
                     }
                 }
                 break;
             case BEE_OP_TRAP:
-                THROW_IF_ERROR(trap((bee_uword_t)ir >> BEE_OP2_SHIFT));
+                THROW_IF_ERROR(trap(S, (bee_uword_t)ir >> BEE_OP2_SHIFT));
                 break;
             case BEE_OP_INSN:
                 {
@@ -229,18 +226,18 @@ bee_word_t bee_run(void)
                         }
                         break;
                     case BEE_INSN_POP:
-                        if (bee_R.dp == 0)
+                        if (S->dp == 0)
                             THROW(BEE_ERROR_STACK_UNDERFLOW);
-                        bee_R.dp--;
+                        S->dp--;
                         break;
                     case BEE_INSN_DUP:
                         {
                             bee_uword_t depth;
                             POPD((bee_word_t *)&depth);
-                            if (depth >= bee_R.dp)
+                            if (depth >= S->dp)
                                 THROW(BEE_ERROR_STACK_UNDERFLOW);
                             else
-                                PUSHD(bee_R.d0[bee_R.dp - (depth + 1)]);
+                                PUSHD(S->d0[S->dp - (depth + 1)]);
                         }
                         break;
                     case BEE_INSN_SET:
@@ -249,22 +246,22 @@ bee_word_t bee_run(void)
                             POPD((bee_word_t *)&depth);
                             bee_word_t value;
                             POPD(&value);
-                            if (depth >= bee_R.dp)
+                            if (depth >= S->dp)
                                 THROW(BEE_ERROR_STACK_UNDERFLOW);
                             else
-                                bee_R.d0[bee_R.dp - (depth + 1)] = value;
+                                S->d0[S->dp - (depth + 1)] = value;
                         }
                         break;
                     case BEE_INSN_SWAP:
                         {
                             bee_uword_t depth;
                             POPD((bee_word_t *)&depth);
-                            if (bee_R.dp == 0 || depth >= bee_R.dp - 1)
+                            if (S->dp == 0 || depth >= S->dp - 1)
                                 THROW(BEE_ERROR_STACK_UNDERFLOW);
                             else {
-                                bee_word_t temp = bee_R.d0[bee_R.dp - (depth + 2)];
-                                bee_R.d0[bee_R.dp - (depth + 2)] = bee_R.d0[bee_R.dp - 1];
-                                bee_R.d0[bee_R.dp - 1] = temp;
+                                bee_word_t temp = S->d0[S->dp - (depth + 2)];
+                                S->d0[S->dp - (depth + 2)] = S->d0[S->dp - 1];
+                                S->d0[S->dp - 1] = temp;
                             }
                         }
                         break;
@@ -273,7 +270,7 @@ bee_word_t bee_run(void)
                             bee_word_t *addr;
                             POPD((bee_word_t *)&addr);
                             CHECK_ALIGNED(addr);
-                            bee_R.pc = addr;
+                            S->pc = addr;
                         }
                         break;
                     case BEE_INSN_JUMPZ:
@@ -284,7 +281,7 @@ bee_word_t bee_run(void)
                             POPD(&flag);
                             if (flag == 0) {
                                 CHECK_ALIGNED(addr);
-                                bee_R.pc = addr;
+                                S->pc = addr;
                             }
                         }
                         break;
@@ -293,8 +290,8 @@ bee_word_t bee_run(void)
                             bee_word_t *addr;
                             POPD((bee_word_t *)&addr);
                             CHECK_ALIGNED(addr);
-                            PUSHS((bee_uword_t)bee_R.pc);
-                            bee_R.pc = addr;
+                            PUSHS((bee_uword_t)S->pc);
+                            S->pc = addr;
                         }
                         break;
                     case BEE_INSN_RET:
@@ -302,11 +299,11 @@ bee_word_t bee_run(void)
                             bee_word_t *addr;
                             POPS((bee_word_t *)&addr);
                             CHECK_ALIGNED(addr);
-                            if (bee_R.sp < bee_R.handler_sp) {
-                                POPS((bee_word_t *)&bee_R.handler_sp);
+                            if (S->sp < S->handler_sp) {
+                                POPS((bee_word_t *)&S->handler_sp);
                                 PUSHD(0);
                             }
-                            bee_R.pc = addr;
+                            S->pc = addr;
                         }
                         break;
                     case BEE_INSN_LOAD:
@@ -470,62 +467,62 @@ bee_word_t bee_run(void)
                         }
                         break;
                     case BEE_INSN_DUPS:
-                        if (bee_R.sp == 0)
+                        if (S->sp == 0)
                             THROW(BEE_ERROR_STACK_UNDERFLOW);
                         else
-                            PUSHD(bee_R.s0[bee_R.sp - 1]);
+                            PUSHD(S->s0[S->sp - 1]);
                         break;
                     case BEE_INSN_CATCH:
                         {
                             bee_word_t *addr;
                             POPD((bee_word_t *)&addr);
                             CHECK_ALIGNED(addr);
-                            PUSHS(bee_R.handler_sp);
-                            PUSHS((bee_uword_t)bee_R.pc);
-                            bee_R.handler_sp = bee_R.sp;
-                            bee_R.pc = addr;
+                            PUSHS(S->handler_sp);
+                            PUSHS((bee_uword_t)S->pc);
+                            S->handler_sp = S->sp;
+                            S->pc = addr;
                         }
                         break;
                     case BEE_INSN_THROW:
                         {
-                            if (bee_R.dp < 1)
+                            if (S->dp < 1)
                                 error = BEE_ERROR_STACK_UNDERFLOW;
                             else
                                 POPD(&error);
                         error:
-                            if (bee_R.handler_sp == 0)
+                            if (S->handler_sp == 0)
                                 return error;
                             // Don't push error code if the stack is full.
-                            if (bee_R.dp < bee_R.dsize)
-                                bee_R.d0[bee_R.dp++] = error;
-                            bee_R.sp = bee_R.handler_sp;
+                            if (S->dp < S->dsize)
+                                S->d0[S->dp++] = error;
+                            S->sp = S->handler_sp;
                             bee_word_t *addr;
                             POPS((bee_word_t *)&addr);
-                            POPS((bee_word_t *)&bee_R.handler_sp);
-                            bee_R.pc = addr;
+                            POPS((bee_word_t *)&S->handler_sp);
+                            S->pc = addr;
                         }
                         break;
                     case BEE_INSN_BREAK:
-                        bee_R.pc--;
+                        S->pc--;
                         return BEE_ERROR_BREAK;
                     case BEE_INSN_WORD_BYTES:
                         PUSHD(BEE_WORD_BYTES);
                         break;
                     case BEE_INSN_GET_SSIZE:
-                        PUSHD(bee_R.ssize);
+                        PUSHD(S->ssize);
                         break;
                     case BEE_INSN_GET_SP:
-                        PUSHD(bee_R.sp);
+                        PUSHD(S->sp);
                         break;
                     case BEE_INSN_SET_SP:
-                        POPD((bee_word_t *)&bee_R.sp);
+                        POPD((bee_word_t *)&S->sp);
                         break;
                     case BEE_INSN_GET_DSIZE:
-                        PUSHD(bee_R.dsize);
+                        PUSHD(S->dsize);
                         break;
                     case BEE_INSN_GET_DP:
                         {
-                            bee_word_t value = bee_R.dp;
+                            bee_word_t value = S->dp;
                             PUSHD(value);
                         }
                         break;
@@ -533,11 +530,11 @@ bee_word_t bee_run(void)
                         {
                             bee_word_t value;
                             POPD(&value);
-                            bee_R.dp = value;
+                            S->dp = value;
                         }
                         break;
                     case BEE_INSN_GET_HANDLER_SP:
-                        PUSHD(bee_R.handler_sp);
+                        PUSHD(S->handler_sp);
                         break;
                     default:
                         THROW(BEE_ERROR_INVALID_OPCODE);

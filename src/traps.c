@@ -16,13 +16,13 @@
 #include "traps.h"
 
 
-bee_word_t trap(bee_word_t code)
+bee_word_t trap(bee_state * restrict S, bee_word_t code)
 {
     int error = BEE_ERROR_OK;
 
     switch (code) {
     case TRAP_LIBC:
-        return trap_libc();
+        return trap_libc(S);
     default:
         return BEE_ERROR_INVALID_LIBRARY;
     }

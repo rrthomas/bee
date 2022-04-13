@@ -200,25 +200,25 @@ _GL_ATTRIBUTE_PURE uint8_t toass(const char *token)
     return BEE_INSN_UNDEFINED;
 }
 
-static char *_val_data_stack(bool with_hex)
+static char *_val_data_stack(bee_state * restrict S, bool with_hex)
 {
     static char *picture = NULL;
 
     free(picture);
     picture = xasprintf("%s", "");
-    if (bee_R.dp > bee_R.dsize) {
+    if (S->dp > S->dsize) {
         picture = xasprintf("%s", "stack overflow");
     } else
-        for (bee_uword_t i = 0; i < bee_R.dp; i++) {
-            char *ptr = xasprintf("%s%zd", picture, bee_R.d0[i]);
+        for (bee_uword_t i = 0; i < S->dp; i++) {
+            char *ptr = xasprintf("%s%zd", picture, S->d0[i]);
             free(picture);
             picture = ptr;
             if (with_hex) {
-                ptr = xasprintf("%s ($%zx) ", picture, (bee_uword_t)bee_R.d0[i]);
+                ptr = xasprintf("%s ($%zx) ", picture, (bee_uword_t)S->d0[i]);
                 free(picture);
                 picture = ptr;
             }
-            if (i != bee_R.dp - 1) {
+            if (i != S->dp - 1) {
                 ptr = xasprintf("%s ", picture);
                 free(picture);
                 picture = ptr;
@@ -228,31 +228,31 @@ static char *_val_data_stack(bool with_hex)
     return picture;
 }
 
-char *val_data_stack(void)
+char *val_data_stack(bee_state * restrict S)
 {
-    return _val_data_stack(false);
+    return _val_data_stack(S, false);
 }
 
-void show_data_stack(void)
+void show_data_stack(bee_state * restrict S)
 {
-    if (bee_R.dp == 0)
+    if (S->dp == 0)
         printf("Data stack empty\n");
-    else if (bee_R.dp > bee_R.dsize)
+    else if (S->dp > S->dsize)
         printf("Data stack overflow\n");
     else
-        printf("Data stack: %s\n", _val_data_stack(true));
+        printf("Data stack: %s\n", _val_data_stack(S, true));
 }
 
-void show_return_stack(void)
+void show_return_stack(bee_state * restrict S)
 {
-    if (bee_R.sp == 0)
+    if (S->sp == 0)
         printf("Return stack empty\n");
-    else if (bee_R.sp > bee_R.ssize)
+    else if (S->sp > S->ssize)
         printf("Return stack overflow\n");
     else {
         printf("Return stack: ");
-        for (bee_uword_t i = 0; i < bee_R.sp; i++)
-            printf("$%zx ", (bee_uword_t)bee_R.s0[i]);
+        for (bee_uword_t i = 0; i < S->sp; i++)
+            printf("$%zx ", (bee_uword_t)S->s0[i]);
         putchar('\n');
     }
 }
@@ -284,22 +284,22 @@ _GL_ATTRIBUTE_PURE const char *error_to_msg(int code)
 // Return value of pc after successful execution of the next instruction,
 // which may not be valid, or NULL if the new value of pc cannot be
 // computed.
-static bee_word_t *compute_next_PC(bee_word_t inst)
+static bee_word_t *compute_next_PC(bee_state * restrict S, bee_word_t inst)
 {
     switch (inst & BEE_OP1_MASK) {
     case BEE_OP_CALLI:
-        return bee_R.pc + ARSHIFT(inst, BEE_OP1_SHIFT);
+        return S->pc + ARSHIFT(inst, BEE_OP1_SHIFT);
     case BEE_OP_PUSHI:
     case BEE_OP_PUSHRELI:
-        return bee_R.pc + 1;
+        return S->pc + 1;
     default:
         switch (inst & BEE_OP2_MASK) {
         case BEE_OP_JUMPI:
         case BEE_OP_JUMPZI:
-            return bee_R.pc + ARSHIFT(inst, BEE_OP2_SHIFT);
+            return S->pc + ARSHIFT(inst, BEE_OP2_SHIFT);
             break;
         case BEE_OP_TRAP:
-            return bee_R.pc + 1;
+            return S->pc + 1;
             break;
         case BEE_OP_INSN:
             switch (inst >> BEE_OP2_SHIFT) {
@@ -342,25 +342,25 @@ static bee_word_t *compute_next_PC(bee_word_t inst)
             case BEE_INSN_GET_DP:
             case BEE_INSN_SET_DP:
             case BEE_INSN_GET_HANDLER_SP:
-                return bee_R.pc + 1;
+                return S->pc + 1;
             case BEE_INSN_JUMP:
             case BEE_INSN_CALL:
             case BEE_INSN_CATCH:
-                if (bee_R.dp < 1)
+                if (S->dp < 1)
                     return NULL;
-                return (bee_word_t *)(bee_R.d0[bee_R.dp - 1]);
+                return (bee_word_t *)(S->d0[S->dp - 1]);
             case BEE_INSN_JUMPZ:
-                if (bee_R.dp < 2)
+                if (S->dp < 2)
                     return NULL;
-                return bee_R.d0[bee_R.dp - 2] == 0 ? (bee_word_t *)bee_R.d0[bee_R.dp - 1] : bee_R.pc + 1;
+                return S->d0[S->dp - 2] == 0 ? (bee_word_t *)S->d0[S->dp - 1] : S->pc + 1;
             case BEE_INSN_RET:
-                if (bee_R.sp < 1)
+                if (S->sp < 1)
                     return NULL;
-                return (bee_word_t *)(bee_R.s0[bee_R.sp - 1] & ~1);
+                return (bee_word_t *)(S->s0[S->sp - 1] & ~1);
             case BEE_INSN_THROW:
-                if (bee_R.handler_sp < 2)
+                if (S->handler_sp < 2)
                     return NULL;
-                return (bee_word_t *)(bee_R.s0[bee_R.handler_sp - 1]);
+                return (bee_word_t *)(S->s0[S->handler_sp - 1]);
             case BEE_INSN_BREAK:
             default:
                 return NULL;
@@ -372,43 +372,43 @@ static bee_word_t *compute_next_PC(bee_word_t inst)
     }
 }
 
-bee_word_t single_step(void)
+bee_word_t single_step(bee_state * restrict S)
 {
     bee_word_t error = 0;
-    bee_word_t inst = *bee_R.pc, next_inst;
-    bee_word_t *next_PC = compute_next_PC(inst);
+    bee_word_t inst = *S->pc, next_inst;
+    bee_word_t *next_PC = compute_next_PC(S, inst);
     int next_PC_valid = next_PC != NULL && IS_ALIGNED(next_PC);
     if (next_PC_valid) {
         next_inst = *next_PC;
         *next_PC = (BEE_INSN_BREAK << BEE_OP2_SHIFT) | BEE_OP_INSN;
     }
-    bee_uword_t save_handler_sp = bee_R.handler_sp;
-    bee_R.handler_sp = 0;
-    error = bee_run();
+    bee_uword_t save_handler_sp = S->handler_sp;
+    S->handler_sp = 0;
+    error = bee_run(S);
     if (next_PC_valid) {
         *next_PC = next_inst;
         if (error == BEE_ERROR_BREAK)
-            bee_R.pc = next_PC;
+            S->pc = next_PC;
     }
-    // Restore bee_R.handler_sp if it wasn't set by CATCH
-    if (bee_R.handler_sp == 0)
-        bee_R.handler_sp = save_handler_sp;
+    // Restore S->handler_sp if it wasn't set by CATCH
+    if (S->handler_sp == 0)
+        S->handler_sp = save_handler_sp;
     // If there's a saved error handler, execute any actions that would have
     // been executed by `run()` had there been an error handler.
-    if (bee_R.handler_sp != 0) {
+    if (S->handler_sp != 0) {
         if (error != BEE_ERROR_BREAK || inst == ((BEE_INSN_THROW << BEE_OP2_SHIFT) | BEE_OP_INSN)) {
         // If an error occurred or THROW was performed, go to the error
         // handler.
-        if (bee_R.dp < bee_R.dsize)
-            bee_R.d0[bee_R.dp++] = error;
-        bee_R.sp = bee_R.handler_sp;
+        if (S->dp < S->dsize)
+            S->d0[S->dp++] = error;
+        S->sp = S->handler_sp;
         bee_uword_t addr;
         POPS((bee_word_t *)&addr);
-        POPS((bee_word_t *)&bee_R.handler_sp);
-        bee_R.pc = (bee_word_t *)(addr & ~1);
-        } else if (inst == ((BEE_INSN_RET << BEE_OP2_SHIFT) | BEE_OP_INSN) && bee_R.sp < bee_R.handler_sp) {
+        POPS((bee_word_t *)&S->handler_sp);
+        S->pc = (bee_word_t *)(addr & ~1);
+        } else if (inst == ((BEE_INSN_RET << BEE_OP2_SHIFT) | BEE_OP_INSN) && S->sp < S->handler_sp) {
             // Otherwise, if the last instruction was RET, pop an error handler if necessary.
-            POPS((bee_word_t *)&bee_R.handler_sp);
+            POPS((bee_word_t *)&S->handler_sp);
             PUSHD(0);
         }
     }

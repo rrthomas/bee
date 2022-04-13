@@ -16,8 +16,8 @@ int main(void)
 {
     size_t size = 256;
     bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
-    int i = bee_init_defaults(m0);
-    if (i != 0) {
+    bee_state *S = bee_init_defaults(m0);
+    if (S == NULL) {
         printf("Error in run() tests: init with valid parameters failed\n");
         exit(1);
     }
@@ -30,7 +30,7 @@ int main(void)
     ass(BEE_INSN_THROW);
     bee_word_t *final_PC = label();
 
-    bee_word_t ret = bee_run();
+    bee_word_t ret = bee_run(S);
 
     printf("Return value should be %d and is %zd\n", ret_code, ret);
     if (ret != ret_code) {
@@ -38,9 +38,9 @@ int main(void)
         exit(1);
     }
 
-    printf("bee_R.pc should now be %p\n", final_PC);
-    if (bee_R.pc != (bee_word_t *)final_PC) {
-        printf("Error in bee_run() tests: pc = %p\n", bee_R.pc);
+    printf("S->pc should now be %p\n", final_PC);
+    if (S->pc != (bee_word_t *)final_PC) {
+        printf("Error in bee_run() tests: pc = %p\n", S->pc);
         exit(1);
     }
 

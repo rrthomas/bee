@@ -173,7 +173,7 @@ static unsigned sigval;
 
 // Process GDB commands until told to continue or exit
 // Returns 1 for 'continue' and 0 for 'exit'
-static int handle_exception(void)
+static int handle_exception(bee_state * restrict S)
 {
     for (;;) {
         bee_uword_t addr, length = 0;
@@ -194,14 +194,14 @@ static int handle_exception(void)
 
         case 'g': // return the value of the CPU registers
 #define R(reg, type)                                                    \
-            out_ptr = mem_to_hex((uint8_t *)&bee_R.reg, out_ptr, BEE_WORD_BYTES);
+            out_ptr = mem_to_hex((uint8_t *)&S->reg, out_ptr, BEE_WORD_BYTES);
 #include "bee/registers.h"
 #undef R
             break;
 
         case 'G': // set the value of the CPU registers, return OK
 #define R(reg, type)                                                    \
-            in_ptr = hex_to_mem(in_ptr, (uint8_t *)&bee_R.reg, BEE_WORD_BYTES);
+            in_ptr = hex_to_mem(in_ptr, (uint8_t *)&S->reg, BEE_WORD_BYTES);
 #include "bee/registers.h"
 #undef R
             strcpy(out_ptr, "OK");
@@ -234,7 +234,7 @@ static int handle_exception(void)
         case 'c': // cAA..AA    Continue at address AA..AA (optional)
             // If no parameter, pc is unchanged
             if (hex_to_int(&in_ptr, &addr))
-                bee_R.pc = (bee_word_t *)addr;
+                S->pc = (bee_word_t *)addr;
             return 1;
 
         case 'k': // Kill the program
@@ -250,12 +250,12 @@ static int handle_exception(void)
 }
 
 // GDB event loop.
-void gdb_run(void)
+void gdb_run(bee_state * restrict S)
 {
     while (1) {
-        if (!handle_exception())
+        if (!handle_exception(S))
             break;
-        int error = bee_run();
+        int error = bee_run(S);
         if (error == 0)
             return;
         sigval = error_to_signal(error);

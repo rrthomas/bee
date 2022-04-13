@@ -43,7 +43,7 @@ void bee_register_args(int argc, const char *argv[])
 }
 
 
-bee_word_t trap_libc(void)
+bee_word_t trap_libc(bee_state * restrict S)
 {
     int error = BEE_ERROR_OK;
     bee_word_t temp = 0;

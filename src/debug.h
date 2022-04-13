@@ -27,8 +27,8 @@ bee_word_t *label(void);	// return address of bee_word_t currently being assembl
 const char *disass(bee_word_t opcode, bee_word_t *addr);  // disassemble an instruction
 uint8_t toass(const char *token);    // convert a instruction to its opcode
 
-char *val_data_stack(void); // return the current data stack as a string
-void show_data_stack(void); // show the current contents of the data stack
-void show_return_stack(void);	// show the current contents of the return stack
+char *val_data_stack(bee_state * restrict S); // return the current data stack as a string
+void show_data_stack(bee_state * restrict S); // show the current contents of the data stack
+void show_return_stack(bee_state * restrict S);	// show the current contents of the return stack
 const char *error_to_msg(int code);	// translate error code to message
-bee_word_t single_step(void); // single step
+bee_word_t single_step(bee_state * restrict S); // single step

@@ -22,7 +22,7 @@ int main(void)
 
     size_t size = 256;
     bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
-    bee_init_defaults(m0);
+    bee_state *S = bee_init_defaults(m0);
 
     ass_goto(m0);
     pushi(1);
@@ -61,12 +61,12 @@ int main(void)
     correct[steps++] = xasprintf("1 1");
 
     for (size_t i = 0; i < steps; i++) {
-        printf("Instruction = %s\n", disass(*bee_R.pc, bee_R.pc));
-        assert(single_step() == BEE_ERROR_BREAK);
-        show_data_stack();
+        printf("Instruction = %s\n", disass(*S->pc, S->pc));
+        assert(single_step(S) == BEE_ERROR_BREAK);
+        show_data_stack(S);
         printf("Correct stack: %s\n\n", correct[i]);
-        if (strcmp(correct[i], val_data_stack())) {
-            printf("Error in arithmetic tests: pc = %p\n", bee_R.pc);
+        if (strcmp(correct[i], val_data_stack(S))) {
+            printf("Error in arithmetic tests: pc = %p\n", S->pc);
             exit(1);
         }
         free(correct[i]);
