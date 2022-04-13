@@ -508,6 +508,8 @@ bee_word_t bee_run(bee_state * restrict S)
                             bee_word_t *addr;
                             POPS((bee_word_t *)&addr);
                             POPS((bee_word_t *)&S->handler_sp);
+                            // If this check fails, we will pop the next handler.
+                            CHECK_ALIGNED(addr);
                             S->pc = addr;
                         }
                         break;
