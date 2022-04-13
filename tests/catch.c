@@ -19,18 +19,19 @@ int main(void)
     setbuf(stdout, NULL);
 
     size_t size = 1024;
-    bee_init_defaults((bee_word_t *)calloc(size, BEE_WORD_BYTES), size);
+    bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
+    bee_init_defaults(m0);
 
-    ass_goto(bee_R(m0));
+    ass_goto(m0);
     pushi(8);
     correct[steps++] = xasprintf("%d", 8);
     pushi(5);
     correct[steps++] = xasprintf("%d %d", 8, 5);
-    pushreli(bee_R(m0) + 0x200 / BEE_WORD_BYTES);
-    correct[steps++] = xasprintf("%d %d %zd", 8, 5, (bee_word_t)(bee_R(m0) + 0x200 / BEE_WORD_BYTES));
+    pushreli(m0 + 0x200 / BEE_WORD_BYTES);
+    correct[steps++] = xasprintf("%d %d %zd", 8, 5, (bee_word_t)(m0 + 0x200 / BEE_WORD_BYTES));
     ass(BEE_INSN_CATCH);
     bee_word_t *ret_addr = label();
-    ass_goto(bee_R(m0) + 0x200 / BEE_WORD_BYTES);
+    ass_goto(m0 + 0x200 / BEE_WORD_BYTES);
 
     correct[steps++] = xasprintf("%d %d", 8, 5);
     ass(BEE_INSN_DIVMOD);
@@ -39,12 +40,12 @@ int main(void)
     correct[steps++] = xasprintf("%d %d %d", 1, 3, 0);
     ass_goto(ret_addr);
 
-    pushreli(bee_R(m0) + 0x400 / BEE_WORD_BYTES);
-    correct[steps++] = xasprintf("%d %d %d %zd", 1, 3, 0, (bee_word_t)(bee_R(m0) + 0x400 / BEE_WORD_BYTES));
+    pushreli(m0 + 0x400 / BEE_WORD_BYTES);
+    correct[steps++] = xasprintf("%d %d %d %zd", 1, 3, 0, (bee_word_t)(m0 + 0x400 / BEE_WORD_BYTES));
     ass(BEE_INSN_CATCH);
     correct[steps++] = xasprintf("%d %d %d", 1, 3, 0);
     ret_addr = label();
-    ass_goto(bee_R(m0) + 0x400 / BEE_WORD_BYTES);
+    ass_goto(m0 + 0x400 / BEE_WORD_BYTES);
 
     ass(BEE_INSN_UNDEFINED);
     ass_goto(ret_addr);
@@ -58,12 +59,12 @@ int main(void)
     correct[steps++] = xasprintf("%d", 1);
     ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
-    pushreli(bee_R(m0) + 0x600 / BEE_WORD_BYTES);
-    correct[steps++] = xasprintf("%zd", (bee_word_t)(bee_R(m0) + 0x600 / BEE_WORD_BYTES));
+    pushreli(m0 + 0x600 / BEE_WORD_BYTES);
+    correct[steps++] = xasprintf("%zd", (bee_word_t)(m0 + 0x600 / BEE_WORD_BYTES));
     ass(BEE_INSN_CATCH);
     correct[steps++] = xasprintf("%s", "");
     ret_addr = label();
-    ass_goto(bee_R(m0) + 0x600 / BEE_WORD_BYTES);
+    ass_goto(m0 + 0x600 / BEE_WORD_BYTES);
 
     pushi(BEE_ERROR_INVALID_OPCODE);
     correct[steps++] = xasprintf("%d", -1);

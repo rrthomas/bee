@@ -21,9 +21,10 @@ int main(void)
     unsigned steps = 0;
 
     size_t size = 256;
-    bee_init_defaults((bee_word_t *)calloc(size, BEE_WORD_BYTES), size);
+    bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
+    bee_init_defaults(m0);
 
-    ass_goto(bee_R(m0));
+    ass_goto(m0);
     pushi(1);
     correct[steps++] = xasprintf("1");
     ass(BEE_INSN_NEG);

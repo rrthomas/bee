@@ -21,8 +21,6 @@ static_assert(sizeof(intptr_t *) == 8);
 
 typedef struct mijit_bee_registers {
     intptr_t *pc;
-    intptr_t *m0;
-    uintptr_t msize;
     intptr_t *s0;
     uintptr_t ssize;
     uintptr_t sp;

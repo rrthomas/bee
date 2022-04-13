@@ -18,9 +18,10 @@ int main(void)
     unsigned steps = 0;
 
     size_t size = 1024;
-    bee_init_defaults((bee_word_t *)calloc(size, 1), size / BEE_WORD_BYTES);
+    bee_word_t *m0 = (bee_word_t *)calloc(size, 1);
+    bee_init_defaults(m0);
 
-    ass_goto(bee_R(m0));
+    ass_goto(m0);
     ass(BEE_INSN_GET_SSIZE);
     correct[steps++] = xasprintf("%zd", (bee_word_t)bee_R(ssize));
     ass(BEE_INSN_POP);

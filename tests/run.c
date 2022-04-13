@@ -15,13 +15,14 @@
 int main(void)
 {
     size_t size = 256;
-    int i = bee_init_defaults((bee_word_t *)calloc(size, BEE_WORD_BYTES), size);
+    bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
+    int i = bee_init_defaults(m0);
     if (i != 0) {
         printf("Error in run() tests: init with valid parameters failed\n");
         exit(1);
     }
 
-    ass_goto(bee_R(m0));
+    ass_goto(m0);
 
     int ret_code = 37;
     pushi(ret_code);

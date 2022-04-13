@@ -52,9 +52,10 @@ static void step(unsigned start, unsigned end)
 int main(void)
 {
     size_t size = 256;
-    bee_init_defaults((bee_word_t *)calloc(size, BEE_WORD_BYTES), size);
+    bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
+    bee_init_defaults(m0);
 
-    ass_goto(bee_R(m0));
+    ass_goto(m0);
     ass(BEE_INSN_LT); ass(BEE_INSN_LT); ass(BEE_INSN_LT); ass(BEE_INSN_LT);
     ass(BEE_INSN_EQ); ass(BEE_INSN_EQ);
     ass(BEE_INSN_ULT); ass(BEE_INSN_ULT); ass(BEE_INSN_ULT); ass(BEE_INSN_ULT);

@@ -21,10 +21,11 @@ int main(void)
     const char *argv[] = {"foo", "bard", "basilisk"};
 
     size_t size = 1024;
-    bee_init_defaults((bee_word_t *)calloc(size, BEE_WORD_BYTES), size);
+    bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
+    bee_init_defaults(m0);
     bee_register_args(argc, argv);
 
-    ass_goto(bee_R(m0));
+    ass_goto(m0);
 
     // ARGC test
     pushi(TRAP_LIBC_ARGC); ass_trap(TRAP_LIBC);

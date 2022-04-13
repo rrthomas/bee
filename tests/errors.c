@@ -23,10 +23,11 @@ bee_word_t *test[sizeof(result) / sizeof(result[0])];
 int main(void)
 {
     size_t size = 4096, tests = 0;
-    bee_init_defaults((bee_word_t *)calloc(size, BEE_WORD_BYTES), size);
+    bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
+    bee_init_defaults(m0);
     setbuf(stdout, NULL);
 
-    ass_goto(bee_R(m0));
+    ass_goto(m0);
 
     // test 1: DUP with dp > dsize
     test[tests++] = label();
@@ -56,13 +57,6 @@ int main(void)
         bee_R(dp) = 0;    // reset stack pointer
 
         printf("Test %zu\n", i + 1);
-
-        if (i + 1 == 6) {
-            // test 6: code to run at end of memory
-            // Assemble now because it was overwritten by an earlier test
-            ass_goto(bee_R(m0) + (bee_R(msize) / BEE_WORD_BYTES) - 1);
-            ass(BEE_INSN_WORD_BYTES);
-        }
 
         bee_R(pc) = test[i];
         bee_word_t res = bee_run();

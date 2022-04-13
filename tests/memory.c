@@ -18,12 +18,12 @@ int main(void)
     unsigned steps = 0;
 
     size_t size = 4096;
-    bee_init_defaults((bee_word_t *)calloc(size, BEE_WORD_BYTES), size);
+    bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
+    bee_init_defaults(m0);
 
     // Naturally bee_uword_t, but must be printed as bee_word_t for comparison with
     // output of val_data_stack().
-    assert(IS_ALIGNED(bee_R(msize)));
-    bee_word_t *MEND = bee_R(m0) + bee_R(msize) / BEE_WORD_BYTES;
+    bee_word_t *MEND = m0 + size;
     bee_word_t *LAST_WORD = MEND - 1;
     bee_word_t MAGIC_NUMBER = 0xf201;
     int endism =
@@ -34,7 +34,7 @@ int main(void)
 #endif
         ;
 
-    ass_goto(bee_R(m0));
+    ass_goto(m0);
 
     pushi(MAGIC_NUMBER);
     correct[steps++] = xasprintf("%zd", MAGIC_NUMBER);

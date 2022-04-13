@@ -20,19 +20,20 @@ int main(void)
     unsigned steps = 0;
 
     size_t size = 4096;
-    bee_init_defaults((bee_word_t *)calloc(size, BEE_WORD_BYTES), size);
+    bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
+    bee_init_defaults(m0);
 
-    ass_goto(bee_R(m0));
+    ass_goto(m0);
     correct[steps++] = label();
-    jumpi(bee_R(m0) + 48 / BEE_WORD_BYTES);
+    jumpi(m0 + 48 / BEE_WORD_BYTES);
 
-    ass_goto(bee_R(m0) + 48 / BEE_WORD_BYTES);
+    ass_goto(m0 + 48 / BEE_WORD_BYTES);
     correct[steps++] = label();
-    pushreli(bee_R(m0) + 10000 / BEE_WORD_BYTES);
+    pushreli(m0 + 10000 / BEE_WORD_BYTES);
     correct[steps++] = label();
     ass(BEE_INSN_JUMP);
 
-    ass_goto(bee_R(m0) + 10000 / BEE_WORD_BYTES);
+    ass_goto(m0 + 10000 / BEE_WORD_BYTES);
     correct[steps++] = label();
     pushi(1);
     correct[steps++] = label();
@@ -42,19 +43,19 @@ int main(void)
     correct[steps++] = label();
     pushi(0);
     correct[steps++] = label();
-    jumpzi(bee_R(m0) + 11000 / BEE_WORD_BYTES);
+    jumpzi(m0 + 11000 / BEE_WORD_BYTES);
 
-    ass_goto(bee_R(m0) + 11000 / BEE_WORD_BYTES);
+    ass_goto(m0 + 11000 / BEE_WORD_BYTES);
     correct[steps++] = label();
-    pushreli(bee_R(m0) + 64 / BEE_WORD_BYTES);
+    pushreli(m0 + 64 / BEE_WORD_BYTES);
     correct[steps++] = label();
     ass(BEE_INSN_CALL);
 
-    ass_goto(bee_R(m0) + 64 / BEE_WORD_BYTES);
+    ass_goto(m0 + 64 / BEE_WORD_BYTES);
     correct[steps++] = label();
-    calli(bee_R(m0) + 400 / BEE_WORD_BYTES);
+    calli(m0 + 400 / BEE_WORD_BYTES);
 
-    ass_goto(bee_R(m0) + 400 / BEE_WORD_BYTES);
+    ass_goto(m0 + 400 / BEE_WORD_BYTES);
     correct[steps++] = label();
     ass(BEE_INSN_RET);
 

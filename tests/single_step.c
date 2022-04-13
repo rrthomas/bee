@@ -14,9 +14,10 @@
 int main(void)
 {
     size_t size = 256;
-    bee_init_defaults((bee_word_t *)calloc(size, BEE_WORD_BYTES), size);
+    bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
+    bee_init_defaults(m0);
 
-    ass_goto(bee_R(m0));
+    ass_goto(m0);
 
     const bee_uword_t steps = 10;
     for (bee_uword_t i = 0; i < steps; i++) {
@@ -26,7 +27,7 @@ int main(void)
         assert(single_step() == BEE_ERROR_BREAK);
     }
 
-    bee_word_t *final_PC = bee_R(m0) + steps;
+    bee_word_t *final_PC = m0 + steps;
     printf("bee_R(pc) should now be %p\n", final_PC);
     if (bee_R(pc) != final_PC) {
         printf("Error in single_step() tests: pc = %p\n", bee_R(pc));

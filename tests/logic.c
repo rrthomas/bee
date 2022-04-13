@@ -20,7 +20,8 @@ int main(void)
     unsigned steps = 0;
 
     size_t size = 256;
-    bee_init_defaults((bee_word_t *)calloc(size, BEE_WORD_BYTES), size);
+    bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
+    bee_init_defaults(m0);
 
     int BYTE_BIT = 8;
     bee_word_t BOTTOM_BYTE_SET = 0xffUL;
@@ -28,7 +29,7 @@ int main(void)
     bee_word_t PENULTIMATE_BYTE_SET = LSHIFT(0xffUL, BEE_WORD_BIT - 2 * BYTE_BIT);
     bee_word_t TOP_BYTE_SET = LSHIFT(-1, BEE_WORD_BIT - BYTE_BIT);
 
-    ass_goto(bee_R(m0));
+    ass_goto(m0);
 
     pushi(BYTE_BIT);
     correct[steps++] = xasprintf("%d", BYTE_BIT);

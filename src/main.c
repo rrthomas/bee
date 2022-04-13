@@ -1,6 +1,6 @@
 // Standalone interpreter.
 //
-// (c) Reuben Thomas 1995-2020
+// (c) Reuben Thomas 1995-2022
 //
 // The package is distributed under the GNU General Public License version 3,
 // or, at your option, any later version.
@@ -215,7 +215,7 @@ int main(int argc, char *argv[])
 
     if ((memory = (bee_word_t *)calloc(memory_size, BEE_WORD_BYTES)) == NULL)
         die("could not allocate %zu words of memory", memory_size);
-    bee_init(memory, memory_size, stack_size, return_stack_size);
+    bee_init(memory, stack_size, return_stack_size);
 
     argc -= optind;
     if (argc < 1) {
@@ -227,7 +227,7 @@ int main(int argc, char *argv[])
     FILE *handle = fopen(argv[optind], "rb");
     if (handle == NULL)
         die("cannot not open file %s", argv[optind]);
-    if (!load_object(handle, bee_R(m0)))
+    if (!load_object(handle, memory))
         die("could not read file %s, or file is invalid", argv[optind]);
 
     if (gdb_target == true) {
