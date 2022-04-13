@@ -23,7 +23,7 @@ int main(void)
     bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
     bee_init_defaults(m0);
 
-    bee_R(d0)[bee_R(dp)++] = 3; bee_R(d0)[bee_R(dp)++] =2; bee_R(d0)[bee_R(dp)++] = 1;	// initialise the stack
+    bee_R.d0[bee_R.dp++] = 3; bee_R.d0[bee_R.dp++] =2; bee_R.d0[bee_R.dp++] = 1;	// initialise the stack
 
     ass_goto(m0);
     ass(BEE_INSN_DUP);
@@ -42,10 +42,10 @@ int main(void)
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {
-            printf("Error in stack tests: pc = %p\n", bee_R(pc));
+            printf("Error in stack tests: pc = %p\n", bee_R.pc);
             exit(1);
         }
-        printf("Instruction = %s\n", disass(*bee_R(pc), bee_R(pc)));
+        printf("Instruction = %s\n", disass(*bee_R.pc, bee_R.pc));
         assert(single_step() == BEE_ERROR_BREAK);
     }
 

@@ -78,13 +78,13 @@ int main(void)
     correct[steps++] = xasprintf("%d", -1);
 
     for (unsigned i = 0; i < steps; i++) {
-        printf("Instruction = %s\n", disass(*bee_R(pc), bee_R(pc)));
+        printf("Instruction = %s\n", disass(*bee_R.pc, bee_R.pc));
         bee_word_t ret = single_step();
         printf("single_step() returns %zd (%s)\n", ret, error_to_msg(ret)); // Some instructions will error.
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {
-            printf("Error in catch tests: pc = %p\n", bee_R(pc));
+            printf("Error in catch tests: pc = %p\n", bee_R.pc);
             exit(1);
         }
         free(correct[i]);

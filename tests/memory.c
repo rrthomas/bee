@@ -90,12 +90,12 @@ int main(void)
     correct[steps++] = xasprintf("%d", 0);
 
     for (size_t i = 0; i < steps; i++) {
-        printf("Instruction = %s\n", disass(*bee_R(pc), bee_R(pc)));
+        printf("Instruction = %s\n", disass(*bee_R.pc, bee_R.pc));
         assert(single_step() == BEE_ERROR_BREAK);
         show_data_stack();
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack())) {
-            printf("Error in memory tests: pc = %p\n", bee_R(pc));
+            printf("Error in memory tests: pc = %p\n", bee_R.pc);
             exit(1);
         }
         free(correct[i]);

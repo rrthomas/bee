@@ -31,15 +31,15 @@ int main(void)
 
     // test 1: DUP with dp > dsize
     test[tests++] = label();
-    pushi(bee_R(dsize) + 1);
+    pushi(bee_R.dsize + 1);
     ass(BEE_INSN_SET_DP); ass(BEE_INSN_DUP);
     // test 2: set dp to dsize + 1, then try to pop (PUSHR) the stack
     test[tests++] = label();
-    pushi(bee_R(dsize) + 1);
+    pushi(bee_R.dsize + 1);
     ass(BEE_INSN_SET_DP); ass(BEE_INSN_PUSHS);
     // test 3: test dp can be dsize
     test[tests++] = label();
-    pushi(bee_R(dsize));
+    pushi(bee_R.dsize);
     ass(BEE_INSN_SET_DP); ass(BEE_INSN_PUSHS);
     pushi(0); ass(BEE_INSN_THROW);
     // test 4: test CALL of unaligned address
@@ -54,15 +54,15 @@ int main(void)
 
     bee_uword_t error = 0;
     for (size_t i = 0; i < sizeof(test) / sizeof(test[0]); i++) {
-        bee_R(dp) = 0;    // reset stack pointer
+        bee_R.dp = 0;    // reset stack pointer
 
         printf("Test %zu\n", i + 1);
 
-        bee_R(pc) = test[i];
+        bee_R.pc = test[i];
         bee_word_t res = bee_run();
 
         if (result[i] != res) {
-             printf("Error in errors tests: test %zu failed; pc = %p\n", i + 1, bee_R(pc));
+             printf("Error in errors tests: test %zu failed; pc = %p\n", i + 1, bee_R.pc);
              printf("Return code is %zd (%s); should be %zd (%s)\n",
                     res, error_to_msg(res), result[i], error_to_msg(result[i]));
              error++;

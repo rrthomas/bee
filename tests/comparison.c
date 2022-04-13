@@ -17,35 +17,35 @@ bee_word_t correct[] = { 0, 1, 0, 1, 1, 0, 0, 1, 0, 0 };
 
 static void stack1(void)
 {
-    bee_R(dp) = 0;	// empty the stack
+    bee_R.dp = 0;	// empty the stack
 
-    bee_R(d0)[bee_R(dp)++] = -4; bee_R(d0)[bee_R(dp)++] = 3;
-    bee_R(d0)[bee_R(dp)++] = 2; bee_R(d0)[bee_R(dp)++] = 2;
-    bee_R(d0)[bee_R(dp)++] = 1; bee_R(d0)[bee_R(dp)++] = 3;
-    bee_R(d0)[bee_R(dp)++] = 3; bee_R(d0)[bee_R(dp)++] = 1;
+    bee_R.d0[bee_R.dp++] = -4; bee_R.d0[bee_R.dp++] = 3;
+    bee_R.d0[bee_R.dp++] = 2; bee_R.d0[bee_R.dp++] = 2;
+    bee_R.d0[bee_R.dp++] = 1; bee_R.d0[bee_R.dp++] = 3;
+    bee_R.d0[bee_R.dp++] = 3; bee_R.d0[bee_R.dp++] = 1;
 }
 
 static void stack2(void)
 {
-    bee_R(dp) = 0;	// empty the stack
+    bee_R.dp = 0;	// empty the stack
 
-    bee_R(d0)[bee_R(dp)++] = 1; bee_R(d0)[bee_R(dp)++] = -1;
-    bee_R(d0)[bee_R(dp)++] = 237; bee_R(d0)[bee_R(dp)++] = 237;
+    bee_R.d0[bee_R.dp++] = 1; bee_R.d0[bee_R.dp++] = -1;
+    bee_R.d0[bee_R.dp++] = 237; bee_R.d0[bee_R.dp++] = 237;
 }
 
 static void step(unsigned start, unsigned end)
 {
     if (end > start)
         for (unsigned i = start; i < end; i++) {
-            printf("Instruction = %s\n", disass(*bee_R(pc), bee_R(pc)));
+            printf("Instruction = %s\n", disass(*bee_R.pc, bee_R.pc));
             assert(single_step() == BEE_ERROR_BREAK);
             show_data_stack();
-            printf("Result: %zd; correct result: %zd\n\n", bee_R(d0)[bee_R(dp) - 1], correct[i]);
-            if (correct[i] != bee_R(d0)[bee_R(dp) - 1]) {
-                printf("Error in comparison tests: pc = %p\n", bee_R(pc));
+            printf("Result: %zd; correct result: %zd\n\n", bee_R.d0[bee_R.dp - 1], correct[i]);
+            if (correct[i] != bee_R.d0[bee_R.dp - 1]) {
+                printf("Error in comparison tests: pc = %p\n", bee_R.pc);
                 exit(1);
             }
-            bee_R(dp)--;	// drop result of comparison
+            bee_R.dp--;	// drop result of comparison
         }
 }
 

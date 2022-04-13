@@ -38,19 +38,19 @@ int main(void)
 
     assert(single_step() == BEE_ERROR_BREAK);
     assert(single_step() == BEE_ERROR_BREAK);
-    printf("argc is %zd, and should be %d\n", bee_R(d0)[bee_R(dp) - 1], argc);
-    assert(bee_R(dp) > 0);
-    if (bee_R(d0)[--bee_R(dp)] != argc) {
-        printf("Error in traps tests: pc = %p\n", bee_R(pc));
+    printf("argc is %zd, and should be %d\n", bee_R.d0[bee_R.dp - 1], argc);
+    assert(bee_R.dp > 0);
+    if (bee_R.d0[--bee_R.dp] != argc) {
+        printf("Error in traps tests: pc = %p\n", bee_R.pc);
         exit(1);
     }
 
-    while (bee_R(pc) < end)
+    while (bee_R.pc < end)
         assert(single_step() == BEE_ERROR_BREAK);
-    printf("arg 1's length is %zd, and should be %zu\n", bee_R(d0)[bee_R(dp) - 1], strlen(argv[1]));
-    assert(bee_R(dp) > 0);
-    if ((bee_uword_t)bee_R(d0)[--bee_R(dp)] != strlen(argv[1])) {
-        printf("Error in traps tests: pc = %p\n", bee_R(pc));
+    printf("arg 1's length is %zd, and should be %zu\n", bee_R.d0[bee_R.dp - 1], strlen(argv[1]));
+    assert(bee_R.dp > 0);
+    if ((bee_uword_t)bee_R.d0[--bee_R.dp] != strlen(argv[1])) {
+        printf("Error in traps tests: pc = %p\n", bee_R.pc);
         exit(1);
     }
 

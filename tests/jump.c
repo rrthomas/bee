@@ -60,10 +60,10 @@ int main(void)
     ass(BEE_INSN_RET);
 
     for (unsigned i = 0; i < steps; i++) {
-        printf("Instruction = %s\n", disass(*bee_R(pc), bee_R(pc)));
-        printf("Instruction %u: pc = %p; should be %p\n\n", i, bee_R(pc), correct[i]);
-        if (correct[i] != bee_R(pc)) {
-            printf("Error in branch tests: pc = %p\n", bee_R(pc));
+        printf("Instruction = %s\n", disass(*bee_R.pc, bee_R.pc));
+        printf("Instruction %u: pc = %p; should be %p\n\n", i, bee_R.pc, correct[i]);
+        if (correct[i] != bee_R.pc) {
+            printf("Error in branch tests: pc = %p\n", bee_R.pc);
             exit(1);
         }
         assert(single_step() == BEE_ERROR_BREAK);

@@ -38,9 +38,9 @@ int main(void)
         exit(1);
     }
 
-    printf("bee_R(pc) should now be %p\n", final_PC);
-    if (bee_R(pc) != (bee_word_t *)final_PC) {
-        printf("Error in bee_run() tests: pc = %p\n", bee_R(pc));
+    printf("bee_R.pc should now be %p\n", final_PC);
+    if (bee_R.pc != (bee_word_t *)final_PC) {
+        printf("Error in bee_run() tests: pc = %p\n", bee_R.pc);
         exit(1);
     }
 
