@@ -511,12 +511,6 @@ bee_word_t bee_run(void)
                     case BEE_INSN_WORD_BYTES:
                         PUSHD(BEE_WORD_BYTES);
                         break;
-                    case BEE_INSN_GET_M0:
-                        PUSHD((bee_uword_t)bee_R(m0));
-                        break;
-                    case BEE_INSN_GET_MSIZE:
-                        PUSHD(bee_R(msize));
-                        break;
                     case BEE_INSN_GET_SSIZE:
                         PUSHD(bee_R(ssize));
                         break;

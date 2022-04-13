@@ -52,8 +52,6 @@ pub enum Insn2 {
     Throw          = 0x24,
     Break          = 0x25,
     Word_Bytes     = 0x26,
-    Get_M0         = 0x27,
-    Get_MSize      = 0x28,
     Get_SSize      = 0x29,
     Get_SP         = 0x2a,
     Set_SP         = 0x2b,

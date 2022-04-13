@@ -21,14 +21,6 @@ int main(void)
     bee_init_defaults((bee_word_t *)calloc(size, 1), size / BEE_WORD_BYTES);
 
     ass_goto(bee_R(m0));
-    ass(BEE_INSN_GET_M0);
-    correct[steps++] = xasprintf("%zd", (bee_word_t)bee_R(m0));
-    ass(BEE_INSN_POP);
-    correct[steps++] = xasprintf("%s", "");
-    ass(BEE_INSN_GET_MSIZE);
-    correct[steps++] = xasprintf("%zd", (bee_word_t)bee_R(msize));
-    ass(BEE_INSN_POP);
-    correct[steps++] = xasprintf("%s", "");
     ass(BEE_INSN_GET_SSIZE);
     correct[steps++] = xasprintf("%zd", (bee_word_t)bee_R(ssize));
     ass(BEE_INSN_POP);
