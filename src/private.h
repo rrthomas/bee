@@ -8,18 +8,6 @@
 // THIS PROGRAM IS PROVIDED AS IS, WITH NO WARRANTY. USE IS AT THE USER’S
 // RISK.
 
-// Optimization
-// Hint that `x` is usually true/false.
-// https://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html
-#if @HAVE___BUILTIN_EXPECT@ == 1
-#define likely(x) __builtin_expect(!!(x), 1)
-#define unlikely(x) __builtin_expect(!!(x), 0)
-#else
-#define likely(x) (x)
-#define unlikely(x) (x)
-#endif
-
-
 // Errors
 #define THROW(code)                             \
     do {                                        \

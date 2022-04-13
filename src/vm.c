@@ -26,6 +26,15 @@
 #include "private.h"
 
 
+// Optimization
+// Hint that `x` is usually true/false.
+// https://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html
+#if HAVE___BUILTIN_EXPECT == 1
+#define unlikely(x) __builtin_expect(!!(x), 0)
+#else
+#define unlikely(x) (x)
+#endif
+
 // Basic assumption: a byte is 8 bits
 verify(CHAR_BIT == 8);
 

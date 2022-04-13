@@ -128,7 +128,6 @@ AC_CONFIG_FILES([
         Makefile
         lib/Makefile
         src/Makefile
-        src/private.h
         src/include/bee/bee.h
         tests/Makefile
 ])
