@@ -127,6 +127,7 @@ void bee_destroy(bee_state * restrict S)
 bee_word_t bee_run(bee_state * restrict S)
 {
     bee_word_t error = BEE_ERROR_OK;
+    CHECK_ALIGNED(S->pc);
 
     for (;;) {
 #ifdef HAVE_MIJIT
@@ -172,6 +173,9 @@ bee_word_t bee_run(bee_state * restrict S)
                 break;
             case BEE_OP_TRAP:
                 THROW_IF_ERROR(trap(S, (bee_uword_t)ir >> BEE_OP2_SHIFT));
+                CHECK_ALIGNED(S->pc);
+                if (S->sp > S->ssize || S->dp > S->dsize)
+                    THROW(BEE_ERROR_STACK_OVERFLOW);
                 break;
             case BEE_OP_INSN:
                 {
