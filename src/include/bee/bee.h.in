@@ -46,6 +46,7 @@ enum {
 };
 
 // Stack access
+int bee_check_stack(bee_uword_t ssize, bee_uword_t sp, bee_uword_t pushes, bee_uword_t pops);
 int bee_pop_stack(bee_word_t *s0, bee_uword_t ssize, bee_uword_t *sp, bee_word_t *val_ptr);
 int bee_push_stack(bee_word_t *s0, bee_uword_t ssize, bee_uword_t *sp, bee_word_t val);
 
