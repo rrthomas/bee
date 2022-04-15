@@ -28,6 +28,8 @@
       The opcodes are BEE_INSN_* below.
 */
 
+#include <limits.h>
+
 
 /* Bee opcode info.  */
 typedef struct bee_opc_info_t
@@ -36,7 +38,7 @@ typedef struct bee_opc_info_t
   const char * name;	/* instruction name, where applicable.  */
 } bee_opc_info_t;
 
-#if BEE_WORD_BYTES == 4
+#if BEE_UWORD_MAX == 4294967295U // BEE_WORD_BYTES == 4
 #define BEE_OP1_SHIFT 2
 #define BEE_OP2_SHIFT 4
 /* 32-bit Instruction types.  */

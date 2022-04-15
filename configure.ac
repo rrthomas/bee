@@ -128,7 +128,6 @@ AC_CONFIG_FILES([
         Makefile
         lib/Makefile
         src/Makefile
-        src/include/bee/bee.h
         tests/Makefile
 ])
 AC_OUTPUT

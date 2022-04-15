@@ -20,7 +20,8 @@
 // Basic types
 typedef intptr_t bee_word_t;
 typedef uintptr_t bee_uword_t;
-#define BEE_WORD_BYTES @SIZEOF_INTPTR_T@
+// Cast to int for printf convenience
+#define BEE_WORD_BYTES ((int)sizeof(bee_word_t))
 #define BEE_WORD_BIT (BEE_WORD_BYTES * CHAR_BIT)
 #define BEE_WORD_MIN INTPTR_MIN
 #define BEE_UWORD_MAX UINTPTR_MAX

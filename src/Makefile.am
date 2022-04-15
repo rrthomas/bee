@@ -22,11 +22,7 @@ bin_PROGRAMS = bee@PACKAGE_SUFFIX@
 man_MANS = bee@PACKAGE_SUFFIX@.1
 bee@PACKAGE_SUFFIX@_LDADD = libbee@PACKAGE_SUFFIX@.la $(top_builddir)/lib/libgnu.la
 bee@PACKAGE_SUFFIX@_SOURCES = main.c gdb-stub.c gdb-stub.h cmdline.h debug.h $(include_HEADERS)
-pkginclude_HEADERS = include/bee/opcodes.h include/bee/registers.h
-nodist_pkginclude_HEADERS = include/bee/bee.h
-
-include/bee/bee.h: include/bee/bee.h.in $(top_builddir)/config.status
-	cd $(top_builddir) && $(SHELL) ./config.status src/include/bee/bee.h
+pkginclude_HEADERS = include/bee/bee.h include/bee/opcodes.h include/bee/registers.h
 
 if HAVE_MIJIT
 # Have a phony target to force cargo to be run always
