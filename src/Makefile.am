@@ -21,7 +21,7 @@ endif
 bin_PROGRAMS = bee@PACKAGE_SUFFIX@
 man_MANS = bee@PACKAGE_SUFFIX@.1
 bee@PACKAGE_SUFFIX@_LDADD = libbee@PACKAGE_SUFFIX@.la $(top_builddir)/lib/libgnu.la
-bee@PACKAGE_SUFFIX@_SOURCES = main.c gdb-stub.c cmdline.h debug.h $(include_HEADERS)
+bee@PACKAGE_SUFFIX@_SOURCES = main.c gdb-stub.c gdb-stub.h cmdline.h debug.h $(include_HEADERS)
 pkginclude_HEADERS = include/bee/opcodes.h include/bee/registers.h
 nodist_pkginclude_HEADERS = include/bee/bee.h
 

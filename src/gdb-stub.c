@@ -21,7 +21,7 @@
 
 #include "bee/bee.h"
 
-#include "private.h"
+#include "gdb-stub.h"
 
 
 // Streams for communication with GDB

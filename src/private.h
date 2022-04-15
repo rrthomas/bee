@@ -72,11 +72,6 @@ bee_word_t trap(bee_state * restrict S, bee_word_t code);
 bee_word_t trap_libc(bee_state * restrict S);
 
 
-// GDB remote protocol stub
-int gdb_init(int gdb_fdin, int gdb_fdout);
-void gdb_run(bee_state * restrict S);
-
-
 // Jit compiler
 #ifdef HAVE_MIJIT
 #include "../mijit-bee/mijit-bee.h"
