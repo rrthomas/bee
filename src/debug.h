@@ -32,3 +32,4 @@ void show_data_stack(bee_state * restrict S); // show the current contents of th
 void show_return_stack(bee_state * restrict S);	// show the current contents of the return stack
 const char *error_to_msg(int code);	// translate error code to message
 bee_word_t single_step(bee_state * restrict S); // single step
+bee_state *bee_init_defaults(bee_word_t *pc); // initialize with stacks of size BEE_DEFAULT_STACK_SIZE

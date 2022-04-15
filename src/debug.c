@@ -415,3 +415,8 @@ bee_word_t single_step(bee_state * restrict S)
  error:
     return error;
 }
+
+bee_state *bee_init_defaults(bee_word_t *pc)
+{
+    return bee_init(pc, BEE_DEFAULT_STACK_SIZE, BEE_DEFAULT_STACK_SIZE);
+}

@@ -106,11 +106,6 @@ bee_state *bee_init(bee_word_t *pc, bee_uword_t ssize, bee_uword_t dsize)
     return NULL;
 }
 
-bee_state *bee_init_defaults(bee_word_t *pc)
-{
-    return bee_init(pc, BEE_DEFAULT_STACK_SIZE, BEE_DEFAULT_STACK_SIZE);
-}
-
 void bee_destroy(bee_state * restrict S)
 {
 #ifdef HAVE_MIJIT
