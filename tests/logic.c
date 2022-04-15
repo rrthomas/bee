@@ -24,9 +24,9 @@ int main(void)
     bee_state *S = bee_init_defaults(m0);
 
     bee_word_t BOTTOM_BYTE_SET = 0xffUL;
-    bee_word_t SECOND_BYTE_SET = LSHIFT(0xffUL, CHAR_BIT);
-    bee_word_t PENULTIMATE_BYTE_SET = LSHIFT(0xffUL, BEE_WORD_BIT - 2 * CHAR_BIT);
-    bee_word_t TOP_BYTE_SET = LSHIFT(-1, BEE_WORD_BIT - CHAR_BIT);
+    bee_word_t SECOND_BYTE_SET = 0xffUL << CHAR_BIT;
+    bee_word_t PENULTIMATE_BYTE_SET = 0xffUL << (BEE_WORD_BIT - 2 * CHAR_BIT);
+    bee_word_t TOP_BYTE_SET = 0xffUL << (BEE_WORD_BIT - CHAR_BIT);
 
     ass_goto(m0);
 
