@@ -26,6 +26,11 @@ AC_PROG_CC_C99
 gl_EARLY
 AM_PROG_AR
 LT_INIT
+AX_CHECK_GNU_MAKE(,[AC_MSG_WARN([GNU make is required to build from Vala sources])])
+
+dnl Vala
+AM_PROG_VALAC(0.54,,[AC_MSG_WARN([valac not found or too old: cannot compile Vala sources])])
+PKG_CHECK_MODULES(GLIB, [glib-2.0 gobject-introspection-1.0])
 
 # help2man
 # Set a value even if not found, so that an invocation via build-aux/missing works

@@ -13,3 +13,5 @@
 /bee.1
 /bee-32.1
 /bee-64.1
+/trap_glib.c
+/libbee_la_vala.stamp
