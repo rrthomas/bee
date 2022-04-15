@@ -4,7 +4,7 @@
 // correctness of the operators here, assuming that if the arithmetic works
 // in one case, it will work in all.
 //
-// (c) Reuben Thomas 1994-2020
+// (c) Reuben Thomas 1994-2022
 //
 // The package is distributed under the GNU General Public License version 3,
 // or, at your option, any later version.

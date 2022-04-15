@@ -1,7 +1,7 @@
 // VM debugging functions
 // These are undocumented and subject to change.
 //
-// (c) Reuben Thomas 1994-2020
+// (c) Reuben Thomas 1994-2022
 //
 // The package is distributed under the GNU General Public License version 3,
 // or, at your option, any later version.

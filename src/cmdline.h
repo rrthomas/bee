@@ -1,6 +1,6 @@
 // Command-line help.
 //
-// Copyright (c) 2009-2020 Reuben Thomas
+// Copyright (c) 2009-2022 Reuben Thomas
 //
 // The package is distributed under the GNU General Public License version 3,
 // or, at your option, any later version.

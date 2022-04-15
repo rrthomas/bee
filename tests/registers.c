@@ -1,7 +1,7 @@
 // Test the register instructions, except for those operating on sp and dp
 // (see memory.c).
 //
-// (c) Reuben Thomas 1994-2020
+// (c) Reuben Thomas 1994-2022
 //
 // The package is distributed under the GNU General Public License version 3,
 // or, at your option, any later version.
