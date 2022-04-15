@@ -2,6 +2,7 @@
 *.trs
 /.deps
 /.libs
+/libtestutil.a
 /hello.bin
 /hello.output
 /arithmetic

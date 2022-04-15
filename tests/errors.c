@@ -24,7 +24,7 @@ int main(void)
 {
     size_t size = 4096, tests = 0;
     bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
-    bee_state *S = bee_init_defaults(m0);
+    bee_state *S = init_defaults(m0);
     setbuf(stdout, NULL);
 
     ass_goto(m0);

@@ -19,7 +19,7 @@ int main(void)
 
     size_t size = 1024;
     bee_word_t *m0 = (bee_word_t *)calloc(size, 1);
-    bee_state *S = bee_init_defaults(m0);
+    bee_state *S = init_defaults(m0);
 
     ass_goto(m0);
     ass(BEE_INSN_GET_SSIZE);

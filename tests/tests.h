@@ -20,4 +20,4 @@
 #include "bee/bee.h"
 #include "bee/opcodes.h"
 
-#include "debug.h"
+#include "util.h"

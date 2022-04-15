@@ -17,12 +17,12 @@ int main(void)
     size_t size = 1024;
     bee_word_t *ptr = (bee_word_t *)malloc(size);
     assert(ptr);
-    bee_state *S = bee_init_defaults(ptr);
+    bee_state *S = init_defaults(ptr);
     if (S == NULL) {
-        printf("Error in bee_init_defaults() tests: init with valid parameters failed\n");
+        printf("Error in init_defaults() tests: init with valid parameters failed\n");
         exit(1);
     }
 
-    printf("bee_init_defaults() tests ran OK\n");
+    printf("init_defaults() tests ran OK\n");
     return 0;
 }

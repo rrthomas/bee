@@ -22,7 +22,7 @@
 #include "bee/opcodes.h"
 
 #include "private.h"
-#include "debug.h"
+#include "util.h"
 
 
 static uint8_t *current; // where we assemble the next instruction word or literal
@@ -416,7 +416,7 @@ bee_word_t single_step(bee_state * restrict S)
     return error;
 }
 
-bee_state *bee_init_defaults(bee_word_t *pc)
+bee_state *init_defaults(bee_word_t *pc)
 {
     return bee_init(pc, BEE_DEFAULT_STACK_SIZE, BEE_DEFAULT_STACK_SIZE);
 }

@@ -11,7 +11,7 @@
 AM_CPPFLAGS = -I$(top_builddir)/lib -I$(top_srcdir)/lib -I$(srcdir)/include -I$(builddir)/include $(WARN_CFLAGS)
 
 lib_LTLIBRARIES = libbee@PACKAGE_SUFFIX@.la
-libbee@PACKAGE_SUFFIX@_la_SOURCES = vm.c traps.h traps.c trap_libc.c debug.c
+libbee@PACKAGE_SUFFIX@_la_SOURCES = vm.c traps.h traps.c trap_libc.c
 nodist_libbee@PACKAGE_SUFFIX@_la_SOURCES = private.h
 libbee@PACKAGE_SUFFIX@_la_LIBADD = $(top_builddir)/lib/libgnu.la
 if HAVE_MIJIT
@@ -21,7 +21,7 @@ endif
 bin_PROGRAMS = bee@PACKAGE_SUFFIX@
 man_MANS = bee@PACKAGE_SUFFIX@.1
 bee@PACKAGE_SUFFIX@_LDADD = libbee@PACKAGE_SUFFIX@.la $(top_builddir)/lib/libgnu.la
-bee@PACKAGE_SUFFIX@_SOURCES = main.c gdb-stub.c gdb-stub.h cmdline.h debug.h $(include_HEADERS)
+bee@PACKAGE_SUFFIX@_SOURCES = main.c gdb-stub.c gdb-stub.h cmdline.h $(include_HEADERS)
 pkginclude_HEADERS = include/bee/bee.h include/bee/opcodes.h include/bee/registers.h
 
 if HAVE_MIJIT

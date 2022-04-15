@@ -16,7 +16,7 @@ int main(void)
 {
     size_t size = 256;
     bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
-    bee_state *S = bee_init_defaults(m0);
+    bee_state *S = init_defaults(m0);
     if (S == NULL) {
         printf("Error in run() tests: init with valid parameters failed\n");
         exit(1);

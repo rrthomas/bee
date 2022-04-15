@@ -19,7 +19,7 @@ int main(void)
 
     size_t size = 4096;
     bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
-    bee_state *S = bee_init_defaults(m0);
+    bee_state *S = init_defaults(m0);
     setbuf(stdout, NULL);
 
     // Naturally bee_uword_t, but must be printed as bee_word_t for comparison with

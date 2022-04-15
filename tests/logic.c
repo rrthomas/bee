@@ -21,7 +21,7 @@ int main(void)
 
     size_t size = 256;
     bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
-    bee_state *S = bee_init_defaults(m0);
+    bee_state *S = init_defaults(m0);
 
     bee_word_t BOTTOM_BYTE_SET = 0xffUL;
     bee_word_t SECOND_BYTE_SET = 0xffUL << CHAR_BIT;
