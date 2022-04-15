@@ -24,6 +24,7 @@ typedef uintptr_t bee_uword_t;
 #define BEE_WORD_BYTES ((int)sizeof(bee_word_t))
 #define BEE_WORD_BIT (BEE_WORD_BYTES * CHAR_BIT)
 #define BEE_WORD_MIN INTPTR_MIN
+#define BEE_WORD_MAX INTPTR_MAX
 #define BEE_UWORD_MAX UINTPTR_MAX
 
 // VM state
