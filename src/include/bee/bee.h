@@ -55,10 +55,11 @@ int bee_push_stack(bee_word_t *s0, bee_uword_t ssize, bee_uword_t *sp, bee_word_
 // Default stacks size in words
 #define BEE_DEFAULT_STACK_SIZE   4096
 
-// Miscellaneous routines
-bee_word_t bee_run(bee_state * restrict S);
+// VM state methods
 bee_state *bee_init(bee_word_t *pc, bee_uword_t stack_size, bee_uword_t return_stack_size);
 void bee_destroy(bee_state * restrict S);
+bee_word_t bee_run(bee_state * restrict S);
+
 void bee_register_args(int argc, const char *argv[]);
 
 
