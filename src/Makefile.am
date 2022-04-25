@@ -11,7 +11,7 @@
 AM_CPPFLAGS = -I$(top_builddir)/lib -I$(top_srcdir)/lib -I$(srcdir)/include -I$(builddir)/include $(WARN_CFLAGS)
 
 lib_LTLIBRARIES = libbee@PACKAGE_SUFFIX@.la
-libbee@PACKAGE_SUFFIX@_la_SOURCES = vm.c traps.h traps.c debug.c
+libbee@PACKAGE_SUFFIX@_la_SOURCES = vm.c traps.h traps.c trap_libc.c debug.c
 nodist_libbee@PACKAGE_SUFFIX@_la_SOURCES = private.h
 libbee@PACKAGE_SUFFIX@_la_LIBADD = $(top_builddir)/lib/libgnu.la
 if HAVE_MIJIT

@@ -77,7 +77,7 @@
 
 // Traps
 bee_word_t trap(bee_word_t code);
-bee_word_t trap_libc(bee_uword_t function);
+bee_word_t trap_libc(void);
 
 
 // GDB remote protocol stub
