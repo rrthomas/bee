@@ -19,7 +19,7 @@ libbee@PACKAGE_SUFFIX@_la_LIBADD += $(top_srcdir)/mijit-bee/target/release/libmi
 endif
 
 bin_PROGRAMS = bee@PACKAGE_SUFFIX@
-man_MANS = bee@PACKAGE_SUFFIX@.1
+dist_man_MANS = bee@PACKAGE_SUFFIX@.1
 bee@PACKAGE_SUFFIX@_LDADD = libbee@PACKAGE_SUFFIX@.la $(top_builddir)/lib/libgnu.la
 bee@PACKAGE_SUFFIX@_SOURCES = main.c gdb-stub.c gdb-stub.h cmdline.h $(include_HEADERS)
 pkginclude_HEADERS = include/bee/bee.h include/bee/opcodes.h include/bee/registers.h
@@ -31,8 +31,7 @@ $(top_srcdir)/mijit-bee/target/release/libmijit_bee.la: mijit-bee
 	cargo build --release --manifest-path $(top_srcdir)/mijit-bee/Cargo.toml
 endif
 
-# The man page depends on the binary because it is built by running the binary.
-bee@PACKAGE_SUFFIX@.1: bee@PACKAGE_SUFFIX@$(EXEEXT)
+bee@PACKAGE_SUFFIX@.1: main.c cmdline.h
 ## Exit gracefully if bee.1 is not writeable, such as during distcheck!
 	$(AM_V_GEN)if ( touch $@.w && rm -f $@.w; ) >/dev/null 2>&1; then \
 	  $(top_srcdir)/build-aux/missing --run $(HELP2MAN) --no-info \
