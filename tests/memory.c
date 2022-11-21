@@ -1,4 +1,4 @@
-// Test the memory operators. Also uses previously tested instructions.
+// Test the memory instructions. Also uses previously tested instructions.
 // See errors.c for address error handling tests.
 //
 // (c) Reuben Thomas 1994-2022

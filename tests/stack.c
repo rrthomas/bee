@@ -1,4 +1,4 @@
-// Test the stack operators. Also uses the PUSH instruction.
+// Test the stack instructions. Also uses the PUSH instruction.
 //
 // (c) Reuben Thomas 1994-2022
 //
