@@ -1,7 +1,7 @@
-// Test the logic operators. Also uses the SWAP instruction. We only test
-// the stack handling and basic correctness of the operators here, assuming
-// that if the logic works in one case, it will work in all (if the C
-// compiler doesn't implement it correctly, we're in trouble anyway!).
+// Test the logic instructions. Also uses the SWAP instruction. We only test
+// the stack handling and basic correctness of the instructions here,
+// assuming that if the logic works in one case, it will work in all (if the
+// C compiler doesn't implement it correctly, we're in trouble anyway!).
 //
 // (c) Reuben Thomas 1994-2022
 //
