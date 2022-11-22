@@ -432,6 +432,94 @@ bee_word_t bee_run(bee_state * restrict S)
                             *addr = (uint32_t)value;
                         }
                         break;
+                    case BEE_INSN_LOAD_IA:
+                        {
+                            CHECKD(1, 2);
+                            bee_word_t *addr;
+                            POPD((bee_word_t *)&addr);
+                            CHECK_ALIGNED(addr);
+                            PUSHD(*addr);
+                            PUSHD((bee_word_t)(addr + 1));
+                        }
+                        break;
+                    case BEE_INSN_STORE_DB:
+                        {
+                            CHECKD(2, 1);
+                            bee_word_t *addr;
+                            POPD((bee_word_t *)&addr);
+                            CHECK_ALIGNED(addr);
+                            bee_word_t value;
+                            POPD(&value);
+                            addr[-1] = value;
+                            PUSHD((bee_word_t)(addr - 1));
+                        }
+                        break;
+                    case BEE_INSN_LOAD_IB:
+                        {
+                            CHECKD(1, 2);
+                            bee_word_t *addr;
+                            POPD((bee_word_t *)&addr);
+                            CHECK_ALIGNED(addr);
+                            PUSHD(addr[1]);
+                            PUSHD((bee_word_t)(addr + 1));
+                        }
+                        break;
+                    case BEE_INSN_STORE_DA:
+                        {
+                            CHECKD(2, 1);
+                            bee_word_t *addr;
+                            POPD((bee_word_t *)&addr);
+                            CHECK_ALIGNED(addr);
+                            bee_word_t value;
+                            POPD(&value);
+                            *addr = value;
+                            PUSHD((bee_word_t)(addr - 1));
+                        }
+                        break;
+                    case BEE_INSN_LOAD_DA:
+                        {
+                            CHECKD(1, 2);
+                            bee_word_t *addr;
+                            POPD((bee_word_t *)&addr);
+                            CHECK_ALIGNED(addr);
+                            PUSHD(*addr);
+                            PUSHD((bee_word_t)(addr - 1));
+                        }
+                        break;
+                    case BEE_INSN_STORE_IB:
+                        {
+                            CHECKD(2, 1);
+                            bee_word_t *addr;
+                            POPD((bee_word_t *)&addr);
+                            CHECK_ALIGNED(addr);
+                            bee_word_t value;
+                            POPD(&value);
+                            addr[1] = value;
+                            PUSHD((bee_word_t)(addr + 1));
+                        }
+                        break;
+                    case BEE_INSN_LOAD_DB:
+                        {
+                            CHECKD(1, 2);
+                            bee_word_t *addr;
+                            POPD((bee_word_t *)&addr);
+                            CHECK_ALIGNED(addr);
+                            PUSHD(addr[-1]);
+                            PUSHD((bee_word_t)(addr - 1));
+                        }
+                        break;
+                    case BEE_INSN_STORE_IA:
+                        {
+                            CHECKD(2, 1);
+                            bee_word_t *addr;
+                            POPD((bee_word_t *)&addr);
+                            CHECK_ALIGNED(addr);
+                            bee_word_t value;
+                            POPD(&value);
+                            *addr = value;
+                            PUSHD((bee_word_t)(addr + 1));
+                        }
+                        break;
                     case BEE_INSN_NEG:
                         {
                             CHECKD(1, 1);
