@@ -89,6 +89,45 @@ int main(void)
     correct[steps++] = xasprintf("%s", "");
     ass(BEE_INSN_GET_SP);
     correct[steps++] = xasprintf("%d", 0);
+    // This is redundant but clears the stack for the following tests.
+    ass(BEE_INSN_SET_SP);
+    correct[steps++] = xasprintf("%s", "");
+
+    // Pre/post increment/decrement load/store instructions.
+    pushi(MAGIC_NUMBER - 1);
+    correct[steps++] = xasprintf("%zd", MAGIC_NUMBER - 1);
+    pushreli(LAST_WORD);
+    correct[steps++] = xasprintf("%zd %zd", MAGIC_NUMBER - 1, (bee_word_t)LAST_WORD);
+
+    ass(BEE_INSN_STORE_DA);
+    correct[steps++] = xasprintf("%zd", (bee_word_t)(LAST_WORD - 1));
+    ass(BEE_INSN_LOAD_IB);
+    correct[steps++] = xasprintf("%zd %zd", MAGIC_NUMBER - 1, (bee_word_t)LAST_WORD);
+
+    ass(BEE_INSN_STORE_DB);
+    correct[steps++] = xasprintf("%zd", (bee_word_t)(LAST_WORD - 1));
+    ass(BEE_INSN_LOAD_IA);
+    correct[steps++] = xasprintf("%zd %zd", MAGIC_NUMBER - 1, (bee_word_t)LAST_WORD);
+
+    // Clear the stack and push new test data.
+    ass(BEE_INSN_POP);
+    correct[steps++] = xasprintf("%zd", MAGIC_NUMBER - 1);
+    ass(BEE_INSN_POP);
+    correct[steps++] = xasprintf("%s", "");
+    pushi(MAGIC_NUMBER - 2);
+    correct[steps++] = xasprintf("%zd", MAGIC_NUMBER - 2);
+    pushreli(LAST_WORD - 4);
+    correct[steps++] = xasprintf("%zd %zd", MAGIC_NUMBER - 2, (bee_word_t)(LAST_WORD - 4));
+
+    ass(BEE_INSN_STORE_IB);
+    correct[steps++] = xasprintf("%zd", (bee_word_t)(LAST_WORD - 3));
+    ass(BEE_INSN_LOAD_DA);
+    correct[steps++] = xasprintf("%zd %zd", MAGIC_NUMBER - 2, (bee_word_t)(LAST_WORD - 4));
+
+    ass(BEE_INSN_STORE_IA);
+    correct[steps++] = xasprintf("%zd", (bee_word_t)(LAST_WORD - 3));
+    ass(BEE_INSN_LOAD_DB);
+    correct[steps++] = xasprintf("%zd %zd", MAGIC_NUMBER - 2, (bee_word_t)(LAST_WORD - 4));
 
     for (size_t i = 0; i < steps; i++) {
         printf("Instruction = %s\n", disass(*S->pc, S->pc));

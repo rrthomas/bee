@@ -133,11 +133,12 @@ static const char *mnemonic[BEE_INSN_UNDEFINED + 1] = {
     "POPD", "DUP", "SET", "SWAP", "JUMP", "JUMPZ", "CALL", "RET",
 // 0x10
     "LOAD", "STORE", "LOAD1", "STORE1", "LOAD2", "STORE2", "LOAD4", "STORE4",
-    "NEG", "ADD", "MUL", "DIVMOD", "UDIVMOD", "EQ", "LT", "ULT",
+    "LOAD_IA", "STORE_DB", "LOAD_IB", "STORE_DA", "LOAD_DA", "STORE_IB", "LOAD_DB", "STORE_IA",
 // 0x20
+    "NEG", "ADD", "MUL", "DIVMOD", "UDIVMOD", "EQ", "LT", "ULT",
     "PUSHS", "POPS", "DUPS", "CATCH", "THROW", "BREAK", "BEE_WORD_BYTES", NULL,
+// 0x30
     NULL, "GET_SSIZE", "GET_SP", "SET_SP", "GET_DSIZE", "GET_SP", "SET_SP", "GET_HANDLER_SP",
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
 };
 
@@ -323,6 +324,14 @@ static bee_word_t *compute_next_PC(bee_state * restrict S, bee_word_t inst)
             case BEE_INSN_STORE2:
             case BEE_INSN_LOAD4:
             case BEE_INSN_STORE4:
+            case BEE_INSN_LOAD_IA:
+            case BEE_INSN_STORE_DB:
+            case BEE_INSN_LOAD_IB:
+            case BEE_INSN_STORE_DA:
+            case BEE_INSN_LOAD_DA:
+            case BEE_INSN_STORE_IB:
+            case BEE_INSN_LOAD_DB:
+            case BEE_INSN_STORE_IA:
             case BEE_INSN_NEG:
             case BEE_INSN_ADD:
             case BEE_INSN_MUL:
