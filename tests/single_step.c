@@ -27,7 +27,8 @@ int main(void)
         assert(single_step(S) == BEE_ERROR_BREAK);
     }
 
-    bee_word_t *final_pc = m0 + steps;
+    // We execute two instructions per word: WORD_BYTES followed by NOP.
+    bee_word_t *final_pc = m0 + steps / 2;
     printf("S->pc should now be %p\n", final_pc);
     if (S->pc != final_pc) {
         printf("Error in single_step() tests: pc = %p\n", S->pc);

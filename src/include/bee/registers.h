@@ -9,6 +9,7 @@
 // RISK.
 
 R(pc, bee_word_t *)
+R(ir, bee_word_t)
 R(s0, bee_word_t *)
 R(ssize, bee_uword_t)
 R(sp, bee_uword_t)

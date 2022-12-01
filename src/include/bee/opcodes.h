@@ -79,6 +79,8 @@ enum {
 #define BEE_MAX_TRAP ((1L << (BEE_WORD_BIT - BEE_OP2_SHIFT)) - 1)
 
 /* OP_INSN opcodes.  */
+#define BEE_INSN_BITS 6
+#define BEE_INSN_MASK ((1 << BEE_INSN_BITS) - 1)
 enum {
   BEE_INSN_NOP = 0,
   BEE_INSN_NOT,
