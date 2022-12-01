@@ -72,5 +72,7 @@ int main(void)
 
     if (error == 0)
         printf("Errors tests ran OK\n");
+    bee_destroy(S);
+    free(m0);
     return error;
 }

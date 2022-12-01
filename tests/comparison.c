@@ -69,5 +69,7 @@ int main(void)
     step(S, 6, 10); // do the ULT tests
 
     printf("Comparison tests ran OK\n");
+    bee_destroy(S);
+    free(m0);
     return 0;
 }

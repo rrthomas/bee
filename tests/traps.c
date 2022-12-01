@@ -55,5 +55,7 @@ int main(void)
     }
 
     printf("Traps tests ran OK\n");
+    bee_destroy(S);
+    free(m0);
     return 0;
 }

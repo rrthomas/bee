@@ -142,5 +142,7 @@ int main(void)
     }
 
     printf("Memory tests ran OK\n");
+    bee_destroy(S);
+    free(m0);
     return 0;
 }

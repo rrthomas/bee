@@ -91,5 +91,7 @@ int main(void)
     }
 
     printf("Catch tests ran OK\n");
+    bee_destroy(S);
+    free(m0);
     return 0;
 }

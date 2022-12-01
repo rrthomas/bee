@@ -70,5 +70,7 @@ int main(void)
     }
 
     printf("Branch tests ran OK\n");
+    bee_destroy(S);
+    free(m0);
     return 0;
 }

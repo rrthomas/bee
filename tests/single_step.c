@@ -30,10 +30,12 @@ int main(void)
     bee_word_t *final_PC = m0 + steps;
     printf("S->pc should now be %p\n", final_PC);
     if (S->pc != final_PC) {
-        printf("Error in single_step(S) tests: pc = %p\n", S->pc);
+        printf("Error in single_step() tests: pc = %p\n", S->pc);
         exit(1);
     }
 
-    printf("single_step(S) tests ran OK\n");
+    printf("single_step() tests ran OK\n");
+    bee_destroy(S);
+    free(m0);
     return 0;
 }
