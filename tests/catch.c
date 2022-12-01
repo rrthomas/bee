@@ -80,7 +80,7 @@ int main(void)
     for (unsigned i = 0; i < steps; i++) {
         printf("Instruction = %s\n", disass(*S->pc, S->pc));
         bee_word_t ret = single_step(S);
-        printf("single_step(S) returns %zd (%s)\n", ret, error_to_msg(ret)); // Some instructions will error.
+        printf("single_step() returns %zd (%s)\n", ret, error_to_msg(ret)); // Some instructions will error.
         show_data_stack(S);
         printf("Correct stack: %s\n\n", correct[i]);
         if (strcmp(correct[i], val_data_stack(S))) {
