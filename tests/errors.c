@@ -1,4 +1,4 @@
-// Test the VM-generated errors and HALT codes.
+// Test the VM-generated errors and error codes.
 //
 // (c) Reuben Thomas 1995-2022
 //
