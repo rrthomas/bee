@@ -44,4 +44,6 @@ CLOC = cloc --force-lang="C",h
 loc:
 	$(CLOC) $(libbee@PACKAGE_SUFFIX@_la_SOURCES) $(bee_SOURCES)
 
+EXTRA_DIST = private.h
+
 DISTCLEANFILES = bee@PACKAGE_SUFFIX@.1 $(include_HEADERS)
