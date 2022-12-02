@@ -8,7 +8,7 @@
 # THIS PROGRAM IS PROVIDED AS IS, WITH NO WARRANTY. USE IS AT THE USER’S
 # RISK.
 
-AM_CPPFLAGS = -I$(top_builddir)/lib -I$(top_srcdir)/lib -I$(srcdir)/include -I$(builddir)/include $(WARN_CFLAGS)
+AM_CPPFLAGS = -I$(top_builddir)/lib -I$(top_srcdir)/lib -I$(srcdir)/include $(WARN_CFLAGS)
 
 lib_LTLIBRARIES = libbee@PACKAGE_SUFFIX@.la
 libbee@PACKAGE_SUFFIX@_la_SOURCES = vm.c traps.h traps.c trap_libc.c
