@@ -15,10 +15,11 @@ environment:
       MSYSTEM: MINGW64
       # Define _POSIX to get a full set of POSIX signal names from signal.h on mingw
       CPPFLAGS: -D_POSIX
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-      MSYSTEM: MINGW32
-      # Define _POSIX to get a full set of POSIX signal names from signal.h on mingw
-      CPPFLAGS: -D_POSIX
+    # FIXME: Bee doesn't currently build on 32-bit systems: https://github.com/rrthomas/bee/issues/17
+    # - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+    #   MSYSTEM: MINGW32
+    #   # Define _POSIX to get a full set of POSIX signal names from signal.h on mingw
+    #   CPPFLAGS: -D_POSIX
 
 for:
 -
