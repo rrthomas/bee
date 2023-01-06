@@ -2,6 +2,7 @@
 /.libs
 *.lo
 /libbee.la
+/libbee.rc
 /libbee-32.la
 /libbee-64.la
 /bee

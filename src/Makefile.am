@@ -1,6 +1,6 @@
 # Source Makefile.am
 #
-# (c) Reuben Thomas 2011-2022
+# (c) Reuben Thomas 2011-2023
 #
 # The package is distributed under the GNU General Public License version 3,
 # or, at your option, any later version.
@@ -16,6 +16,14 @@ nodist_libbee@PACKAGE_SUFFIX@_la_SOURCES = private.h
 libbee@PACKAGE_SUFFIX@_la_LIBADD = $(top_builddir)/lib/libgnu.la
 if HAVE_MIJIT
 libbee@PACKAGE_SUFFIX@_la_LIBADD += $(top_srcdir)/mijit-bee/target/release/libmijit_bee.la
+endif
+libbee@PACKAGE_SUFFIX@_la_LDFLAGS = -no-undefined -export-symbols-regex '^bee_'
+
+if OS_WIN32
+libbee@PACKAGE_SUFFIX@_la_LDFLAGS += -avoid-version
+libbee@PACKAGE_SUFFIX@_la_SOURCES += libbee.rc
+else
+libbee@PACKAGE_SUFFIX@_la_LDFLAGS += -version-info $(VERSION_INFO)
 endif
 
 bin_PROGRAMS = bee@PACKAGE_SUFFIX@

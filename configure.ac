@@ -23,6 +23,36 @@ AC_INIT([Bee],
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
+dnl Release number rules:
+dnl This is derived from "Versioning" chapter of info libtool documentation.
+dnl Format is MAJOR:MINOR:MICRO
+dnl     4a) Increment major when removing or changing interfaces.
+dnl     4a) 5) Increment minor when adding interfaces.
+dnl     6) Set minor to zero when removing or changing interfaces.
+dnl     3) Increment micro when interfaces not changed at all,
+dnl               only bug fixes or internal changes made.
+dnl     4b) Set micro to zero when adding, removing or changing interfaces.
+
+dnl First extract pieces from the version number string
+LIBBEE_MAJOR_VERSION=`echo $VERSION | awk -F. '{print $1}'`
+LIBBEE_MINOR_VERSION=`echo $VERSION | awk -F. '{print $2}'`
+LIBBEE_MICRO_VERSION=`echo $VERSION | awk -F. '{print $3}'`
+LIBBEE_VERSION=$LIBBEE_MAJOR_VERSION.$LIBBEE_MINOR_VERSION.$LIBBEE_MICRO_VERSION$LIBBEE_MICRO_VERSION_SUFFIX
+LIBBEE_VERSION_NUMBER=`expr $LIBBEE_MAJOR_VERSION \* 1000000 + $LIBBEE_MINOR_VERSION \* 1000 + $LIBBEE_MICRO_VERSION`
+
+LIBBEE_SONUM=$LIBBEE_MAJOR_VERSION
+AGE=`echo $LIBBEE_MINOR_VERSION | tr -d a-z`
+REVISION=`echo $LIBBEE_MICRO_VERSION | awk -F- '{print $1}'`
+CURRENT=`expr $LIBBEE_SONUM + $AGE`
+
+dnl Version info for libraries = CURRENT:REVISION:AGE
+VERSION_INFO=$CURRENT:$REVISION:$AGE
+
+AC_SUBST(VERSION_INFO)
+AC_SUBST(LIBBEE_MAJOR_VERSION)
+AC_SUBST(LIBBEE_MINOR_VERSION)
+AC_SUBST(LIBBEE_MICRO_VERSION)
+
 # Check for programs
 AC_PROG_CC
 gl_EARLY
@@ -97,6 +127,17 @@ AC_SUBST([ISYSTEM])
 # Initialize gnulib
 gl_INIT
 
+# Windows-specific checks
+AC_MSG_CHECKING([for native Win32])
+native_win32=no
+case "$host" in
+  *-*-mingw*)
+    native_win32=yes
+    ;;
+esac
+AC_MSG_RESULT([$native_win32])
+AM_CONDITIONAL(OS_WIN32, test "x$native_win32" = "xyes")
+
 # Check features
 AC_C_BIGENDIAN
 AC_CHECK_SIZEOF([intptr_t]) # word_bytes
@@ -129,6 +170,7 @@ AC_CONFIG_FILES([
         Makefile
         lib/Makefile
         src/Makefile
+        src/libbee.rc
         tests/Makefile
 ])
 AC_OUTPUT
