@@ -232,9 +232,13 @@ int main(int argc, char *argv[])
     if (!load_object(handle, memory))
         die("could not read file %s, or file is invalid", argv[optind]);
 
+    bee_word_t ret;
     if (gdb_target == true) {
         gdb_run(S);
-        exit(EXIT_SUCCESS);
+        ret = EXIT_SUCCESS;
     } else
-        return bee_run(S);
+        ret = bee_run(S);
+    bee_destroy(S);
+    free(memory);
+    return ret;
 }
