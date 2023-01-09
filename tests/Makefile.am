@@ -12,10 +12,10 @@ AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/src -I$(top_builddir)/lib -I
 
 LOG_COMPILER = $(srcdir)/run-test
 
-LDADD = $(builddir)/libtestutil.a $(top_builddir)/src/libbee$(PACKAGE_SUFFIX).la $(top_builddir)/lib/libgnu.la
+LDADD = $(builddir)/libtestutil.a $(top_builddir)/src/libbee@PACKAGE_SUFFIX@.la $(top_builddir)/lib/libgnu.la
 
 noinst_LIBRARIES = libtestutil.a
-libtestutil_a_LIBADD = $(top_builddir)/src/libbee$(PACKAGE_SUFFIX).la $(top_builddir)/lib/libgnu.la
+libtestutil_a_LIBADD = $(top_builddir)/src/libbee@PACKAGE_SUFFIX@.la $(top_builddir)/lib/libgnu.la
 libtestutil_a_SOURCES = util.c util.h
 
 check_PROGRAMS = $(TESTS)
