@@ -1,6 +1,6 @@
 # Tests Makefile.am
 #
-# (c) Reuben Thomas 2011-2022
+# (c) Reuben Thomas 2011-2023
 #
 # The package is distributed under the GNU General Public License version 3,
 # or, at your option, any later version.
@@ -15,7 +15,6 @@ LOG_COMPILER = $(srcdir)/run-test
 LDADD = $(builddir)/libtestutil.a $(top_builddir)/src/libbee@PACKAGE_SUFFIX@.la $(top_builddir)/lib/libgnu.la
 
 noinst_LIBRARIES = libtestutil.a
-libtestutil_a_LIBADD = $(top_builddir)/src/libbee@PACKAGE_SUFFIX@.la $(top_builddir)/lib/libgnu.la
 libtestutil_a_SOURCES = util.c util.h
 
 check_PROGRAMS = $(TESTS)
