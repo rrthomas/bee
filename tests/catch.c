@@ -1,6 +1,6 @@
 // Test CATCH.
 //
-// (c) Reuben Thomas 2022
+// (c) Reuben Thomas 2022-2023
 //
 // The package is distributed under the GNU General Public License version 3,
 // or, at your option, any later version.
@@ -77,20 +77,7 @@ int main(void)
     ass(BEE_INSN_THROW);
     correct[steps++] = xasprintf("%d", -1);
 
-    for (unsigned i = 0; i < steps; i++) {
-        printf("Instruction = %s\n", disass(*S->pc, S->pc));
-        bee_word_t ret = single_step(S);
-        printf("single_step() returns %zd (%s)\n", ret, error_to_msg(ret)); // Some instructions will error.
-        show_data_stack(S);
-        printf("Correct stack: %s\n\n", correct[i]);
-        if (strcmp(correct[i], val_data_stack(S))) {
-            printf("Error in catch tests: pc = %p\n", S->pc);
-            exit(1);
-        }
-        free(correct[i]);
-    }
-
-    printf("Catch tests ran OK\n");
+    assert(run_test("catch", S, correct, steps, true));
     bee_destroy(S);
     free(m0);
     return 0;

@@ -429,3 +429,32 @@ bee_state *init_defaults(bee_word_t *pc)
 {
     return bee_init(pc, BEE_DEFAULT_STACK_SIZE, BEE_DEFAULT_STACK_SIZE);
 }
+
+bool run_test(const char *name, bee_state *S, char *correct[], size_t steps, bool errors_allowed)
+{
+    bool ok = true;
+
+    for (size_t i = 0; i < steps; i++) {
+        printf("Instruction = %s\n", disass(*S->pc, S->pc));
+        bee_word_t ret = single_step(S);
+        if (errors_allowed)
+            printf("single_step() returns %zd (%s)\n", ret, error_to_msg(ret));
+        else
+            assert(ret == BEE_ERROR_BREAK);
+        show_data_stack(S);
+        printf("Correct stack: %s\n\n", correct[i]);
+        if (strcmp(correct[i], val_data_stack(S))) {
+            printf("Error in %s tests: pc = %p\n", name, S->pc);
+            ok = false;
+            break;
+        }
+    }
+
+    for (size_t i = 0; i < steps; i++)
+        free(correct[i]);
+
+    if (ok)
+        printf("%s tests ran OK\n", name);
+    fflush(stdout);
+    return ok;
+}

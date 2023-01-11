@@ -3,7 +3,7 @@
 // assuming that if the logic works in one case, it will work in all (if the
 // C compiler doesn't implement it correctly, we're in trouble anyway!).
 //
-// (c) Reuben Thomas 1994-2022
+// (c) Reuben Thomas 1994-2023
 //
 // The package is distributed under the GNU General Public License version 3,
 // or, at your option, any later version.
@@ -59,19 +59,7 @@ int main(void)
     ass(BEE_INSN_AND);
     correct[steps++] = xasprintf("%zd", ~(SECOND_BYTE_SET | PENULTIMATE_BYTE_SET) & -1025);
 
-    for (size_t i = 0; i < steps; i++) {
-        printf("Instruction = %s\n", disass(*S->pc, S->pc));
-        assert(single_step(S) == BEE_ERROR_BREAK);
-        show_data_stack(S);
-        printf("Correct stack: %s\n\n", correct[i]);
-        if (strcmp(correct[i], val_data_stack(S))) {
-            printf("Error in logic tests: pc = %p\n", S->pc);
-            exit(1);
-        }
-        free(correct[i]);
-    }
-
-    printf("Logic tests ran OK\n");
+    assert(run_test("logic", S, correct, steps, false));
     bee_destroy(S);
     free(m0);
     return 0;

@@ -1,6 +1,6 @@
 // Test PUSHI.
 //
-// (c) Reuben Thomas 1994-2022
+// (c) Reuben Thomas 1994-2023
 //
 // The package is distributed under the GNU General Public License version 3,
 // or, at your option, any later version.
@@ -11,30 +11,22 @@
 #include "tests.h"
 
 
-const char *correct[] = { "-256", "-256 12345678" };
-
-
 int main(void)
 {
+    char *correct[64];
+    unsigned steps = 0;
+
     size_t size = 256;
     bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
     bee_state *S = init_defaults(m0);
 
     ass_goto(m0);
-    pushi(BEE_ERROR_BREAK); pushi(12345678);
+    pushi(BEE_ERROR_BREAK);
+    correct[steps++] = xasprintf("-256");
+    pushi(12345678);
+    correct[steps++] = xasprintf("-256 12345678");
 
-    for (size_t i = 0; i < sizeof(correct) / sizeof(correct[0]); i++) {
-        printf("Instruction = %s\n", disass(*S->pc, S->pc));
-        assert(single_step(S) == BEE_ERROR_BREAK);
-        show_data_stack(S);
-        printf("Correct stack: %s\n\n", correct[i]);
-        if (strcmp(correct[i], val_data_stack(S))) {
-            printf("Error in constants tests: pc = %p\n", S->pc);
-            exit(1);
-        }
-    }
-
-    printf("Constants tests ran OK\n");
+    assert(run_test("constants", S, correct, steps, false));
     bee_destroy(S);
     free(m0);
     return 0;

@@ -1,13 +1,15 @@
 // VM debugging functions
 // These are undocumented and subject to change.
 //
-// (c) Reuben Thomas 1994-2022
+// (c) Reuben Thomas 1994-2023
 //
 // The package is distributed under the GNU General Public License version 3,
 // or, at your option, any later version.
 //
 // THIS PROGRAM IS PROVIDED AS IS, WITH NO WARRANTY. USE IS AT THE USER’S
 // RISK.
+
+#include <stdbool.h>
 
 int byte_size(bee_word_t v); // return number of significant bytes in a bee_word_t quantity
 
@@ -33,3 +35,4 @@ void show_return_stack(bee_state * restrict S);	// show the current contents of 
 const char *error_to_msg(int code);	// translate error code to message
 bee_word_t single_step(bee_state * restrict S); // single step
 bee_state *init_defaults(bee_word_t *pc); // initialize with stacks of size BEE_DEFAULT_STACK_SIZE
+bool run_test(const char *name, bee_state *S, char *correct[], size_t steps, bool errors_allowed); // run a test, checking the results after each instruction

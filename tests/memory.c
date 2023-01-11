@@ -1,7 +1,7 @@
 // Test the memory instructions. Also uses previously tested instructions.
 // See errors.c for address error handling tests.
 //
-// (c) Reuben Thomas 1994-2022
+// (c) Reuben Thomas 1994-2023
 //
 // The package is distributed under the GNU General Public License version 3,
 // or, at your option, any later version.
@@ -129,19 +129,7 @@ int main(void)
     ass(BEE_INSN_LOAD_DB);
     correct[steps++] = xasprintf("%zd %zd", MAGIC_NUMBER - 2, (bee_word_t)(LAST_WORD - 4));
 
-    for (size_t i = 0; i < steps; i++) {
-        printf("Instruction = %s\n", disass(*S->pc, S->pc));
-        assert(single_step(S) == BEE_ERROR_BREAK);
-        show_data_stack(S);
-        printf("Correct stack: %s\n\n", correct[i]);
-        if (strcmp(correct[i], val_data_stack(S))) {
-            printf("Error in memory tests: pc = %p\n", S->pc);
-            exit(1);
-        }
-        free(correct[i]);
-    }
-
-    printf("Memory tests ran OK\n");
+    assert(run_test("memory", S, correct, steps, false));
     bee_destroy(S);
     free(m0);
     return 0;

@@ -4,7 +4,7 @@
 // correctness of the instructions here, assuming that if the arithmetic
 // works in one case, it will work in all.
 //
-// (c) Reuben Thomas 1994-2022
+// (c) Reuben Thomas 1994-2023
 //
 // The package is distributed under the GNU General Public License version 3,
 // or, at your option, any later version.
@@ -60,19 +60,7 @@ int main(void)
     ass(BEE_INSN_UDIVMOD);
     correct[steps++] = xasprintf("1 1");
 
-    for (size_t i = 0; i < steps; i++) {
-        printf("Instruction = %s\n", disass(*S->pc, S->pc));
-        assert(single_step(S) == BEE_ERROR_BREAK);
-        show_data_stack(S);
-        printf("Correct stack: %s\n\n", correct[i]);
-        if (strcmp(correct[i], val_data_stack(S))) {
-            printf("Error in arithmetic tests: pc = %p\n", S->pc);
-            exit(1);
-        }
-        free(correct[i]);
-    }
-
-    printf("Arithmetic tests ran OK\n");
+    assert(run_test("arithmetic", S, correct, steps, false));
     bee_destroy(S);
     free(m0);
     return 0;

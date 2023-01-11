@@ -1,7 +1,7 @@
 // Test the register instructions, except for those operating on sp and dp
 // (see memory.c).
 //
-// (c) Reuben Thomas 1994-2022
+// (c) Reuben Thomas 1994-2023
 //
 // The package is distributed under the GNU General Public License version 3,
 // or, at your option, any later version.
@@ -35,19 +35,7 @@ int main(void)
     ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
 
-    for (unsigned i = 0; i < steps; i++) {
-        printf("Instruction = %s\n", disass(*S->pc, S->pc));
-        assert(single_step(S) == BEE_ERROR_BREAK);
-        show_data_stack(S);
-        printf("Correct stack: %s\n\n", correct[i]);
-        if (strcmp(correct[i], val_data_stack(S))) {
-            printf("Error in registers tests: pc = %p\n", S->pc);
-            exit(1);
-        }
-        free(correct[i]);
-    }
-
-    printf("Registers tests ran OK\n");
+    assert(run_test("registers", S, correct, steps, false));
     bee_destroy(S);
     free(m0);
     return 0;
