@@ -1,7 +1,7 @@
 // Test traps. Also uses previously-tested instructions.
 // FIXME: test file routines.
 //
-// (c) Reuben Thomas 1994-2022
+// (c) Reuben Thomas 1994-2023
 //
 // The package is distributed under the GNU General Public License version 3,
 // or, at your option, any later version.
@@ -14,18 +14,13 @@
 #include "tests.h"
 
 
-int main(void)
+bool test(bee_state *S)
 {
     // Data for ARGC/ARGV tests
     int argc = 3;
     const char *argv[] = {"foo", "bard", "basilisk"};
 
-    size_t size = 1024;
-    bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
-    bee_state *S = init_defaults(m0);
     bee_register_args(argc, argv);
-
-    ass_goto(m0);
 
     // ARGC test
     pushi(TRAP_LIBC_ARGC); ass_trap(TRAP_LIBC);
@@ -54,8 +49,6 @@ int main(void)
         exit(1);
     }
 
-    printf("Traps tests ran OK\n");
-    bee_destroy(S);
-    free(m0);
-    return 0;
+    printf("traps tests ran OK\n");
+    return true;
 }

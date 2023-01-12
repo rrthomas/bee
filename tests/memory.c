@@ -12,16 +12,8 @@
 #include "tests.h"
 
 
-int main(void)
+bool test(bee_state *S)
 {
-    char *correct[64];
-    unsigned steps = 0;
-
-    size_t size = 4096;
-    bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
-    bee_state *S = init_defaults(m0);
-    setbuf(stdout, NULL);
-
     // Naturally bee_uword_t, but must be printed as bee_word_t for comparison with
     // output of val_data_stack(S).
     bee_word_t *MEND = m0 + size;
@@ -34,8 +26,6 @@ int main(void)
         0
 #endif
         ;
-
-    ass_goto(m0);
 
     pushi(MAGIC_NUMBER);
     correct[steps++] = xasprintf("%zd", MAGIC_NUMBER);
@@ -129,8 +119,5 @@ int main(void)
     ass(BEE_INSN_LOAD_DB);
     correct[steps++] = xasprintf("%zd %zd", MAGIC_NUMBER - 2, (bee_word_t)(LAST_WORD - 4));
 
-    assert(run_test("memory", S, correct, steps, false));
-    bee_destroy(S);
-    free(m0);
-    return 0;
+    return run_test("memory", S, false);
 }

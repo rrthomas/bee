@@ -11,18 +11,8 @@
 #include "tests.h"
 
 
-
-int main(void)
+bool test(bee_state *S _GL_UNUSED)
 {
-    char *correct[64];
-    unsigned steps = 0;
-    setbuf(stdout, NULL);
-
-    size_t size = 1024;
-    bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
-    bee_state *S = init_defaults(m0);
-
-    ass_goto(m0);
     pushi(8);
     correct[steps++] = xasprintf("%d", 8);
     pushi(5);
@@ -77,8 +67,5 @@ int main(void)
     ass(BEE_INSN_THROW);
     correct[steps++] = xasprintf("%d", -1);
 
-    assert(run_test("catch", S, correct, steps, true));
-    bee_destroy(S);
-    free(m0);
-    return 0;
+    return run_test("catch", S, true);
 }

@@ -13,9 +13,6 @@
 #include "tests.h"
 
 
-static char *correct[64];
-static unsigned steps = 0;
-
 static void ass_comp_test(bee_word_t inst, bee_word_t left, bee_word_t right, bee_word_t res)
 {
     pushi(left);
@@ -28,13 +25,8 @@ static void ass_comp_test(bee_word_t inst, bee_word_t left, bee_word_t right, be
     correct[steps++] = xasprintf("%s", "");
 }
 
-int main(void)
+bool test(bee_state *S)
 {
-    size_t size = 256;
-    bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
-    bee_state *S = init_defaults(m0);
-
-    ass_goto(m0);
     ass_comp_test(BEE_INSN_LT, 3, 1, 0);
     ass_comp_test(BEE_INSN_LT, 1, 3, 1);
     ass_comp_test(BEE_INSN_LT, 2, 2, 0);
@@ -46,8 +38,5 @@ int main(void)
     ass_comp_test(BEE_INSN_ULT, 2, 2, 0);
     ass_comp_test(BEE_INSN_ULT, -4, 3, 0);
 
-    assert(run_test("comparison", S, correct, steps, false));
-    bee_destroy(S);
-    free(m0);
-    return 0;
+    return run_test("comparison", S, false);
 }

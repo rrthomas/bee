@@ -19,7 +19,7 @@ libtestutil_a_SOURCES = util.c util.h
 
 check_PROGRAMS = $(TESTS)
 
-TESTS = arithmetic catch comparison constants init jump logic memory \
+TESTS = arithmetic catch comparison constants jump logic memory \
 	registers stack single_step run errors traps
 TESTS_ENVIRONMENT = \
 	export LIBTOOL=$(top_builddir)/libtool;

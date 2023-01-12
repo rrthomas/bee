@@ -1,6 +1,6 @@
 // Functions useful for VM debugging.
 //
-// (c) Reuben Thomas 1994-2022
+// (c) Reuben Thomas 1994-2023
 //
 // The package is distributed under the GNU General Public License version 3,
 // or, at your option, any later version.
@@ -412,7 +412,6 @@ bee_word_t single_step(bee_state * restrict S)
     bee_word_t this_ir = *S->pc, next_ir = *S->pc;
     bee_word_t *this_pc = S->pc;
     bee_word_t *next_pc = compute_next_pc(S, &next_ir);
-    printf("single_step: this_pc %p, next_pc %p, this_ir %lx, next_ir %lx\n", this_pc, next_pc, (bee_uword_t)this_ir, (bee_uword_t)next_ir);
     int next_pc_valid = next_pc != NULL && IS_ALIGNED(next_pc);
     if (next_pc_valid) {
         if (next_pc != this_pc)
@@ -462,7 +461,7 @@ bee_state *init_defaults(bee_word_t *pc)
     return bee_init(pc, BEE_DEFAULT_STACK_SIZE, BEE_DEFAULT_STACK_SIZE);
 }
 
-bool run_test(const char *name, bee_state *S, char *correct[], size_t steps, bool errors_allowed)
+bool run_test(const char *name, bee_state *S, bool errors_allowed)
 {
     bool ok = true;
 
@@ -494,4 +493,20 @@ bool run_test(const char *name, bee_state *S, char *correct[], size_t steps, boo
         printf("%s tests ran OK\n", name);
     fflush(stdout);
     return ok;
+}
+
+char *correct[64];
+unsigned steps = 0;
+bee_word_t *m0;
+size_t size = 4096;
+
+int main(void)
+{
+    m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
+    bee_state *S = init_defaults(m0);
+    assert(S);
+    ass_goto(m0);
+    assert(test(S));
+    bee_destroy(S);
+    free(m0);
 }

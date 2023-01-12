@@ -11,18 +11,10 @@
 #include "tests.h"
 
 
-int main(void)
+bool test(bee_state *S)
 {
-    char *correct[64];
-    unsigned steps = 0;
-
-    size_t size = 256;
-    bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
-    bee_state *S = init_defaults(m0);
-
     S->d0[S->dp++] = 3; S->d0[S->dp++] = 2; S->d0[S->dp++] = 1;	// initialise the stack
 
-    ass_goto(m0);
     ass(BEE_INSN_DUP);
     correct[steps++] = xasprintf("3 2 3");
     pushi(1);
@@ -46,8 +38,5 @@ int main(void)
     ass(BEE_INSN_POPS);
     correct[steps++] = xasprintf("2 3 3 3");
 
-    assert(run_test("stack", S, correct, steps, false));
-    bee_destroy(S);
-    free(m0);
-    return 0;
+    return run_test("stack", S, false);
 }

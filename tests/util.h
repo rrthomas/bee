@@ -35,4 +35,9 @@ void show_return_stack(bee_state * restrict S);	// show the current contents of 
 const char *error_to_msg(int code);	// translate error code to message
 bee_word_t single_step(bee_state * restrict S); // single step
 bee_state *init_defaults(bee_word_t *pc); // initialize with stacks of size BEE_DEFAULT_STACK_SIZE
-bool run_test(const char *name, bee_state *S, char *correct[], size_t steps, bool errors_allowed); // run a test, checking the results after each instruction
+bool run_test(const char *name, bee_state *S, bool errors_allowed); // run a test, checking the results after each instruction
+extern char *correct[64];
+extern unsigned steps;
+extern bee_word_t *m0;
+extern size_t size;
+bool test(bee_state *S);

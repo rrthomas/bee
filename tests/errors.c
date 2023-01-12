@@ -1,6 +1,6 @@
 // Test the VM-generated errors and error codes.
 //
-// (c) Reuben Thomas 1995-2022
+// (c) Reuben Thomas 1995-2023
 //
 // The package is distributed under the GNU General Public License version 3,
 // or, at your option, any later version.
@@ -17,48 +17,43 @@ bee_word_t result[] = {
     BEE_ERROR_UNALIGNED_ADDRESS,
     BEE_ERROR_INVALID_OPCODE,
 };
-bee_word_t *test[sizeof(result) / sizeof(result[0])];
+bee_word_t *test_addr[sizeof(result) / sizeof(result[0])];
 
 
-int main(void)
+bool test(bee_state *S)
 {
-    size_t size = 4096, tests = 0;
-    bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
-    bee_state *S = init_defaults(m0);
-    setbuf(stdout, NULL);
-
-    ass_goto(m0);
+    size_t tests = 0;
 
     // test 1: DUP with dp > dsize
-    test[tests++] = label();
+    test_addr[tests++] = label();
     pushi(S->dsize + 1);
     ass(BEE_INSN_SET_DP); ass(BEE_INSN_DUP);
     // test 2: set dp to dsize + 1, then try to pop (PUSHR) the stack
-    test[tests++] = label();
+    test_addr[tests++] = label();
     pushi(S->dsize + 1);
     ass(BEE_INSN_SET_DP); ass(BEE_INSN_PUSHS);
     // test 3: test dp can be dsize
-    test[tests++] = label();
+    test_addr[tests++] = label();
     pushi(S->dsize);
     ass(BEE_INSN_SET_DP); ass(BEE_INSN_PUSHS);
     pushi(0); ass(BEE_INSN_THROW);
     // test 4: test CALL of unaligned address
-    test[tests++] = label();
+    test_addr[tests++] = label();
     pushi(1); ass(BEE_INSN_CALL);
     // test 5: load from an unaligned address
-    test[tests++] = label();
+    test_addr[tests++] = label();
     pushi(1); ass(BEE_INSN_LOAD);
     // test 6: test invalid opcode
-    test[tests++] = label();
+    test_addr[tests++] = label();
     ass(BEE_INSN_UNDEFINED);
 
     bee_uword_t error = 0;
-    for (size_t i = 0; i < sizeof(test) / sizeof(test[0]); i++) {
+    for (size_t i = 0; i < sizeof(test_addr) / sizeof(test_addr[0]); i++) {
         S->dp = 0;    // reset stack pointer
 
         printf("Test %zu\n", i + 1);
 
-        S->pc = test[i];
+        S->pc = test_addr[i];
         bee_word_t res = bee_run(S);
 
         if (result[i] != res) {
@@ -71,8 +66,6 @@ int main(void)
     }
 
     if (error == 0)
-        printf("Errors tests ran OK\n");
-    bee_destroy(S);
-    free(m0);
-    return error;
+        printf("errors tests ran OK\n");
+    return error == 0;
 }

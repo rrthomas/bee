@@ -12,16 +12,8 @@
 #include "tests.h"
 
 
-int main(void)
+bool test(bee_state *S)
 {
-    char *correct[64];
-    unsigned steps = 0;
-
-    size_t size = 1024;
-    bee_word_t *m0 = (bee_word_t *)calloc(size, 1);
-    bee_state *S = init_defaults(m0);
-
-    ass_goto(m0);
     ass(BEE_INSN_GET_SSIZE);
     correct[steps++] = xasprintf("%zd", (bee_word_t)S->ssize);
     ass(BEE_INSN_POP);
@@ -35,8 +27,5 @@ int main(void)
     ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
 
-    assert(run_test("registers", S, correct, steps, false));
-    bee_destroy(S);
-    free(m0);
-    return 0;
+    return run_test("registers", S, false);
 }

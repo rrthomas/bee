@@ -15,16 +15,8 @@
 #include "tests.h"
 
 
-int main(void)
+bool test(bee_state *S)
 {
-    char *correct[64];
-    unsigned steps = 0;
-
-    size_t size = 256;
-    bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
-    bee_state *S = init_defaults(m0);
-
-    ass_goto(m0);
     pushi(1);
     correct[steps++] = xasprintf("1");
     ass(BEE_INSN_NEG);
@@ -60,8 +52,5 @@ int main(void)
     ass(BEE_INSN_UDIVMOD);
     correct[steps++] = xasprintf("1 1");
 
-    assert(run_test("arithmetic", S, correct, steps, false));
-    bee_destroy(S);
-    free(m0);
-    return 0;
+    return run_test("arithmetic", S, false);
 }

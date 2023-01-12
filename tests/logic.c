@@ -14,21 +14,12 @@
 #include "tests.h"
 
 
-int main(void)
+bool test(bee_state *S)
 {
-    char *correct[64];
-    unsigned steps = 0;
-
-    size_t size = 256;
-    bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
-    bee_state *S = init_defaults(m0);
-
     bee_word_t BOTTOM_BYTE_SET = 0xffUL;
     bee_word_t SECOND_BYTE_SET = 0xffUL << CHAR_BIT;
     bee_word_t PENULTIMATE_BYTE_SET = 0xffUL << (BEE_WORD_BIT - 2 * CHAR_BIT);
     bee_word_t TOP_BYTE_SET = 0xffUL << (BEE_WORD_BIT - CHAR_BIT);
-
-    ass_goto(m0);
 
     pushi(CHAR_BIT);
     correct[steps++] = xasprintf("%d", CHAR_BIT);
@@ -59,8 +50,5 @@ int main(void)
     ass(BEE_INSN_AND);
     correct[steps++] = xasprintf("%zd", ~(SECOND_BYTE_SET | PENULTIMATE_BYTE_SET) & -1025);
 
-    assert(run_test("logic", S, correct, steps, false));
-    bee_destroy(S);
-    free(m0);
-    return 0;
+    return run_test("logic", S, false);
 }

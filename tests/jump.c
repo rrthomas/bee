@@ -3,7 +3,7 @@
 // The test program contains an infinite loop, but this is only executed
 // once.
 //
-// (c) Reuben Thomas 1994-2022
+// (c) Reuben Thomas 1994-2023
 //
 // The package is distributed under the GNU General Public License version 3,
 // or, at your option, any later version.
@@ -14,63 +14,55 @@
 #include "tests.h"
 
 
-int main(void)
+bool test(bee_state *S)
 {
-    bee_word_t *correct[64];
-    unsigned steps = 0;
+    bee_word_t *correct_addr[64];
 
-    size_t size = 4096;
-    bee_word_t *m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
-    bee_state *S = init_defaults(m0);
-
-    ass_goto(m0);
-    correct[steps++] = label();
+    correct_addr[steps++] = label();
     jumpi(m0 + 48 / BEE_WORD_BYTES);
 
     ass_goto(m0 + 48 / BEE_WORD_BYTES);
-    correct[steps++] = label();
+    correct_addr[steps++] = label();
     pushreli(m0 + 10000 / BEE_WORD_BYTES);
-    correct[steps++] = label();
+    correct_addr[steps++] = label();
     ass(BEE_INSN_JUMP);
 
     ass_goto(m0 + 10000 / BEE_WORD_BYTES);
-    correct[steps++] = label();
+    correct_addr[steps++] = label();
     pushi(1);
-    correct[steps++] = label();
+    correct_addr[steps++] = label();
     pushi(0);
-    correct[steps++] = label();
+    correct_addr[steps++] = label();
     ass(BEE_INSN_JUMPZ);
-    correct[steps++] = label();
+    correct_addr[steps++] = label();
     pushi(0);
-    correct[steps++] = label();
+    correct_addr[steps++] = label();
     jumpzi(m0 + 11000 / BEE_WORD_BYTES);
 
     ass_goto(m0 + 11000 / BEE_WORD_BYTES);
-    correct[steps++] = label();
+    correct_addr[steps++] = label();
     pushreli(m0 + 64 / BEE_WORD_BYTES);
-    correct[steps++] = label();
+    correct_addr[steps++] = label();
     ass(BEE_INSN_CALL);
 
     ass_goto(m0 + 64 / BEE_WORD_BYTES);
-    correct[steps++] = label();
+    correct_addr[steps++] = label();
     calli(m0 + 400 / BEE_WORD_BYTES);
 
     ass_goto(m0 + 400 / BEE_WORD_BYTES);
-    correct[steps++] = label();
+    correct_addr[steps++] = label();
     ass(BEE_INSN_RET);
 
     for (unsigned i = 0; i < steps; i++) {
         printf("Instruction = %s\n", disass(*S->pc, S->pc));
-        printf("Instruction %u: pc = %p; should be %p\n\n", i, S->pc, correct[i]);
-        if (correct[i] != S->pc) {
+        printf("Instruction %u: pc = %p; should be %p\n\n", i, S->pc, correct_addr[i]);
+        if (correct_addr[i] != S->pc) {
             printf("Error in branch tests: pc = %p\n", S->pc);
-            exit(1);
+            return false;
         }
         assert(single_step(S) == BEE_ERROR_BREAK);
     }
 
-    printf("Branch tests ran OK\n");
-    bee_destroy(S);
-    free(m0);
-    return 0;
+    printf("jump tests ran OK\n");
+    return true;
 }
