@@ -28,7 +28,7 @@ int main(void)
     pushi(ret_code);
     ass(BEE_INSN_NOP);
     ass(BEE_INSN_THROW);
-    bee_word_t *final_PC = label();
+    bee_word_t *final_pc = label();
 
     bee_word_t ret = bee_run(S);
 
@@ -38,8 +38,8 @@ int main(void)
         exit(1);
     }
 
-    printf("S->pc should now be %p\n", final_PC);
-    if (S->pc != (bee_word_t *)final_PC) {
+    printf("S->pc should now be %p\n", final_pc);
+    if (S->pc != (bee_word_t *)final_pc) {
         printf("Error in bee_run() tests: pc = %p\n", S->pc);
         exit(1);
     }

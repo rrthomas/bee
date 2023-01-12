@@ -27,9 +27,9 @@ int main(void)
         assert(single_step(S) == BEE_ERROR_BREAK);
     }
 
-    bee_word_t *final_PC = m0 + steps;
-    printf("S->pc should now be %p\n", final_PC);
-    if (S->pc != final_PC) {
+    bee_word_t *final_pc = m0 + steps;
+    printf("S->pc should now be %p\n", final_pc);
+    if (S->pc != final_pc) {
         printf("Error in single_step() tests: pc = %p\n", S->pc);
         exit(1);
     }
