@@ -360,8 +360,8 @@ static bee_word_t *compute_next_pc(bee_state * restrict S, bee_word_t *ir)
             case BEE_INSN_GET_DP:
             case BEE_INSN_SET_DP:
             case BEE_INSN_GET_HANDLER_SP:
-                *ir = ((*ir >> BEE_INSN_BITS) << BEE_OP2_SHIFT) | BEE_OP_INSN;
-                return S->pc;
+                next_pc = S->pc;
+                break;
             case BEE_INSN_JUMP:
             case BEE_INSN_CALL:
             case BEE_INSN_CATCH:
@@ -400,7 +400,9 @@ static bee_word_t *compute_next_pc(bee_state * restrict S, bee_word_t *ir)
         }
     }
 
-    if (next_pc != NULL && IS_ALIGNED(next_pc))
+    if (next_pc == S->pc)
+        *ir = ((*ir >> BEE_INSN_BITS) << BEE_OP2_SHIFT) | BEE_OP_INSN;
+    else if (next_pc != NULL && IS_ALIGNED(next_pc))
         *ir = *next_pc;
 
     return next_pc;
