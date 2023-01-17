@@ -55,6 +55,7 @@ bool test(bee_state *S)
 
     for (unsigned i = 0; i < steps; i++) {
         printf("Instruction = %s\n", disass(*S->pc, S->pc));
+        show_data_stack(S);
         printf("Instruction %u: pc = %p; should be %p\n\n", i, S->pc, correct_addr[i]);
         if (correct_addr[i] != S->pc) {
             printf("Error in branch tests: pc = %p\n", S->pc);
