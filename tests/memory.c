@@ -62,7 +62,7 @@ bool test(bee_state *S)
     pushreli(LAST_WORD);
     correct[steps++] = xasprintf("%zd", (bee_word_t)LAST_WORD);
     ass(BEE_INSN_LOAD);
-    correct[steps++] = xasprintf("%zd", ((MAGIC_NUMBER >> CHAR_BIT) << (BEE_WORD_BIT - CHAR_BIT)) | MAGIC_NUMBER);
+    correct[steps++] = xasprintf("%zd", (bee_word_t)(((bee_uword_t)MAGIC_NUMBER >> CHAR_BIT) << (BEE_WORD_BIT - CHAR_BIT)) | MAGIC_NUMBER);
     ass(BEE_INSN_POP);
     correct[steps++] = xasprintf("%s", "");
     ass(BEE_INSN_GET_DP);
