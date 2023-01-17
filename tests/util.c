@@ -77,7 +77,8 @@ static void addr_op(int op, bee_word_t *addr)
     assert(IS_ALIGNED(current));
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
-    word(LSHIFT(addr - (bee_word_t *)current, BEE_OP1_SHIFT) | op);
+    // When this instruction is executed, pc is a word ahead of current.
+    word(LSHIFT(addr - ((bee_word_t *)current + 1), BEE_OP1_SHIFT) | op);
 #pragma GCC diagnostic pop
 }
 
@@ -96,7 +97,8 @@ static void addr_op2(int op, bee_word_t *addr)
     assert(IS_ALIGNED(current));
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
-    bee_word_t offset = addr - (bee_word_t *)current;
+    // When this instruction is executed, pc is a word ahead of current.
+    bee_word_t offset = addr - ((bee_word_t *)current + 1);
 #pragma GCC diagnostic pop
     bee_word_t temp = LSHIFT(offset, BEE_OP2_SHIFT);
     assert(ARSHIFT(temp, BEE_OP2_SHIFT) == offset);
@@ -150,7 +152,7 @@ _GL_ATTRIBUTE_CONST const char *disass(bee_word_t opcode, bee_word_t *pc)
     switch (opcode & BEE_OP1_MASK) {
     case BEE_OP_CALLI:
         {
-            bee_word_t *addr = pc + ARSHIFT(opcode, BEE_OP1_SHIFT);
+            bee_word_t *addr = pc + 1 + ARSHIFT(opcode, BEE_OP1_SHIFT);
             text = xasprintf("CALLI $%zx", (bee_uword_t)addr);
         }
         break;
@@ -161,19 +163,19 @@ _GL_ATTRIBUTE_CONST const char *disass(bee_word_t opcode, bee_word_t *pc)
         }
         break;
     case BEE_OP_PUSHRELI:
-        text = xasprintf("PUSHRELI $%zx", (bee_uword_t)(pc + (opcode & ~BEE_OP1_MASK)));
+        text = xasprintf("PUSHRELI $%zx", (bee_uword_t)(pc + 1 + (opcode & ~BEE_OP1_MASK)));
         break;
     default:
         switch (opcode & BEE_OP2_MASK) {
         case BEE_OP_JUMPI:
             {
-                bee_word_t *addr = pc + ARSHIFT(opcode, BEE_OP2_SHIFT);
+                bee_word_t *addr = pc + 1 + ARSHIFT(opcode, BEE_OP2_SHIFT);
                 text = xasprintf("JUMPI $%zx", (bee_uword_t)addr);
             }
             break;
         case BEE_OP_JUMPZI:
             {
-                bee_word_t *addr = pc + ARSHIFT(opcode, BEE_OP2_SHIFT);
+                bee_word_t *addr = pc + 1 + ARSHIFT(opcode, BEE_OP2_SHIFT);
                 text = xasprintf("JUMPZI $%zx", (bee_uword_t)addr);
             }
             break;
@@ -287,7 +289,7 @@ _GL_ATTRIBUTE_PURE const char *error_to_msg(int code)
 // be computed.
 static bee_word_t *compute_next_pc(bee_state * restrict S, bee_word_t *ir)
 {
-    bee_word_t *next_pc = S->pc + 1;
+    bee_word_t *next_pc = S->pc;
 
     switch (*ir & BEE_OP1_MASK) {
     case BEE_OP_CALLI:
@@ -305,7 +307,7 @@ static bee_word_t *compute_next_pc(bee_state * restrict S, bee_word_t *ir)
             if (S->dp < 1)
                 next_pc = NULL;
             else
-                next_pc = S->d0[S->dp - 1] == 0 ? S->pc + ARSHIFT(*ir, BEE_OP2_SHIFT) : S->pc + 1;
+                next_pc = S->d0[S->dp - 1] == 0 ? S->pc + ARSHIFT(*ir, BEE_OP2_SHIFT) : S->pc;
             break;
         case BEE_OP_TRAP:
             break;
@@ -360,7 +362,7 @@ static bee_word_t *compute_next_pc(bee_state * restrict S, bee_word_t *ir)
             case BEE_INSN_GET_DP:
             case BEE_INSN_SET_DP:
             case BEE_INSN_GET_HANDLER_SP:
-                next_pc = S->pc;
+                next_pc = S->pc - 1;
                 break;
             case BEE_INSN_JUMP:
             case BEE_INSN_CALL:
@@ -374,7 +376,7 @@ static bee_word_t *compute_next_pc(bee_state * restrict S, bee_word_t *ir)
                 if (S->dp < 2)
                     next_pc = NULL;
                 else
-                    next_pc = S->d0[S->dp - 2] == 0 ? (bee_word_t *)S->d0[S->dp - 1] : S->pc + 1;
+                    next_pc = S->d0[S->dp - 2] == 0 ? (bee_word_t *)S->d0[S->dp - 1] : S->pc;
                 break;
             case BEE_INSN_RET:
                 if (S->sp < 1)
@@ -400,7 +402,7 @@ static bee_word_t *compute_next_pc(bee_state * restrict S, bee_word_t *ir)
         }
     }
 
-    if (next_pc == S->pc)
+    if (next_pc == S->pc - 1)
         *ir = ((*ir >> BEE_INSN_BITS) << BEE_OP2_SHIFT) | BEE_OP_INSN;
     else if (next_pc != NULL && IS_ALIGNED(next_pc))
         *ir = *next_pc;
@@ -410,28 +412,36 @@ static bee_word_t *compute_next_pc(bee_state * restrict S, bee_word_t *ir)
 
 bee_word_t single_step(bee_state * restrict S)
 {
+    assert(S->ir == 0);
+    S->ir = *S->pc++;
     bee_word_t error = 0;
-    bee_word_t this_ir = *S->pc, next_ir = *S->pc;
+    bee_word_t this_ir = S->ir, next_ir = this_ir;
     bee_word_t *this_pc = S->pc;
     bee_word_t *next_pc = compute_next_pc(S, &next_ir);
     int next_pc_valid = next_pc != NULL && IS_ALIGNED(next_pc);
     if (next_pc_valid) {
-        if (next_pc != this_pc)
+        if (next_pc != this_pc - 1)
             *next_pc = (BEE_INSN_BREAK << BEE_OP2_SHIFT) | BEE_OP_INSN;
         else {
-            *next_pc &= ~(BEE_INSN_MASK << (BEE_INSN_BITS + BEE_OP2_SHIFT));
-            *next_pc |= BEE_INSN_BREAK << (BEE_INSN_BITS + BEE_OP2_SHIFT);
+            S->ir &= ~(BEE_INSN_MASK << (BEE_INSN_BITS + BEE_OP2_SHIFT));
+            S->ir |= BEE_INSN_BREAK << (BEE_INSN_BITS + BEE_OP2_SHIFT);
         }
     }
     bee_uword_t save_handler_sp = S->handler_sp;
     S->handler_sp = 0;
     error = bee_run(S);
     if (next_pc_valid) {
-        *next_pc = next_ir;
+        if (next_pc != this_pc - 1)
+            *next_pc = next_ir;
+        else
+            S->ir = next_ir;
 
         if (error == BEE_ERROR_BREAK)
             S->pc = next_pc;
     }
+    // If next instruction is an end-of-word NOP, skip it.
+    if ((next_pc == this_pc - 1) && next_ir == ((BEE_INSN_NOP << BEE_OP2_SHIFT) | BEE_OP_INSN))
+        S->pc++;
     // Restore S->handler_sp if it wasn't set by CATCH
     if (S->handler_sp == 0)
         S->handler_sp = save_handler_sp;

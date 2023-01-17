@@ -45,16 +45,16 @@ typedef struct bee_opc_info_t
 enum {
   /* Bits 0-1.  */
   BEE_OP1_MASK    = 0x3,
-  BEE_OP_CALLI    = 0x0,
-  BEE_OP_PUSHI    = 0x1,
-  BEE_OP_PUSHRELI = 0x2,
+  BEE_OP_CALLI    = 0x1,
+  BEE_OP_PUSHI    = 0x2,
+  BEE_OP_PUSHRELI = 0x3,
 
-  /* Bits 0-3 when bits 0-1 are 11.  */
+  /* Bits 0-3 when bits 0-1 are 00.  */
   BEE_OP2_MASK    = 0xf,
-  BEE_OP_JUMPI    = 0x3,
-  BEE_OP_JUMPZI   = 0x7,
-  BEE_OP_TRAP     = 0xb,
-  BEE_OP_INSN     = 0xf,
+  BEE_OP_INSN     = 0x0,
+  BEE_OP_JUMPI    = 0x4,
+  BEE_OP_JUMPZI   = 0x8,
+  BEE_OP_TRAP     = 0xc,
 };
 #else
 /* 64-bit Instruction types.  */
@@ -65,13 +65,13 @@ enum {
   BEE_OP2_MASK    = 0x7,
 
   /* Bits 0-2.  */
-  BEE_OP_CALLI    = 0x0,
-  BEE_OP_PUSHI    = 0x1,
-  BEE_OP_PUSHRELI = 0x2,
-  BEE_OP_JUMPI    = 0x3,
-  BEE_OP_JUMPZI   = 0x4,
-  BEE_OP_TRAP     = 0x5,
-  BEE_OP_INSN     = 0x7,
+  BEE_OP_INSN     = 0x0,
+  BEE_OP_CALLI    = 0x1,
+  BEE_OP_PUSHI    = 0x2,
+  BEE_OP_PUSHRELI = 0x3,
+  BEE_OP_JUMPI    = 0x4,
+  BEE_OP_JUMPZI   = 0x5,
+  BEE_OP_TRAP     = 0x7,
 };
 #endif
 

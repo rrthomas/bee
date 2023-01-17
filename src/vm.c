@@ -1,6 +1,6 @@
 // The interpreter storage allocation and main loop.
 //
-// (c) Reuben Thomas 1994-2022
+// (c) Reuben Thomas 1994-2023
 //
 // The package is distributed under the GNU General Public License version 3,
 // or, at your option, any later version.
@@ -134,19 +134,17 @@ bee_word_t bee_run(bee_state * restrict S)
     bee_word_t error = BEE_ERROR_OK;
     CHECK_ALIGNED(S->pc);
 
-    for (;;) {
+    for (;; S->ir = *S->pc++) {
 #ifdef HAVE_MIJIT
         mijit_bee_run(bee_jit, (mijit_bee_registers *)S);
 #endif
-
-        S->ir = *S->pc++;
 
         switch (S->ir & BEE_OP1_MASK) {
         case BEE_OP_CALLI:
             {
                 CHECKS(0, 1);
                 PUSHS((bee_uword_t)S->pc);
-                bee_word_t *addr = (S->pc - 1) + ARSHIFT(S->ir, BEE_OP1_SHIFT);
+                bee_word_t *addr = S->pc + ARSHIFT(S->ir, BEE_OP1_SHIFT);
                 CHECK_ALIGNED(addr);
                 S->pc = addr;
             }
@@ -157,13 +155,13 @@ bee_word_t bee_run(bee_state * restrict S)
             break;
         case BEE_OP_PUSHRELI:
             CHECKD(0, 1);
-            PUSHD((bee_uword_t)((S->pc - 1) + ARSHIFT(S->ir, BEE_OP1_SHIFT)));
+            PUSHD((bee_uword_t)(S->pc + ARSHIFT(S->ir, BEE_OP1_SHIFT)));
             break;
         default:
             switch (S->ir & BEE_OP2_MASK) {
             case BEE_OP_JUMPI:
                 {
-                    bee_word_t *addr = (S->pc - 1) + ARSHIFT(S->ir, BEE_OP2_SHIFT);
+                    bee_word_t *addr = S->pc + ARSHIFT(S->ir, BEE_OP2_SHIFT);
                     CHECK_ALIGNED(addr);
                     S->pc = addr;
                 }
@@ -171,7 +169,7 @@ bee_word_t bee_run(bee_state * restrict S)
             case BEE_OP_JUMPZI:
                 {
                     CHECKD(1, 0);
-                    bee_word_t *addr = (S->pc - 1) + ARSHIFT(S->ir, BEE_OP2_SHIFT);
+                    bee_word_t *addr = S->pc + ARSHIFT(S->ir, BEE_OP2_SHIFT);
                     bee_word_t flag;
                     POPD(&flag);
                     if (flag == 0) {
@@ -188,10 +186,12 @@ bee_word_t bee_run(bee_state * restrict S)
                 break;
             case BEE_OP_INSN:
                 {
-                    S->ir = (bee_word_t)((bee_uword_t)(S->ir) >> BEE_OP2_SHIFT);
                     do {
+                        S->ir = (bee_word_t)((bee_uword_t)(S->ir) >> BEE_OP2_SHIFT);
                         bee_uword_t opcode = S->ir & BEE_INSN_MASK;
-                        S->ir = (bee_word_t)((bee_uword_t)(S->ir) >> BEE_INSN_BITS);
+                        S->ir = (bee_word_t)((((bee_uword_t)(S->ir) >> BEE_INSN_BITS)
+                                              << BEE_OP2_SHIFT) |
+                                             BEE_OP_INSN);
                         switch (opcode) {
                         case BEE_INSN_NOP:
                             goto end;
@@ -659,7 +659,6 @@ bee_word_t bee_run(bee_state * restrict S)
                             }
                             break;
                         case BEE_INSN_BREAK:
-                            S->pc--;
                             return BEE_ERROR_BREAK;
                         case BEE_INSN_WORD_BYTES:
                             CHECKD(0, 1);
