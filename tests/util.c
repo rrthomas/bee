@@ -503,7 +503,6 @@ bool run_test(const char *name, bee_state *S, bool errors_allowed)
 
     if (ok)
         printf("%s tests ran OK\n", name);
-    fflush(stdout);
     return ok;
 }
 
@@ -514,6 +513,7 @@ size_t size = 4096;
 
 int main(void)
 {
+    setbuf(stdout, NULL);
     m0 = (bee_word_t *)calloc(size, BEE_WORD_BYTES);
     bee_state *S = init_defaults(m0);
     assert(S);
