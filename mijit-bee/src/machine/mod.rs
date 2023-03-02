@@ -327,17 +327,17 @@ impl<T: Target> Bee<T> {
         op2_insns[Insn2::Eq as usize] = compare(Eq);
         op2_insns[Insn2::Lt as usize] = compare(Lt);
         op2_insns[Insn2::ULt as usize] = compare(Ult);
-        op2_insns[Insn2::PushR as usize] = build(&move |mut b| {
+        op2_insns[Insn2::PushS as usize] = build(&move |mut b| {
             pop(&mut b, R1);
             push_s(&mut b, R1);
             b.jump(root)
         });
-        op2_insns[Insn2::PopR as usize] = build(&move |mut b| {
+        op2_insns[Insn2::PopS as usize] = build(&move |mut b| {
             pop_s(&mut b, R1);
             push(&mut b, R1);
             b.jump(root)
         });
-        op2_insns[Insn2::DupR as usize] = build(&move |mut b| {
+        op2_insns[Insn2::DupS as usize] = build(&move |mut b| {
             b.array_load(R1, (S0, SP), Eight, am::RETURN_STACK);
             push(&mut b, R1);
             b.jump(root)
@@ -370,5 +370,39 @@ impl<T: Target> Bee<T> {
         *self.jit.global_mut(Global(0)) = Word {mp: (registers as *mut Registers).cast()};
         let result = self.jit.run(self.root);
         assert_eq!(result, Word {s: NOT_IMPLEMENTED});
+    }
+}
+
+//-----------------------------------------------------------------------------
+
+#[cfg(test)]
+mod tests {
+    use mijit::target::{native};
+    use super::*;
+
+    #[test]
+    fn init() {
+        let mut jit = Bee::new(native());
+        let mut memory = vec![0i64; 0x10000];
+        let mut s_stack = vec![0i64; 0x1000];
+        let mut d_stack = vec![0i64; 0x1000];
+        // Compile some code.
+        memory[0] = (37 << 3) | (Insn1::PushI as i64);
+        memory[1] = ((Insn2::Throw as i64) << 3) | 0x7;
+        // Initialise the registers.
+        let mut regs = Registers {
+            pc: &mut memory[0] as *const i64,
+            s0: &mut s_stack[0] as *mut i64,
+            ssize: 0x1000,
+            sp: 0,
+            d0: &mut d_stack[0] as *mut i64,
+            dsize: 0x1000,
+            dp: 0,
+            handler_sp: 0,
+        };
+        // Call!
+        unsafe { jit.run(&mut regs); }
+        // Check.
+        assert_eq!(d_stack[0], 37);
     }
 }
